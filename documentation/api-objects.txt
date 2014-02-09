@@ -30,12 +30,14 @@ pyhcsvlab.Client.api_key	pyhcsvlab.Client-class.html#api_key
 pyhcsvlab.Client.get_document	pyhcsvlab.Client-class.html#get_document
 pyhcsvlab.Client.__ne__	pyhcsvlab.Client-class.html#__ne__
 pyhcsvlab.Client.download_items	pyhcsvlab.Client-class.html#download_items
+pyhcsvlab.Client.with_config_file	pyhcsvlab.Client-class.html#with_config_file
 pyhcsvlab.Client.__eq__	pyhcsvlab.Client-class.html#__eq__
 pyhcsvlab.Client.get_item	pyhcsvlab.Client-class.html#get_item
 pyhcsvlab.Client.use_cache	pyhcsvlab.Client-class.html#use_cache
 pyhcsvlab.Client.get_annotation_context	pyhcsvlab.Client-class.html#get_annotation_context
 pyhcsvlab.Client.get_collection_info	pyhcsvlab.Client-class.html#get_collection_info
 pyhcsvlab.Client.search_metadata	pyhcsvlab.Client-class.html#search_metadata
+pyhcsvlab.Client.default_config	pyhcsvlab.Client-class.html#default_config
 pyhcsvlab.Document	pyhcsvlab.Document-class.html
 pyhcsvlab.Document.__ne__	pyhcsvlab.Document-class.html#__ne__
 pyhcsvlab.Document.url	pyhcsvlab.Document-class.html#url

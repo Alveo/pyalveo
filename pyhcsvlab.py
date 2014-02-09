@@ -1,7 +1,11 @@
 import os
 import sqlite3
 import urllib2
+import urllib
 import json
+import datetime
+
+import dateutil
 
 class APIError(Exception):
     """ Raised when an API operation fails for some reason """
@@ -33,9 +37,11 @@ def create_cache_database(path):
     conn = sqlite3.connect(path)
     c = conn.cursor()
     c.execute("""CREATE TABLE items
-                 (url text, metadata text)""")
+                 (url text, metadata text, datetime text)""")
     c.execute("""CREATE TABLE documents
-                 (url text, data text)""")
+                 (url text, data text, datetime text)""")
+    c.execute("""CREATE TABLE primary_texts
+                 (item_url text, data primary_text, datetime text)""")
     conn.commit()
     conn.close()
     
@@ -43,17 +49,21 @@ def create_cache_database(path):
 class Cache:
     """ Handles caching for HCSvLab API Client objects """
     
-    def __init__(self, database):
+    def __init__(self, database, max_age=0):
         """ Create a new Cache object
         
         @type database: String
         @param database: the SQLite3 database to connect to
+        @type max_age: int
+        @param max_age: cache entries older than this many seconds will be 
+        ignored by the has_item, has_document and has_primary_text methods
         
         @rtype: Cache
         @returns: the new Cache
         
         
         """
+        self.max_age = max_age
         if not os.path.isfile(database):
             raise ValueError("Database file does not exist")
         self.conn = sqlite3.connect(database)
@@ -63,7 +73,23 @@ class Cache:
     def __del__(self):
         """ Close the database connection """
         self.conn.close()
+       
+
+    def __exists_row_not_too_old(self, row):
+        """ Check if the given row exists and is not too old """
+        if row is None:
+            return False
+        record_time = dateutil.parse(row['datetime'])
+        if (record_time - datetime.now()).total_seconds() > self.max_age:
+            return False
+            
+        return True
         
+        
+    def __now_iso_8601(self):
+        """ Get the current local time as an ISO 8601 string """
+        return datetime.now(dateutil.tz.gettz()).iso_format()
+       
        
     def has_item(self, item_url):
         """ Check if the metadata for the given item is present in
@@ -78,7 +104,7 @@ class Cache:
         
         """
         self.c.execute("SELECT * FROM items WHERE url=?", (item_url,))
-        return self.c.fetchone() is not None
+        return self.__exists_row_not_too_old(self.c.fetchone())
         
         
     def has_document(self, document_url):
@@ -94,9 +120,26 @@ class Cache:
         
         """
         self.c.execute("SELECT * FROM documents WHERE url=?", (item_url,))
-        return self.c.fetchone() is not None      
+        return self.__exists_row_not_too_old(self.c.fetchone())
         
-    
+        
+    def has_primary_text(self, item_url):
+        """ Check if the primary text corresponding to the
+            given item is present in the cache
+        
+        @type item_url: String
+        @param item_url: the URL of the item
+        
+        @rtype: Boolean
+        @returns: True if the primary text is present, False otherwise
+        
+        
+        """
+        self.c.execute("SELECT * FROM primary_texts WHERE item_url=?",
+                      (item_url,))
+        return self.__exists_row_not_too_old(self.c.fetchone())
+
+        
     def get_item(self, item_url):
         """ Retrieve the metadata for the given item from the cache.
         
@@ -137,6 +180,27 @@ class Cache:
         return row['data']
         
         
+     def get_primary_text(self, item_url):
+        """ Retrieve the primary text for the given item from the cache.
+        
+        @type item_url: String
+        @param item_url: the URL of the item
+        
+        @rtype: String
+        @returns: the primary text
+        
+        @raise ValueError: if the primary text is not in the cache
+        
+        
+        """
+        self.c.execute("SELECT * FROM primary_texts WHERE item_url=?", 
+                      (item_url,))
+        row = self.c.fetchone()
+        if row is None:
+            raise ValueError
+        return row['primary_text']       
+        
+        
     def add_item(self, item_url, item_metadata):
         """ Add the given item to the cache database, updating
         the existing metadata if the item is already present
@@ -148,8 +212,8 @@ class Cache:
         
         
         """
-        self.c.execute("INSERT INTO items VALUES (?, ?)", 
-                  (item_url, item_metadata))
+        self.c.execute("INSERT INTO items VALUES (?, ?, ?)", 
+                  (item_url, item_metadata, self.__now_iso_8601()))
         self.conn.commit()
         
         
@@ -164,34 +228,35 @@ class Cache:
         
         
         """
-        self.c.execute("INSERT INTO documents VALUES (?, ?)", 
-                  (item_url, item_metadata))
+        self.c.execute("INSERT INTO documents VALUES (?, ?, ?)", 
+                  (item_url, item_metadata, self.__now_iso_8601()))
         self.conn.commit()
+        
+        
+    def add_primary_text(self, item_url, primary_text):
+        """ Add the given primary text to the cache database, updating
+        the existing record if the primary text is already present
+        
+        @type item_url: String
+        @param item_url: the URL of the corresponding item
+        @type item_metadata: String
+        @param item_metadata: the item's primary text
+        
+        
+        """
+        self.c.execute("INSERT INTO primary_texts VALUES (?, ?, ?)", 
+                  (item_url, primary_text, self.__now_iso_8601()))
+        self.conn.commit()
+        
         
 class Client:
     """ Client object used to manipulate HCSvLab objects and interface
     with the API 
-    
-    @type api_key: String
-    @ivar api_key: the API key to use for API opetations
-    @type cache: Cache
-    @ivar cache: the Cache object to use for caching
-    @type api_url: String
-    @ivar api_url: the base URL for the API server used
-    @type use_cache: Boolean
-    @ivar use_cache: True to fetch available data from the 
-        cache database, False to always fetch data from the server
-    @type update_cache: Boolean
-    @ivar update_cache: True to update the cache database with
-        downloaded data, False to never write to the cache
-    @type verbose: Boolean
-    @ivar verbose: True to print status messages from the server,
-            False for silence
-    
-    
+   
+   
     """
-    def __init__(self, api_key, cache, api_url, use_cache=True, 
-                 update_cache=True, verbose=False):
+    def __init__(self, api_key, cache, api_url
+                 use_cache=True, update_cache=True, verbose=False):
         """ Construct a new Client
 
         @type api_key: String
@@ -216,10 +281,12 @@ class Client:
         self.api_key = api_key
         self.api_url = api_url
         self.cache = cache
+        self.max_cache_age = max_cache_age
         self.use_cache = use_cache
         self.update_cache = update_cache
         self.verbose = verbose
 
+        
     @classmethod
     def with_config_file(self, config_file):
         """ Construct a new Client using the specified configuration file
@@ -233,6 +300,18 @@ class Client:
         pass
         
         
+    @classmethod
+    def default_config(self):
+        """ Construct a new Client using the default configuration file 
+        
+        @rtype: Client
+        @returns: the new Client
+        
+        
+        """
+        pass
+
+    
     def __eq__(self, other):
         """ Return true if another Client has all identical fields
         
@@ -263,18 +342,7 @@ class Client:
         """
         return not __eq__(other)
 
-    @classmethod
-    def default_config(self):
-        """ Construct a new Client using the default configuration file 
-        
-        @rtype: Client
-        @returns: the new Client
-        
-        
-        """
-        pass
 
-    
     def api_request(self, url, data=None):
         """ Perform an API request to the given URL, optionally 
         including the specified data
@@ -372,10 +440,12 @@ class Client:
         if (self.use_cache and 
                 not force_download and 
                 self.cache.has_item(item_url)):
-             item_json = self.cache.get_item(item_url)
+            item_json = self.cache.get_item(item_url)
         else:
             item_json = self.api_request(item_url)
-            
+            if self.update_cache:
+                self.cache.add_item(item_url, item_json)
+                
         return Item(json.loads(item_json), self)
         
         
@@ -392,20 +462,51 @@ class Client:
         
         
         """
-        pass
+        if (self.use_cache and 
+                not force_download and 
+                self.cache.has_document(doc_url)):
+            doc_data = self.cache.get_document(doc_url)
+        else:
+            doc_data = self.api_request(doc_url)
+            if self.update_cache:
+                self.cache.add_document(doc_url, doc_data)
+            
+        return doc_data
         
         
-    def get_primary_text(self, item_url):
+    def get_primary_text(self, item_url, force_download=False):
         """ Retrieve the primary text for an item from the server
          
         @type item_url: String
         @param item_url: URL of the item
+        @type force_download: Boolean
+        @param force_download: True to download from the server
+            regardless of the cache's contents
         
         @rtype: String
         @returns: the item's primary text if it has one, otherwise None
         
         """
-        pass
+        metadata = self.get_item(item_url).metadata()
+        
+        try:
+            primary_text_url = item['primary_text_url']
+        catch KeyError:
+            return None
+            
+        if primary_text_url == 'No primary text found':
+            return None
+        
+        if (self.use_cache and 
+                not force_download and 
+                self.cache.has_primary_text(item_url)):        
+            primary_text = self.cache.get_primary_text(item_url)
+        else:
+            primary_text = self.api_request(primary_text_url)
+            if update_cache:
+                self.cache.add_primary_text(item_url, primary_text)
+        
+        return primary_text
         
         
     def get_item_annotatons(self, item_url, type=None, label=None):
@@ -419,11 +520,16 @@ class Client:
         @param label: return only results with a matching Label field
         
         @rtype: String
-        @returns: the annotations as a JSON string
+        @returns: the annotations as a JSON string, if the item has
+            annotations, otherwise None
         
     
         """
-        pass
+        md = get_item(item_url).metadata()
+        try:
+            return self.api_request(md['annotations_url'])
+        catch KeyError:
+            return None
         
         
     def upload_annotation(self, item_url, annotation):
@@ -434,12 +540,13 @@ class Client:
         @type annotation: String
         @param annotation: the annotation, as a JSON string
         
-        @rtype: String
-        @returns: the server response
+        @rtype: Dict
+        @returns: the server response, as a Dictionary
         
         
         """
-        pass
+        resp = self.api_request(item_url + '/annotations', annotation)
+        return json.loads(resp)
         
         
     def get_collection_info(self, collection_url):
@@ -453,7 +560,7 @@ class Client:
         
         
         """
-        pass
+        return self.api_request(collection_url)
         
         
     def download_items(self, items, file_path, format='zip'):
@@ -476,7 +583,13 @@ class Client:
         
         
         """
-        pass
+        download_url = self.api_url + '/catalog/download_items'
+        data = api_request(download_url, json.dumps(items))
+        
+        with open(file_path, 'w') as f:
+            f.write(data)
+            
+        return file_path
         
         
     def search_metadata(self, query):
@@ -492,7 +605,12 @@ class Client:
         
          
         """
-        pass
+        query_url = (self.api_url + 
+                     '/catalog/search?' + 
+                     urllib.urlencode((('metadata', query),))
+                     
+        resp = json.loads(self.api_request(query_url))
+        return ItemGroup(resp['items'], self)
         
         
     def get_item_list(self, item_list_url):
@@ -506,7 +624,63 @@ class Client:
 
 
         """
-        pass
+        resp = json.loads(self.api_request(item_list_url))
+        return ItemList(resp['items'], self, item_list_url, resp['name'])
+
+
+    def get_item_list_by_name(self, item_list_name):
+        """ Retrieve an item list from the server as an ItemList object
+
+        @type item_list_name: String
+        @param item_list_name: name of the item list to retrieve
+
+        @rtype: ItemList
+        @returns: The ItemList
+
+
+        """
+        url_name = urllib.urlencode((('name', item_list_name),))
+        return self.get_item_list(self.api_url + '/item_lists?' + url_name)
+        
+        
+    def add_to_item_list(self, item_urls, item_list_url):
+        """ Instruct the server to add the given items to the specified
+        Item List
+            
+        @type item_urls: List
+        @param item_urls: List of URLs for the items to add
+        @type item_list_url: String
+        @param item_list_url: the URL of the list to which to add the items
+        
+        @rtype: Dict
+        @returns: the server response, as a Dictionary
+        
+        
+        """
+        
+        data = json.dumps(item_urls):=
+        resp = self.api_request(item_list_url, data)
+        return json.dumps(resp)
+        
+        
+     def add_to_item_list_by_name(self, item_urls, item_list_name):
+        """ Instruct the server to add the given items to the specified
+        Item List
+            
+        @type item_urls: List
+        @param item_urls: List of URLs for the items to add
+        @type item_list_name: String
+        @param item_list_name: name of the item list to retrieve
+        
+        @rtype: Dict
+        @returns: the server response, as a Dictionary
+        
+        
+        """
+        url_name = urllib.urlencode((('name', item_list_name),))
+        request_url = self.api_url + '/item_lists?' + url_name
+        return self.add_to_item_list(item_urls, request_url)
+        
         
 
 class ItemGroup:
@@ -892,7 +1066,7 @@ class Item:
         
         
         """
-        pass
+        return self.metadata
         
         
     def url(self):
@@ -903,7 +1077,7 @@ class Item:
         
         
         """
-        pass
+        return self.url
         
         
     def get_documents(self, force_download=False):

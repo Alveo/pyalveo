@@ -100,8 +100,14 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>)</span><br />
-      Construct a new Client using the default configuration file</td>
+          <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">api_key</span>,
+        <span class="summary-sig-arg">cache</span>,
+        <span class="summary-sig-arg">api_url</span>,
+        <span class="summary-sig-arg">use_cache</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">update_cache</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">verbose</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Construct a new Client</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.__init__">source&nbsp;code</a></span>
             
@@ -135,7 +141,8 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#api_request" class="summary-sig-name">api_request</a>(<span class="summary-sig-arg">url</span>,
+          <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#api_request" class="summary-sig-name">api_request</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">url</span>,
         <span class="summary-sig-arg">data</span>=<span class="summary-sig-default">None</span>)</span><br />
       Perform an API request to the given URL, optionally including the 
       specified data</td>
@@ -371,6 +378,59 @@
     </td>
   </tr>
 </table>
+<!-- ==================== CLASS METHODS ==================== -->
+<a name="section-ClassMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Class Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-ClassMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Client</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#default_config" class="summary-sig-name">default_config</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Construct a new Client using the default configuration file</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.default_config">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Client</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#with_config_file" class="summary-sig-name">with_config_file</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">config_file</span>)</span><br />
+      Construct a new Client using the specified configuration file</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.with_config_file">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
 <!-- ==================== INSTANCE VARIABLES ==================== -->
 <a name="section-InstanceVariables"></a>
 <table class="summary" border="1" cellpadding="3"
@@ -491,7 +551,13 @@
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">api_key</span>,
+        <span class="sig-arg">cache</span>,
+        <span class="sig-arg">api_url</span>,
+        <span class="sig-arg">use_cache</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">update_cache</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">verbose</span>=<span class="sig-default">False</span>)</span>
     <br /><em class="fname">(Constructor)</em>
   </h3>
   </td><td align="right" valign="top"
@@ -499,8 +565,19 @@
     </td>
   </tr></table>
   
-  <p>Construct a new Client using the default configuration file</p>
+  <p>Construct a new Client</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>api_key</code></strong> (String) - the API key to use</li>
+        <li><strong class="pname"><code>cache</code></strong> (Cache) - the Cache to use</li>
+        <li><strong class="pname"><code>api_url</code></strong> (String) - the base URL for the API server used</li>
+        <li><strong class="pname"><code>use_cache</code></strong> (Boolean) - True to fetch available data from the cache database, False to 
+          always fetch data from the server</li>
+        <li><strong class="pname"><code>update_cache</code></strong> (Boolean) - True to update the cache database with downloaded data, False to 
+          never write to the cache</li>
+        <li><strong class="pname"><code>verbose</code></strong> (Boolean) - True to print status messages from the server, False for silence</li>
+    </ul></dd>
     <dt>Returns: Client</dt>
         <dd>the new Client</dd>
   </dl>
@@ -539,7 +616,8 @@
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">api_request</span>(<span class="sig-arg">url</span>,
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">api_request</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">url</span>,
         <span class="sig-arg">data</span>=<span class="sig-default">None</span>)</span>
   </h3>
   </td><td align="right" valign="top"
@@ -557,6 +635,28 @@
     </ul></dd>
     <dt>Returns: String</dt>
         <dd>the response from the server</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="default_config"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">default_config</span>(<span class="sig-arg">self</span>)</span>
+    <br /><em class="fname">Class Method</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.default_config">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Construct a new Client using the default configuration file</p>
+  <dl class="fields">
+    <dt>Returns: Client</dt>
+        <dd>the new Client</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -908,6 +1008,33 @@
   </dl>
 </td></tr></table>
 </div>
+<a name="with_config_file"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">with_config_file</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">config_file</span>)</span>
+    <br /><em class="fname">Class Method</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.with_config_file">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Construct a new Client using the specified configuration file</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>config_file</code></strong> (String) - path to the configuration file</li>
+    </ul></dd>
+    <dt>Returns: Client</dt>
+        <dd>the new Client</dd>
+  </dl>
+</td></tr></table>
+</div>
 <br />
 <!-- ==================== NAVIGATION BAR ==================== -->
 <table class="navbar" border="0" width="100%" cellpadding="0"
@@ -935,7 +1062,7 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Sun Feb  9 08:47:45 2014
+    Generated by Epydoc 3.0.1 on Sun Feb  9 09:52:55 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
