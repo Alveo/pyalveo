@@ -1,9 +1,13 @@
 import os
 import sqlite3
+import urllib2
+import json
 
-class APIError:
+class APIError(Exception):
     """ Raised when an API operation fails for some reason """
     def __init__(self, http_status_code, response, msg):
+        Exception.__init__(self, str(self))    
+ 
         self.http_status_code = http_status_code
         self.response = response
         self.msg = msg
@@ -53,12 +57,12 @@ class Cache:
         if not os.path.isfile(database):
             raise ValueError("Database file does not exist")
         self.conn = sqlite3.connect(database)
-        self.c = conn.cursor()
+        self.c = self.conn.cursor()
         
         
     def __del__(self):
         """ Close the database connection """
-        conn.close()
+        self.conn.close()
         
        
     def has_item(self, item_url):
@@ -73,8 +77,8 @@ class Cache:
        
         
         """
-        c.execute("SELECT * FROM items WHERE url=?", item_url)
-        return c.fetchone() is not None
+        self.c.execute("SELECT * FROM items WHERE url=?", (item_url,))
+        return self.c.fetchone() is not None
         
         
     def has_document(self, document_url):
@@ -89,8 +93,8 @@ class Cache:
         
         
         """
-        c.execute("SELECT * FROM documents WHERE url=?", item_url)
-        return c.fetchone() is not None      
+        self.c.execute("SELECT * FROM documents WHERE url=?", (item_url,))
+        return self.c.fetchone() is not None      
         
     
     def get_item(self, item_url):
@@ -106,8 +110,8 @@ class Cache:
         
         
         """
-        c.execute("SELECT * FROM items WHERE url=?", item_url)
-        row = c.fetchone()
+        self.c.execute("SELECT * FROM items WHERE url=?", (item_url,))
+        row = self.c.fetchone()
         if row is None:
             raise ValueError
         return row['metadata']
@@ -126,8 +130,8 @@ class Cache:
         
         
         """
-        c.execute("SELECT * FROM documents WHERE url=?", item_url)
-        row = c.fetchone()
+        self.c.execute("SELECT * FROM documents WHERE url=?", (item_url,))
+        row = self.c.fetchone()
         if row is None:
             raise ValueError
         return row['data']
@@ -144,9 +148,9 @@ class Cache:
         
         
         """
-        c.execute("INSERT INTO items VALUES (?, ?)", 
+        self.c.execute("INSERT INTO items VALUES (?, ?)", 
                   (item_url, item_metadata))
-        conn.commit()
+        self.conn.commit()
         
         
     def add_document(self, doc_url, doc_metadata):
@@ -160,9 +164,9 @@ class Cache:
         
         
         """
-        c.execute("INSERT INTO documents VALUES (?, ?)", 
+        self.c.execute("INSERT INTO documents VALUES (?, ?)", 
                   (item_url, item_metadata))
-        conn.commit()
+        self.conn.commit()
         
 class Client:
     """ Client object used to manipulate HCSvLab objects and interface
@@ -172,6 +176,8 @@ class Client:
     @ivar api_key: the API key to use for API opetations
     @type cache: Cache
     @ivar cache: the Cache object to use for caching
+    @type api_url: String
+    @ivar api_url: the base URL for the API server used
     @type use_cache: Boolean
     @ivar use_cache: True to fetch available data from the 
         cache database, False to always fetch data from the server
@@ -184,7 +190,7 @@ class Client:
     
     
     """
-    def __init__(self, api_key, cache, use_cache=True, 
+    def __init__(self, api_key, cache, api_url, use_cache=True, 
                  update_cache=True, verbose=False):
         """ Construct a new Client
 
@@ -192,6 +198,8 @@ class Client:
         @param api_key: the API key to use
         @type cache: Cache
         @param cache: the Cache to use
+        @type api_url: String
+        @param api_url: the base URL for the API server used
         @type use_cache: Boolean
         @param use_cache: True to fetch available data from the 
             cache database, False to always fetch data from the server
@@ -205,10 +213,15 @@ class Client:
         @rtype: Client
         @returns: the new Client
         """
-        pass
+        self.api_key = api_key
+        self.api_url = api_url
+        self.cache = cache
+        self.use_cache = use_cache
+        self.update_cache = update_cache
+        self.verbose = verbose
 
-
-    def __init__(self, config_file):
+    @classmethod
+    def with_config_file(self, config_file):
         """ Construct a new Client using the specified configuration file
 
         @type config_file: String
@@ -231,7 +244,11 @@ class Client:
         
         
         """
-        pass
+        return (self.api_key == other.api_key and
+                self.cache == other.cache and
+                self.use_cache == other.use_cache and
+                self.update_cache == other.update_cache and
+                self.verbose == other.verbose)
         
     def __ne__(self, other):
         """ Return true if another Client does not have all identical fields
@@ -246,8 +263,8 @@ class Client:
         """
         return not __eq__(other)
 
-
-    def __init__(self):
+    @classmethod
+    def default_config(self):
         """ Construct a new Client using the default configuration file 
         
         @rtype: Client
@@ -257,6 +274,34 @@ class Client:
         """
         pass
 
+    
+    def api_request(self, url, data=None):
+        """ Perform an API request to the given URL, optionally 
+        including the specified data
+        
+        @type url: String
+        @param url: the URL to which to make the request
+        @type data: String
+        @param data: the data to send with the request, if any
+        
+        @rtype: String
+        @returns: the response from the server
+        
+        
+        """
+        headers = {'X-API-KEY': self.api_key, 'Accept': 'application/json'}
+        if data is not None:
+            headers['Content-Type'] = 'application/json'
+            
+        req = urllib2.Request(url, data=data, headers=headers)
+        try:
+            opener = urllib2.build_opener(urllib2.HTTPHandler())
+            response = opener.open(req)
+        except urllib2.HTTPError as err:
+            raise APIError(err.code, err.reason, "Error accessing API")
+            
+        return response.read()
+        
  
     def get_api_version(self):
         """ Retrieve the API version from the server
@@ -268,11 +313,12 @@ class Client:
 
 
         """
-        pass
+        resp = json.loads(self.api_request(self.api_url + '/version'))
+        return resp['API version']
 
 
     def get_annotation_context(self):
-        """ Retrieve the annotation context from the serve
+        """ Retrieve the JSON-LD annotation context from the server
 
         @rtype: Dict
         @returns: the annotation context
@@ -281,7 +327,8 @@ class Client:
 
 
         """
-        pass
+        return json.loads(self.api_request(self.api_url + '/schema/json-ld'))
+       
 
 
     def get_item_lists(self):
@@ -303,10 +350,10 @@ class Client:
 
 
         """
-        pass
+        return json.loads(self.api_request(self.api_url + '/item_lists.json'))
     
     
-    def get_item(self, item_url):
+    def get_item(self, item_url, force_download=False):
         """ Retrieves the item metadata from the server, as an Item object
         
         @type item_url: String
@@ -314,9 +361,35 @@ class Client:
 
         @rtype: Item
         @returns: the corresponding metadata, as an Item object
-        
+        @type force_download: Boolean
+        @param force_download: True to download from the server
+            regardless of the cache's contents
+            
         @raise APIError: when the API request is not successful
 
+        
+        """
+        if (self.use_cache and 
+                not force_download and 
+                self.cache.has_item(item_url)):
+             item_json = self.cache.get_item(item_url)
+        else:
+            item_json = self.api_request(item_url)
+            
+        return Item(json.loads(item_json), self)
+        
+        
+    def get_document(self, doc_url, force_download=False):
+        """ Retrieve the data for the given document from the server
+        
+        @type doc_url: String
+        @param doc_url: the URL of the document
+        @type force_download: Boolean
+        @param force_download: True to download from the server
+            regardless of the cache's contents
+            
+        @raise APIError: when the API request is not successful
+        
         
         """
         pass
@@ -581,12 +654,15 @@ class ItemGroup:
         return len(item_urls)
 
 
-    def get_all(self):
+    def get_all(self, force_download=False):
         """ Retrieve the metadata for all items in this list from the server,
         as Item objects
 
         @rtype: List
         @returns: a List of the corresponding Item objects
+        @type force_download: Boolean
+        @param force_download: True to download from the server
+            regardless of the cache's contents
         
         @raise APIError: when the API request is not successful
 
@@ -637,11 +713,14 @@ class ItemGroup:
         pass
 
 
-    def get_item(self, item_index):
+    def get_item(self, item_index, force_download=False):
         """ Retrieve the metadata for a specific item in this ItemGroup
         
         @type item_index: int
         @param item_index: the index of the item
+        @type force_download: Boolean
+        @param force_download: True to download from the server
+            regardless of the cache's contents
         
         @rtype: Dict
         @returns: the metadata
@@ -800,7 +879,7 @@ class Item:
         
         
         """
-        self.url = metadata['url']
+        self.url = metadata['catalog_url']
         self.metadata = metadata
         self.client = client
         
@@ -827,24 +906,30 @@ class Item:
         pass
         
         
-    def get_documents(self):
+    def get_documents(self, force_download=False):
         """ Get the metadata for each of the documents corresponding
         to this Item, each as a Document object
-        
+       
+        @type force_download: Boolean
+        @param force_download: True to download from the server
+            regardless of the cache's contents
+            
         @rtype: List
         @returns: a list of Document object corresponding to this
-            Item's documents
-           
-           
+            Item's documents    
         """
         pass
         
         
-    def get_document(self, index):
+    def get_document(self, index, force_download=False):
         """ Get the metadata for the specified document
         
         @type index: int
         @param index: the index of the document
+        @type force_download: Boolean
+        @param force_download: True to download from the server
+            regardless of the cache's contents
+            
         
         @rtype: Document
         @returns: the metadata for the specified document
@@ -855,7 +940,13 @@ class Item:
         
         
     def get_primary_text(self):
-        """ TODO """
+        """ Retrieve the primary text for this item from the server
+        
+        @rtype: String
+        @returns: the primary text
+        
+        
+        """
         pass
         
         
@@ -944,7 +1035,7 @@ class Document:
         
         
         """
-        self.url = metadata['url']
+        self.url = metadata['catalog_url']
         self.metadata = metadata
         self.client = client
         
@@ -1009,10 +1100,14 @@ class Document:
         """
         pass
         
-    def get_content(self):
+    def get_content(self, force_download=False):
         """ Retrieve the content for this Document from the server
         
-        @rtype: TODO
+        @type force_download: Boolean
+        @param force_download: True to download from the server
+            regardless of the cache's contents
+        
+        @rtype: String
         @returns: the content data
         
         
@@ -1020,11 +1115,14 @@ class Document:
         pass
         
         
-    def download_content(self, path):
+    def download_content(self, path, force_download=False):
         """ Download the content for this document to a file
         
         @type path: String
         @param path: the path to which to write the data
+        @type force_download: Boolean
+        @param force_download: True to download from the server
+            regardless of the cache's contents
         
         @rtype: String
         @returns: the path to the downloaded file

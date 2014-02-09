@@ -135,6 +135,25 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
+          <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#api_request" class="summary-sig-name">api_request</a>(<span class="summary-sig-arg">url</span>,
+        <span class="summary-sig-arg">data</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Perform an API request to the given URL, optionally including the 
+      specified data</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.api_request">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">String</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
           <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#download_items" class="summary-sig-name">download_items</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">items</span>,
         <span class="summary-sig-arg">file_path</span>,
@@ -157,7 +176,7 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#get_annotation_context" class="summary-sig-name">get_annotation_context</a>(<span class="summary-sig-arg">self</span>)</span><br />
-      Retrieve the annotation context from the serve</td>
+      Retrieve the JSON-LD annotation context from the server</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.get_annotation_context">source&nbsp;code</a></span>
             
@@ -204,12 +223,32 @@
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#get_document" class="summary-sig-name">get_document</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">doc_url</span>,
+        <span class="summary-sig-arg">force_download</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Retrieve the data for the given document from the server</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.get_document">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Item</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#get_item" class="summary-sig-name">get_item</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">item_url</span>)</span><br />
+        <span class="summary-sig-arg">item_url</span>,
+        <span class="summary-sig-arg">force_download</span>=<span class="summary-sig-default">False</span>)</span><br />
       Retrieves the item metadata from the server, as an Item object</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.get_item">source&nbsp;code</a></span>
@@ -359,6 +398,14 @@
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">String</span>
+    </td><td class="summary">
+        <a name="api_url"></a><span class="summary-name">api_url</span><br />
+      the base URL for the API server used
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Cache</span>
     </td><td class="summary">
         <a name="cache"></a><span class="summary-name">cache</span><br />
@@ -485,6 +532,34 @@
   </dl>
 </td></tr></table>
 </div>
+<a name="api_request"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">api_request</span>(<span class="sig-arg">url</span>,
+        <span class="sig-arg">data</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.api_request">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Perform an API request to the given URL, optionally including the 
+  specified data</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>url</code></strong> (String) - the URL to which to make the request</li>
+        <li><strong class="pname"><code>data</code></strong> (String) - the data to send with the request, if any</li>
+    </ul></dd>
+    <dt>Returns: String</dt>
+        <dd>the response from the server</dd>
+  </dl>
+</td></tr></table>
+</div>
 <a name="download_items"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -536,7 +611,7 @@
     </td>
   </tr></table>
   
-  <p>Retrieve the annotation context from the serve</p>
+  <p>Retrieve the JSON-LD annotation context from the server</p>
   <dl class="fields">
     <dt>Returns: Dict</dt>
         <dd>the annotation context</dd>
@@ -599,6 +674,37 @@
   </dl>
 </td></tr></table>
 </div>
+<a name="get_document"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_document</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">doc_url</span>,
+        <span class="sig-arg">force_download</span>=<span class="sig-default">False</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.get_document">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Retrieve the data for the given document from the server</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>doc_url</code></strong> (String) - the URL of the document</li>
+        <li><strong class="pname"><code>force_download</code></strong> (Boolean) - True to download from the server regardless of the cache's 
+          contents</li>
+    </ul></dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'><a href="pyhcsvlab.APIError-class.html">APIError</a></strong></code> - when the API request is not successful</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
 <a name="get_item"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -607,7 +713,8 @@
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">get_item</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">item_url</span>)</span>
+        <span class="sig-arg">item_url</span>,
+        <span class="sig-arg">force_download</span>=<span class="sig-default">False</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.get_item">source&nbsp;code</a></span>&nbsp;
@@ -619,6 +726,8 @@
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>item_url</code></strong> (String) - URL of the item</li>
+        <li><strong class="pname"><code>force_download</code></strong> (Boolean) - True to download from the server regardless of the cache's 
+          contents</li>
     </ul></dd>
     <dt>Returns: Item</dt>
         <dd>the corresponding metadata, as an Item object</dd>
@@ -826,7 +935,7 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Sun Feb  9 07:16:24 2014
+    Generated by Epydoc 3.0.1 on Sun Feb  9 08:47:45 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
