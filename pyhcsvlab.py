@@ -50,8 +50,16 @@ class Cache:
         
         
         """
-        pass
-       
+        if not os.path.isfile(database):
+            raise ValueError("Database file does not exist")
+        self.conn = sqlite3.connect(database)
+        self.c = conn.cursor()
+        
+        
+    def __del__(self):
+        """ Close the database connection """
+        conn.close()
+        
        
     def has_item(self, item_url):
         """ Check if the metadata for the given item is present in
@@ -62,12 +70,11 @@ class Cache:
         
         @rtype: Boolean
         @returns: True if the item is present, False otherwise
-        
-        @raise IOError: if there is a problem accessing the database
-        
+       
         
         """
-        pass
+        c.execute("SELECT * FROM items WHERE url=?", item_url)
+        return c.fetchone() is not None
         
         
     def has_document(self, document_url):
@@ -80,11 +87,10 @@ class Cache:
         @rtype: Boolean
         @returns: True if the data is present, False otherwise
         
-        @raise IOError: if there is a problem accessing the database
-        
         
         """
-        pass       
+        c.execute("SELECT * FROM documents WHERE url=?", item_url)
+        return c.fetchone() is not None      
         
     
     def get_item(self, item_url):
@@ -96,11 +102,15 @@ class Cache:
         @rtype: String
         @returns: the item metadata, as a JSON string
         
-        @raise IOError: if there is a problem accessing the database
         @raise ValueError: if the item is not in the cache
         
         
         """
+        c.execute("SELECT * FROM items WHERE url=?", item_url)
+        row = c.fetchone()
+        if row is None:
+            raise ValueError
+        return row['metadata']
         
         
     def get_document(self, item_url):
@@ -112,16 +122,66 @@ class Cache:
         @rtype: String
         @returns: the document data
         
-        @raise IOError: if there is a problem accessing the database
         @raise ValueError: if the item is not in the cache
         
         
         """
-
+        c.execute("SELECT * FROM documents WHERE url=?", item_url)
+        row = c.fetchone()
+        if row is None:
+            raise ValueError
+        return row['data']
+        
+        
+    def add_item(self, item_url, item_metadata):
+        """ Add the given item to the cache database, updating
+        the existing metadata if the item is already present
+        
+        @type item_url: String
+        @param item_url: the URL of the item
+        @type item_metadata: String
+        @param item_metadata: the item's metadata, as a JSON string
+        
+        
+        """
+        c.execute("INSERT INTO items VALUES (?, ?)", 
+                  (item_url, item_metadata))
+        conn.commit()
+        
+        
+    def add_document(self, doc_url, doc_metadata):
+        """ Add the given document to the cache database, updating
+        the existing content data if the document is already present
+        
+        @type doc_url: String
+        @param doc_url: the URL of the document
+        @type doc_metadata: String
+        @param doc_metadata: the document's content data
+        
+        
+        """
+        c.execute("INSERT INTO documents VALUES (?, ?)", 
+                  (item_url, item_metadata))
+        conn.commit()
+        
 class Client:
     """ Client object used to manipulate HCSvLab objects and interface
     with the API 
-
+    
+    @type api_key: String
+    @ivar api_key: the API key to use for API opetations
+    @type cache: Cache
+    @ivar cache: the Cache object to use for caching
+    @type use_cache: Boolean
+    @ivar use_cache: True to fetch available data from the 
+        cache database, False to always fetch data from the server
+    @type update_cache: Boolean
+    @ivar update_cache: True to update the cache database with
+        downloaded data, False to never write to the cache
+    @type verbose: Boolean
+    @ivar verbose: True to print status messages from the server,
+            False for silence
+    
     
     """
     def __init__(self, api_key, cache, use_cache=True, 
@@ -130,8 +190,8 @@ class Client:
 
         @type api_key: String
         @param api_key: the API key to use
-        @type cache_db: Cache
-        @param cache_db: the Cache to use
+        @type cache: Cache
+        @param cache: the Cache to use
         @type use_cache: Boolean
         @param use_cache: True to fetch available data from the 
             cache database, False to always fetch data from the server
@@ -171,7 +231,7 @@ class Client:
         
         
         """
-        
+        pass
         
     def __ne__(self, other):
         """ Return true if another Client does not have all identical fields
@@ -259,7 +319,8 @@ class Client:
 
         
         """
-
+        pass
+        
         
     def get_primary_text(self, item_url):
         """ Retrieve the primary text for an item from the server
@@ -271,6 +332,7 @@ class Client:
         @returns: the item's primary text if it has one, otherwise None
         
         """
+        pass
         
         
     def get_item_annotatons(self, item_url, type=None, label=None):
@@ -288,6 +350,8 @@ class Client:
         
     
         """
+        pass
+        
         
     def upload_annotation(self, item_url, annotation):
         """ Upload the given annotation to the server
@@ -302,7 +366,8 @@ class Client:
         
         
         """
-
+        pass
+        
         
     def get_collection_info(self, collection_url):
         """ Retrieve information about the specified Collection from the server
@@ -315,6 +380,7 @@ class Client:
         
         
         """
+        pass
         
         
     def download_items(self, items, file_path, format='zip'):
@@ -337,6 +403,8 @@ class Client:
         
         
         """
+        pass
+        
         
     def search_metadata(self, query):
         """ Submit a search query to the server and retrieve the results
@@ -351,6 +419,7 @@ class Client:
         
          
         """
+        pass
         
         
     def get_item_list(self, item_list_url):
@@ -381,7 +450,6 @@ class ItemGroup:
         @rtype: ItemGroup
         @returns: the new ItemGroup
         """  
-        self.url = url
         self.item_urls = item_urls
         self.client = client
 
@@ -412,9 +480,8 @@ class ItemGroup:
         
         
         """
-        return (url == other.url and 
-                item_urls == other.item_urls and  
-                client == other.client)
+        return (item_urls == other.item_urls and client == other.client)
+        
         
     def __ne__(self, other):
         """ Return true if another ItemGroup does not have all identical fields
@@ -440,6 +507,8 @@ class ItemGroup:
 
 
         """
+        pass
+        
         
     def __add__(self, other):
         """ Returns the union of this ItemGroup and another ItemGroup 
@@ -457,6 +526,7 @@ class ItemGroup:
         
         
         """
+        pass
         
         
     def __sub__(self, other):
@@ -474,6 +544,8 @@ class ItemGroup:
         
         
         """
+        pass
+        
 
     def intersection(self, other):
         """ Returns the intersection of this ItemGroup with another ItemGroup 
@@ -489,6 +561,7 @@ class ItemGroup:
        
        
         """
+        pass
        
         
     def __iter__(self):
@@ -521,6 +594,7 @@ class ItemGroup:
         """
         pass
 
+        
     def item_url(self, item_index):
         """ Return the URL of the specified item
 
@@ -593,7 +667,8 @@ class ItemGroup:
 
       
         """
-
+        pass
+        
         
 class ItemList(ItemGroup):
     """ Represents a HCSvLab Item List residing on the server 
@@ -642,6 +717,8 @@ class ItemList(ItemGroup):
         
         
         """
+        pass
+        
         
     def url(self):
         """ Return the URL corresponding to this ItemList
@@ -652,6 +729,7 @@ class ItemList(ItemGroup):
 
         """
         pass
+        
 
     def refresh(self):
         """ Update this ItemList by re-downloading it from the server
@@ -661,6 +739,7 @@ class ItemList(ItemGroup):
 
         """
         pass
+        
         
     def append(items):
         """ Add some items to this ItemList and save the changes to the server
@@ -673,6 +752,8 @@ class ItemList(ItemGroup):
         
         
         """
+        pass
+        
         
     def __eq__(self, other):
         """ Return true if another ItemList has all identical fields
@@ -685,6 +766,8 @@ class ItemList(ItemGroup):
         
         
         """
+        pass
+        
         
     def __ne__(self, other):
         """ Return true if another ItemList does not have all identical fields
@@ -730,6 +813,7 @@ class Item:
         
         
         """
+        pass
         
         
     def url(self):
@@ -740,6 +824,8 @@ class Item:
         
         
         """
+        pass
+        
         
     def get_documents(self):
         """ Get the metadata for each of the documents corresponding
@@ -751,7 +837,8 @@ class Item:
            
            
         """
-
+        pass
+        
         
     def get_document(self, index):
         """ Get the metadata for the specified document
@@ -764,14 +851,16 @@ class Item:
         
         
         """
+        pass
         
         
     def get_primary_text(self):
         """ TODO """
+        pass
         
         
     def get_annotation(self, type=None, label=None):
-         """ Retrieve the annotations for this item from the server
+        """ Retrieve the annotations for this item from the server
         
         @type type: String
         @param type: return only results with a matching Type field
@@ -783,6 +872,7 @@ class Item:
         
     
         """   
+        pass
         
             
     def upload_annotation(self, annotation):
@@ -796,6 +886,8 @@ class Item:
         
         
         """
+        pass
+        
         
     def __str__(self):
         """ Return the URL of this Item
@@ -805,6 +897,8 @@ class Item:
         
         
         """
+        pass
+        
         
     def __eq__(self, other):
         """ Return true if and only if this Item is identical to another
@@ -817,6 +911,7 @@ class Item:
         
         
         """
+        pass
         
         
     def __ne__(self, other):
@@ -829,8 +924,8 @@ class Item:
         @returns: False if both Items have all identical fields, otherwise True
         
         
-        """     
-        
+        """   
+        pass        
         
         
 class Document:
@@ -862,6 +957,7 @@ class Document:
         
         
         """
+        pass
         
         
     def url(self):
@@ -872,6 +968,7 @@ class Document:
         
         
         """
+        pass
         
         
     def __str__(self):
@@ -882,6 +979,8 @@ class Document:
         
         
         """
+        pass
+        
         
     def __eq__(self, other):
         """ Return true if and only if this Document is identical to another
@@ -894,6 +993,8 @@ class Document:
         
         
         """
+        pass
+        
         
     def __ne__(self, other):
         """ Return true if and only if this Document is not identical to another
@@ -906,6 +1007,7 @@ class Document:
         
         
         """
+        pass
         
     def get_content(self):
         """ Retrieve the content for this Document from the server
@@ -915,6 +1017,8 @@ class Document:
         
         
         """
+        pass
+        
         
     def download_content(self, path):
         """ Download the content for this document to a file
@@ -927,4 +1031,6 @@ class Document:
         
         
         """
+        pass
+        
         

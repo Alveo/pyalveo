@@ -56,8 +56,15 @@
 </table>
 <!-- ==================== CLASS DESCRIPTION ==================== -->
 <h1 class="epydoc">Class ItemList</h1><p class="nomargin-top"><span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList">source&nbsp;code</a></span></p>
-<p>Represents an ItemList (list of item URLs) for interfacing with the 
-  HCSvLab API</p>
+<pre class="base-tree">
+<a href="pyhcsvlab.ItemGroup-class.html">ItemGroup</a> --+
+            |
+           <strong class="uidshort">ItemList</strong>
+</pre>
+
+<hr />
+<p>Represents a HCSvLab Item List residing on the server</p>
+  <p>Extends ItemGroup with additional Item List-specific functionality</p>
 
 <!-- ==================== INSTANCE METHODS ==================== -->
 <a name="section-InstanceMethods"></a>
@@ -78,15 +85,15 @@
 </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">String</span>
+      <span class="summary-type">Boolean</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="pyhcsvlab.ItemList-class.html#__getitem__" class="summary-sig-name">__getitem__</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">key</span>)</span><br />
-      Return the URL of the specified item</td>
+          <td><span class="summary-sig"><a href="pyhcsvlab.ItemList-class.html#__eq__" class="summary-sig-name">__eq__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">other</span>)</span><br />
+      Return true if another ItemList has all identical fields</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.__getitem__">source&nbsp;code</a></span>
+            <span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.__eq__">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -96,14 +103,36 @@
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">int</span>
+      <span class="summary-type">ItemList</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="pyhcsvlab.ItemList-class.html#__len__" class="summary-sig-name">__len__</a>(<span class="summary-sig-arg">self</span>)</span><br />
-      Return the number of items in this ItemList</td>
+          <td><span class="summary-sig"><a href="pyhcsvlab.ItemList-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">item_urls</span>,
+        <span class="summary-sig-arg">client</span>,
+        <span class="summary-sig-arg">url</span>,
+        <span class="summary-sig-arg">name</span>)</span><br />
+      Construct a new ItemGroup</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.__len__">source&nbsp;code</a></span>
+            <span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.__init__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Boolean</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="pyhcsvlab.ItemList-class.html#__ne__" class="summary-sig-name">__ne__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">other</span>)</span><br />
+      Return true if another ItemList does not have all identical fields</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.__ne__">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -130,15 +159,14 @@
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">boolean</span>
+      <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="pyhcsvlab.ItemList-class.html#add" class="summary-sig-name">add</a>(<span class="summary-sig-arg">items</span>)</span><br />
-      Add some items to this item list (locally; to push the changes to the
-      server, invoke the push() method</td>
+          <td><span class="summary-sig"><a href="pyhcsvlab.ItemList-class.html#append" class="summary-sig-name">append</a>(<span class="summary-sig-arg">items</span>)</span><br />
+      Add some items to this ItemList and save the changes to the server</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.add">source&nbsp;code</a></span>
+            <span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.append">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -148,138 +176,14 @@
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">List</span>
+      <span class="summary-type">Strig</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="pyhcsvlab.ItemList-class.html#get_all_items" class="summary-sig-name">get_all_items</a>(<span class="summary-sig-arg">self</span>)</span><br />
-      Retrieve all items in this list from the server</td>
+          <td><span class="summary-sig"><a href="pyhcsvlab.ItemList-class.html#name" class="summary-sig-name">name</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Return the name of this Item List</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.get_all_items">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">Item</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="pyhcsvlab.ItemList-class.html#get_item" class="summary-sig-name">get_item</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">item_index</span>)</span><br />
-      Retrive an item from the server</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.get_item">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">List</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="pyhcsvlab.ItemList-class.html#get_item_subset" class="summary-sig-name">get_item_subset</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">subset_indices</span>)</span><br />
-      Retrieve a subset of the items in this ItemList</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.get_item_subset">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">Dict</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="pyhcsvlab.ItemList-class.html#get_metadata" class="summary-sig-name">get_metadata</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">item_index</span>)</span><br />
-      Retrieve the metadata for a specific item in this ItemList</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.get_metadata">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">List</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="pyhcsvlab.ItemList-class.html#get_metadata_subset" class="summary-sig-name">get_metadata_subset</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">subset_indices</span>)</span><br />
-      Retrieve the metadata for a subset of the items in this ItemList</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.get_metadata_subset">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">String</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="pyhcsvlab.ItemList-class.html#item_url" class="summary-sig-name">item_url</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">item_index</span>)</span><br />
-      Return the URL of the specified item</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.item_url">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">List</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="pyhcsvlab.ItemList-class.html#item_urls" class="summary-sig-name">item_urls</a>(<span class="summary-sig-arg">self</span>)</span><br />
-      Return a list of all item URLs for this ItemList</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.item_urls">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">int</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="pyhcsvlab.ItemList-class.html#num_items" class="summary-sig-name">num_items</a>(<span class="summary-sig-arg">self</span>)</span><br />
-      Return the number of items in this ItemList</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.num_items">source&nbsp;code</a></span>
+            <span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.name">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -290,41 +194,6 @@
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="push"></a><span class="summary-sig-name">push</span>(<span class="summary-sig-arg">self</span>)</span><br />
-      Push any changes that have been made to this ItemList to the server</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.push">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">String</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="pyhcsvlab.ItemList-class.html#push_as_new" class="summary-sig-name">push_as_new</a>(<span class="summary-sig-arg">name</span>)</span><br />
-      Save this ItemList to the server as a new item list, with the 
-      specified name</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.push_as_new">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">Boolean</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -356,6 +225,25 @@
       
     </td>
   </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="pyhcsvlab.ItemGroup-class.html">ItemGroup</a></code></b>:
+      <code><a href="pyhcsvlab.ItemGroup-class.html#__add__">__add__</a></code>,
+      <code><a href="pyhcsvlab.ItemGroup-class.html#__contains__">__contains__</a></code>,
+      <code><a href="pyhcsvlab.ItemGroup-class.html#__getitem__">__getitem__</a></code>,
+      <code><a href="pyhcsvlab.ItemGroup-class.html#__iter__">__iter__</a></code>,
+      <code><a href="pyhcsvlab.ItemGroup-class.html#__len__">__len__</a></code>,
+      <code><a href="pyhcsvlab.ItemGroup-class.html#__sub__">__sub__</a></code>,
+      <code><a href="pyhcsvlab.ItemGroup-class.html#get_all">get_all</a></code>,
+      <code><a href="pyhcsvlab.ItemGroup-class.html#get_item">get_item</a></code>,
+      <code><a href="pyhcsvlab.ItemGroup-class.html#intersection">intersection</a></code>,
+      <code><a href="pyhcsvlab.ItemGroup-class.html#item_url">item_url</a></code>,
+      <code><a href="pyhcsvlab.ItemGroup-class.html#item_urls">item_urls</a></code>,
+      <code><a href="pyhcsvlab.ItemGroup-class.html#save_as_itemlist">save_as_itemlist</a></code>,
+      <code><a href="pyhcsvlab.ItemGroup-class.html#set_client">set_client</a></code>
+      </p>
+    </td>
+  </tr>
 </table>
 <!-- ==================== METHOD DETAILS ==================== -->
 <a name="section-MethodDetails"></a>
@@ -375,52 +263,98 @@
   </td>
 </tr>
 </table>
-<a name="__getitem__"></a>
+<a name="__eq__"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">__getitem__</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">key</span>)</span>
-    <br /><em class="fname">(Indexing operator)</em>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__eq__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">other</span>)</span>
+    <br /><em class="fname">(Equality operator)</em>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.__getitem__">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.__eq__">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Return the URL of the specified item</p>
+  <p>Return true if another ItemList has all identical fields</p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>key</code></strong> (int) - the index of the item URL</li>
+        <li><strong class="pname"><code>other</code></strong> (ItemList) - the other ItemList to compare to.</li>
     </ul></dd>
-    <dt>Returns: String</dt>
-        <dd>the URL of the item</dd>
+    <dt>Returns: Boolean</dt>
+        <dd>True if the ItemLists are identical, otherwise False</dd>
+    <dt>Overrides:
+        <a href="pyhcsvlab.ItemGroup-class.html#__eq__">ItemGroup.__eq__</a>
+    </dt>
   </dl>
 </td></tr></table>
 </div>
-<a name="__len__"></a>
+<a name="__init__"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">__len__</span>(<span class="sig-arg">self</span>)</span>
-    <br /><em class="fname">(Length operator)</em>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">item_urls</span>,
+        <span class="sig-arg">client</span>,
+        <span class="sig-arg">url</span>,
+        <span class="sig-arg">name</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.__len__">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.__init__">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Return the number of items in this ItemList</p>
+  <p>Construct a new ItemGroup</p>
   <dl class="fields">
-    <dt>Returns: int</dt>
-        <dd>the number of items in this ItemList</dd>
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>item_urls</code></strong> (List) - a List of the item URLs in this Item List</li>
+        <li><strong class="pname"><code>client</code></strong> (Client) - the API client to use for API operations</li>
+        <li><strong class="pname"><code>url</code></strong> (String) - the URL of this Item List</li>
+        <li><strong class="pname"><code>name</code></strong> (String) - the name of this Item List</li>
+    </ul></dd>
+    <dt>Returns: ItemList</dt>
+        <dd>the new ItemList</dd>
+    <dt>Overrides:
+        <a href="pyhcsvlab.ItemGroup-class.html#__init__">ItemGroup.__init__</a>
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="__ne__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__ne__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">other</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.__ne__">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Return true if another ItemList does not have all identical fields</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>other</code></strong> (ItemList) - the other ItemList to compare to.</li>
+    </ul></dd>
+    <dt>Returns: Boolean</dt>
+        <dd>False if the ItemLists are identical, otherwise True</dd>
+    <dt>Overrides:
+        <a href="pyhcsvlab.ItemGroup-class.html#__ne__">ItemGroup.__ne__</a>
+    </dt>
   </dl>
 </td></tr></table>
 </div>
@@ -446,22 +380,21 @@
   </dl>
 </td></tr></table>
 </div>
-<a name="add"></a>
+<a name="append"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">add</span>(<span class="sig-arg">items</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">append</span>(<span class="sig-arg">items</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.add">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.append">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Add some items to this item list (locally; to push the changes to the 
-  server, invoke the push() method</p>
+  <p>Add some items to this ItemList and save the changes to the server</p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
@@ -469,232 +402,31 @@
           a List of item URLs as Strings, a single item URL as a String, or
           a single Item object</li>
     </ul></dd>
-    <dt>Returns: boolean</dt>
-        <dd>True if successful, False otherwise</dd>
-  </dl>
-</td></tr></table>
-</div>
-<a name="get_all_items"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_all_items</span>(<span class="sig-arg">self</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.get_all_items">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>Retrieve all items in this list from the server</p>
-  <dl class="fields">
-    <dt>Returns: List</dt>
-        <dd>a List of the items if successful, otherwise None</dd>
-  </dl>
-</td></tr></table>
-</div>
-<a name="get_item"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_item</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">item_index</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.get_item">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>Retrive an item from the server</p>
-  <dl class="fields">
-    <dt>Parameters:</dt>
+    <dt>Raises:</dt>
     <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>item_index</code></strong> (int) - the index of the item to retrieve</li>
+        <li><code><strong class='fraise'><a href="pyhcsvlab.APIError-class.html">APIError</a></strong></code> - when the API request is not successful</li>
     </ul></dd>
-    <dt>Returns: Item</dt>
-        <dd>the item, if it was successsfully retrieved, otherwise None</dd>
   </dl>
 </td></tr></table>
 </div>
-<a name="get_item_subset"></a>
+<a name="name"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_item_subset</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">subset_indices</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">name</span>(<span class="sig-arg">self</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.get_item_subset">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.name">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Retrieve a subset of the items in this ItemList</p>
+  <p>Return the name of this Item List</p>
   <dl class="fields">
-    <dt>Parameters:</dt>
-    <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>subset_indices</code></strong> - an iterable whose iterator produces the indices of the items to 
-          retrieve (for example, a tuple of integers)</li>
-    </ul></dd>
-    <dt>Returns: List</dt>
-        <dd>a List of the items if successful, otherwise None</dd>
-  </dl>
-</td></tr></table>
-</div>
-<a name="get_metadata"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_metadata</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">item_index</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.get_metadata">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>Retrieve the metadata for a specific item in this ItemList</p>
-  <dl class="fields">
-    <dt>Parameters:</dt>
-    <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>item_index</code></strong> (int) - the index of the item</li>
-    </ul></dd>
-    <dt>Returns: Dict</dt>
-        <dd>the metadata if successful, otherwise None</dd>
-  </dl>
-</td></tr></table>
-</div>
-<a name="get_metadata_subset"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_metadata_subset</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">subset_indices</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.get_metadata_subset">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>Retrieve the metadata for a subset of the items in this ItemList</p>
-  <dl class="fields">
-    <dt>Parameters:</dt>
-    <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>subset_indices</code></strong> - an iterable whose iterator produces the indices of the items the 
-          metadata of which is to be retrieved (for example, a tuple of 
-          integers)</li>
-    </ul></dd>
-    <dt>Returns: List</dt>
-        <dd>A List of metadata dictionaries for the selected items if 
-          successful, otherwise None</dd>
-  </dl>
-</td></tr></table>
-</div>
-<a name="item_url"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">item_url</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">item_index</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.item_url">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>Return the URL of the specified item</p>
-  <dl class="fields">
-    <dt>Parameters:</dt>
-    <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>item_index</code></strong> (int) - the index of the item URL</li>
-    </ul></dd>
-    <dt>Returns: String</dt>
-        <dd>the URL of the item</dd>
-  </dl>
-</td></tr></table>
-</div>
-<a name="item_urls"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">item_urls</span>(<span class="sig-arg">self</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.item_urls">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>Return a list of all item URLs for this ItemList</p>
-  <dl class="fields">
-    <dt>Returns: List</dt>
-        <dd>List of iten URLs</dd>
-  </dl>
-</td></tr></table>
-</div>
-<a name="num_items"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">num_items</span>(<span class="sig-arg">self</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.num_items">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>Return the number of items in this ItemList</p>
-  <dl class="fields">
-    <dt>Returns: int</dt>
-        <dd>the number of items in this ItemList</dd>
-  </dl>
-</td></tr></table>
-</div>
-<a name="push_as_new"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">push_as_new</span>(<span class="sig-arg">name</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#ItemList.push_as_new">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>Save this ItemList to the server as a new item list, with the 
-  specified name</p>
-  <dl class="fields">
-    <dt>Parameters:</dt>
-    <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>name</code></strong> (String) - the name to give the new item list</li>
-    </ul></dd>
-    <dt>Returns: String</dt>
-        <dd>the URL of the newly created item list if successful, otherwise 
-          None</dd>
+    <dt>Returns: Strig</dt>
+        <dd>the name of this Item List</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -714,8 +446,10 @@
   
   <p>Update this ItemList by re-downloading it from the server</p>
   <dl class="fields">
-    <dt>Returns: Boolean</dt>
-        <dd>True if successful, False otherwise</dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'><a href="pyhcsvlab.APIError-class.html">APIError</a></strong></code> - when the API request is not successful</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -767,7 +501,7 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Feb  7 08:56:11 2014
+    Generated by Epydoc 3.0.1 on Sun Feb  9 07:16:24 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
