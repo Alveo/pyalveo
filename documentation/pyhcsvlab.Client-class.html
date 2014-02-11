@@ -56,6 +56,13 @@
 </table>
 <!-- ==================== CLASS DESCRIPTION ==================== -->
 <h1 class="epydoc">Class Client</h1><p class="nomargin-top"><span class="codelink"><a href="pyhcsvlab-pysrc.html#Client">source&nbsp;code</a></span></p>
+<pre class="base-tree">
+object --+
+         |
+        <strong class="uidshort">Client</strong>
+</pre>
+
+<hr />
 <p>Client object used to manipulate HCSvLab objects and interface with 
   the API</p>
 
@@ -76,6 +83,24 @@
     </table>
   </td>
 </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">String</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#__check_success" class="summary-sig-name" onclick="show_private();">__check_success</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">resp_json</span>)</span><br />
+      Check a JSON server response to see if it was successful</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.__check_success">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Boolean</span>
@@ -128,6 +153,44 @@
       Return true if another Client does not have all identical fields</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.__ne__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">String</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#add_to_item_list" class="summary-sig-name">add_to_item_list</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">item_urls</span>,
+        <span class="summary-sig-arg">item_list_url</span>)</span><br />
+      Instruct the server to add the given items to the specified Item List</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.add_to_item_list">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">String</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#add_to_item_list_by_name" class="summary-sig-name">add_to_item_list_by_name</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">item_urls</span>,
+        <span class="summary-sig-arg">item_list_name</span>)</span><br />
+      Instruct the server to add the given items to the specified Item List</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.add_to_item_list_by_name">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -256,7 +319,7 @@
           <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#get_item" class="summary-sig-name">get_item</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">item_url</span>,
         <span class="summary-sig-arg">force_download</span>=<span class="summary-sig-default">False</span>)</span><br />
-      Retrieves the item metadata from the server, as an Item object</td>
+      Retrieve the item metadata from the server, as an Item object</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.get_item">source&nbsp;code</a></span>
             
@@ -272,13 +335,13 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#get_item_annotatons" class="summary-sig-name">get_item_annotatons</a>(<span class="summary-sig-arg">self</span>,
+          <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#get_item_annotations" class="summary-sig-name">get_item_annotations</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">item_url</span>,
         <span class="summary-sig-arg">type</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">label</span>=<span class="summary-sig-default">None</span>)</span><br />
       Retrieve the annotations for an item from the server</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.get_item_annotatons">source&nbsp;code</a></span>
+            <span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.get_item_annotations">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -297,6 +360,24 @@
       Retrieve an item list from the server as an ItemList object</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.get_item_list">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">ItemList</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#get_item_list_by_name" class="summary-sig-name">get_item_list_by_name</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">item_list_name</span>)</span><br />
+      Retrieve an item list from the server as an ItemList object</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.get_item_list_by_name">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -329,7 +410,8 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="pyhcsvlab.Client-class.html#get_primary_text" class="summary-sig-name">get_primary_text</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">item_url</span>)</span><br />
+        <span class="summary-sig-arg">item_url</span>,
+        <span class="summary-sig-arg">force_download</span>=<span class="summary-sig-default">False</span>)</span><br />
       Retrieve the primary text for an item from the server</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.get_primary_text">source&nbsp;code</a></span>
@@ -375,6 +457,24 @@
         </tr>
       </table>
       
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__delattr__</code>,
+      <code>__format__</code>,
+      <code>__getattribute__</code>,
+      <code>__hash__</code>,
+      <code>__new__</code>,
+      <code>__reduce__</code>,
+      <code>__reduce_ex__</code>,
+      <code>__repr__</code>,
+      <code>__setattr__</code>,
+      <code>__sizeof__</code>,
+      <code>__str__</code>,
+      <code>__subclasshook__</code>
+      </p>
     </td>
   </tr>
 </table>
@@ -431,71 +531,28 @@
     </td>
   </tr>
 </table>
-<!-- ==================== INSTANCE VARIABLES ==================== -->
-<a name="section-InstanceVariables"></a>
+<!-- ==================== PROPERTIES ==================== -->
+<a name="section-Properties"></a>
 <table class="summary" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr bgcolor="#70b0f0" class="table-header">
   <td colspan="2" class="table-header">
     <table border="0" cellpadding="0" cellspacing="0" width="100%">
       <tr valign="top">
-        <td align="left"><span class="table-header">Instance Variables</span></td>
+        <td align="left"><span class="table-header">Properties</span></td>
         <td align="right" valign="top"
-         ><span class="options">[<a href="#section-InstanceVariables"
+         ><span class="options">[<a href="#section-Properties"
          class="privatelink" onclick="toggle_private();"
          >hide private</a>]</span></td>
       </tr>
     </table>
   </td>
 </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">String</span>
-    </td><td class="summary">
-        <a name="api_key"></a><span class="summary-name">api_key</span><br />
-      the API key to use for API opetations
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">String</span>
-    </td><td class="summary">
-        <a name="api_url"></a><span class="summary-name">api_url</span><br />
-      the base URL for the API server used
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">Cache</span>
-    </td><td class="summary">
-        <a name="cache"></a><span class="summary-name">cache</span><br />
-      the Cache object to use for caching
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">Boolean</span>
-    </td><td class="summary">
-        <a name="update_cache"></a><span class="summary-name">update_cache</span><br />
-      True to update the cache database with downloaded data, False to 
-      never write to the cache
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">Boolean</span>
-    </td><td class="summary">
-        <a name="use_cache"></a><span class="summary-name">use_cache</span><br />
-      True to fetch available data from the cache database, False to always
-      fetch data from the server
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">Boolean</span>
-    </td><td class="summary">
-        <a name="verbose"></a><span class="summary-name">verbose</span><br />
-      True to print status messages from the server, False for silence
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__class__</code>
+      </p>
     </td>
   </tr>
 </table>
@@ -517,6 +574,36 @@
   </td>
 </tr>
 </table>
+<a name="__check_success"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__check_success</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">resp_json</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.__check_success">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Check a JSON server response to see if it was successful</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>resp_json</code></strong> (String) - the response string</li>
+    </ul></dd>
+    <dt>Returns: String</dt>
+        <dd>the success message, if it exists</dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'><a href="pyhcsvlab.APIError-class.html">APIError</a></strong></code> - if the success message is not present</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
 <a name="__eq__"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -580,6 +667,9 @@
     </ul></dd>
     <dt>Returns: Client</dt>
         <dd>the new Client</dd>
+    <dt>Overrides:
+        object.__init__
+    </dt>
   </dl>
 </td></tr></table>
 </div>
@@ -606,6 +696,72 @@
     </ul></dd>
     <dt>Returns: Boolean</dt>
         <dd>False if the Clients are identical, otherwise True</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="add_to_item_list"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">add_to_item_list</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">item_urls</span>,
+        <span class="sig-arg">item_list_url</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.add_to_item_list">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Instruct the server to add the given items to the specified Item 
+  List</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>item_urls</code></strong> (List) - List of URLs for the items to add</li>
+        <li><strong class="pname"><code>item_list_url</code></strong> (String) - the URL of the list to which to add the items</li>
+    </ul></dd>
+    <dt>Returns: String</dt>
+        <dd>the item list URL</dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'><a href="pyhcsvlab.APIError-class.html">APIError</a></strong></code> - if the request was not successful</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="add_to_item_list_by_name"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">add_to_item_list_by_name</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">item_urls</span>,
+        <span class="sig-arg">item_list_name</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.add_to_item_list_by_name">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Instruct the server to add the given items to the specified Item 
+  List</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>item_urls</code></strong> (List) - List of URLs for the items to add</li>
+        <li><strong class="pname"><code>item_list_name</code></strong> (String) - name of the item list to retrieve</li>
+    </ul></dd>
+    <dt>Returns: String</dt>
+        <dd>the item list URL</dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'><a href="pyhcsvlab.APIError-class.html">APIError</a></strong></code> - if the request was not successful</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -771,6 +927,10 @@
     </ul></dd>
     <dt>Returns: Dict</dt>
         <dd>a Dict containing information about the Collection</dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'><a href="pyhcsvlab.APIError-class.html">APIError</a></strong></code> - if the request was not successful</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -821,7 +981,7 @@
     </td>
   </tr></table>
   
-  <p>Retrieves the item metadata from the server, as an Item object</p>
+  <p>Retrieve the item metadata from the server, as an Item object</p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
@@ -838,20 +998,20 @@
   </dl>
 </td></tr></table>
 </div>
-<a name="get_item_annotatons"></a>
+<a name="get_item_annotations"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_item_annotatons</span>(<span class="sig-arg">self</span>,
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_item_annotations</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">item_url</span>,
         <span class="sig-arg">type</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">label</span>=<span class="sig-default">None</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.get_item_annotatons">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.get_item_annotations">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
@@ -864,7 +1024,12 @@
         <li><strong class="pname"><code>label</code></strong> (String) - return only results with a matching Label field</li>
     </ul></dd>
     <dt>Returns: String</dt>
-        <dd>the annotations as a JSON string</dd>
+        <dd>the annotations as a JSON string, if the item has annotations, 
+          otherwise None</dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'><a href="pyhcsvlab.APIError-class.html">APIError</a></strong></code> - if the request was not successful</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -891,6 +1056,36 @@
     </ul></dd>
     <dt>Returns: ItemList</dt>
         <dd>The ItemList</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="get_item_list_by_name"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_item_list_by_name</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">item_list_name</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.get_item_list_by_name">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Retrieve an item list from the server as an ItemList object</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>item_list_name</code></strong> (String) - name of the item list to retrieve</li>
+    </ul></dd>
+    <dt>Returns: ItemList</dt>
+        <dd>The ItemList</dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'><a href="pyhcsvlab.APIError-class.html">APIError</a></strong></code> - if the request was not successful</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -932,7 +1127,8 @@
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">get_primary_text</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">item_url</span>)</span>
+        <span class="sig-arg">item_url</span>,
+        <span class="sig-arg">force_download</span>=<span class="sig-default">False</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Client.get_primary_text">source&nbsp;code</a></span>&nbsp;
@@ -944,9 +1140,15 @@
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>item_url</code></strong> (String) - URL of the item</li>
+        <li><strong class="pname"><code>force_download</code></strong> (Boolean) - True to download from the server regardless of the cache's 
+          contents</li>
     </ul></dd>
     <dt>Returns: String</dt>
         <dd>the item's primary text if it has one, otherwise None</dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'><a href="pyhcsvlab.APIError-class.html">APIError</a></strong></code> - if the request was not successful</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1004,7 +1206,11 @@
         <li><strong class="pname"><code>annotation</code></strong> (String) - the annotation, as a JSON string</li>
     </ul></dd>
     <dt>Returns: String</dt>
-        <dd>the server response</dd>
+        <dd>the server's success message, if successful</dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'><a href="pyhcsvlab.APIError-class.html">APIError</a></strong></code> - if the upload was not successful</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1062,7 +1268,7 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Sun Feb  9 09:52:55 2014
+    Generated by Epydoc 3.0.1 on Tue Feb 11 10:36:29 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

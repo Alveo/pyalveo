@@ -56,6 +56,13 @@
 </table>
 <!-- ==================== CLASS DESCRIPTION ==================== -->
 <h1 class="epydoc">Class Item</h1><p class="nomargin-top"><span class="codelink"><a href="pyhcsvlab-pysrc.html#Item">source&nbsp;code</a></span></p>
+<pre class="base-tree">
+object --+
+         |
+        <strong class="uidshort">Item</strong>
+</pre>
+
+<hr />
 <p>Represents a single HCSvLab item</p>
 
 <!-- ==================== INSTANCE METHODS ==================== -->
@@ -153,12 +160,48 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="pyhcsvlab.Item-class.html#get_annotation" class="summary-sig-name">get_annotation</a>(<span class="summary-sig-arg">self</span>,
+          <td><span class="summary-sig"><a href="pyhcsvlab.Item-class.html#add_to_item_list" class="summary-sig-name">add_to_item_list</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">item_list_url</span>)</span><br />
+      Add this item to the specified Item List on the server</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="pyhcsvlab-pysrc.html#Item.add_to_item_list">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">String</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="pyhcsvlab.Item-class.html#add_to_item_list_by_name" class="summary-sig-name">add_to_item_list_by_name</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">name</span>)</span><br />
+      Add this item to the specified Item List on the server</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="pyhcsvlab-pysrc.html#Item.add_to_item_list_by_name">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">String</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="pyhcsvlab.Item-class.html#get_annotations" class="summary-sig-name">get_annotations</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">type</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">label</span>=<span class="summary-sig-default">None</span>)</span><br />
       Retrieve the annotations for this item from the server</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="pyhcsvlab-pysrc.html#Item.get_annotation">source&nbsp;code</a></span>
+            <span class="codelink"><a href="pyhcsvlab-pysrc.html#Item.get_annotations">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -173,9 +216,8 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="pyhcsvlab.Item-class.html#get_document" class="summary-sig-name">get_document</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">index</span>,
-        <span class="summary-sig-arg">force_download</span>=<span class="summary-sig-default">False</span>)</span><br />
-      Get the metadata for the specified document</td>
+        <span class="summary-sig-arg">index</span>=<span class="summary-sig-default">0</span>)</span><br />
+      Return the metadata for the specified document, as a Document object</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="pyhcsvlab-pysrc.html#Item.get_document">source&nbsp;code</a></span>
             
@@ -191,9 +233,8 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="pyhcsvlab.Item-class.html#get_documents" class="summary-sig-name">get_documents</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">force_download</span>=<span class="summary-sig-default">False</span>)</span><br />
-      Get the metadata for each of the documents corresponding to this 
+          <td><span class="summary-sig"><a href="pyhcsvlab.Item-class.html#get_documents" class="summary-sig-name">get_documents</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Return the metadata for each of the documents corresponding to this 
       Item, each as a Document object</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="pyhcsvlab-pysrc.html#Item.get_documents">source&nbsp;code</a></span>
@@ -210,7 +251,8 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="pyhcsvlab.Item-class.html#get_primary_text" class="summary-sig-name">get_primary_text</a>(<span class="summary-sig-arg">self</span>)</span><br />
+          <td><span class="summary-sig"><a href="pyhcsvlab.Item-class.html#get_primary_text" class="summary-sig-name">get_primary_text</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">force_download</span>=<span class="summary-sig-default">False</span>)</span><br />
       Retrieve the primary text for this item from the server</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="pyhcsvlab-pysrc.html#Item.get_primary_text">source&nbsp;code</a></span>
@@ -271,6 +313,48 @@
         </tr>
       </table>
       
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__delattr__</code>,
+      <code>__format__</code>,
+      <code>__getattribute__</code>,
+      <code>__hash__</code>,
+      <code>__new__</code>,
+      <code>__reduce__</code>,
+      <code>__reduce_ex__</code>,
+      <code>__repr__</code>,
+      <code>__setattr__</code>,
+      <code>__sizeof__</code>,
+      <code>__subclasshook__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== PROPERTIES ==================== -->
+<a name="section-Properties"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Properties</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Properties"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__class__</code>
+      </p>
     </td>
   </tr>
 </table>
@@ -345,6 +429,9 @@
     </ul></dd>
     <dt>Returns: Item</dt>
         <dd>the new Item</dd>
+    <dt>Overrides:
+        object.__init__
+    </dt>
   </dl>
 </td></tr></table>
 </div>
@@ -393,22 +480,77 @@
   <dl class="fields">
     <dt>Returns: String</dt>
         <dd>the URL of this Item</dd>
+    <dt>Overrides:
+        object.__str__
+    </dt>
   </dl>
 </td></tr></table>
 </div>
-<a name="get_annotation"></a>
+<a name="add_to_item_list"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_annotation</span>(<span class="sig-arg">self</span>,
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">add_to_item_list</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">item_list_url</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Item.add_to_item_list">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Add this item to the specified Item List on the server</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>item_list_url</code></strong> (String) - the URL of the Item list</li>
+    </ul></dd>
+    <dt>Returns: String</dt>
+        <dd>the URL of the Item List</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="add_to_item_list_by_name"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">add_to_item_list_by_name</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">name</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Item.add_to_item_list_by_name">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Add this item to the specified Item List on the server</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> (String) - the name of the Item list</li>
+    </ul></dd>
+    <dt>Returns: String</dt>
+        <dd>the URL of the Item List</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="get_annotations"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_annotations</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">type</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">label</span>=<span class="sig-default">None</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Item.get_annotation">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Item.get_annotations">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
@@ -432,21 +574,19 @@
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">get_document</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">index</span>,
-        <span class="sig-arg">force_download</span>=<span class="sig-default">False</span>)</span>
+        <span class="sig-arg">index</span>=<span class="sig-default">0</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Item.get_document">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Get the metadata for the specified document</p>
+  <p>Return the metadata for the specified document, as a Document 
+  object</p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>index</code></strong> (int) - the index of the document</li>
-        <li><strong class="pname"><code>force_download</code></strong> (Boolean) - True to download from the server regardless of the cache's 
-          contents</li>
     </ul></dd>
     <dt>Returns: Document</dt>
         <dd>the metadata for the specified document</dd>
@@ -460,22 +600,16 @@
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_documents</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">force_download</span>=<span class="sig-default">False</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_documents</span>(<span class="sig-arg">self</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Item.get_documents">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Get the metadata for each of the documents corresponding to this Item,
-  each as a Document object</p>
+  <p>Return the metadata for each of the documents corresponding to this 
+  Item, each as a Document object</p>
   <dl class="fields">
-    <dt>Parameters:</dt>
-    <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>force_download</code></strong> (Boolean) - True to download from the server regardless of the cache's 
-          contents</li>
-    </ul></dd>
     <dt>Returns: List</dt>
         <dd>a list of Document object corresponding to this Item's documents</dd>
   </dl>
@@ -488,7 +622,8 @@
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_primary_text</span>(<span class="sig-arg">self</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_primary_text</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">force_download</span>=<span class="sig-default">False</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="pyhcsvlab-pysrc.html#Item.get_primary_text">source&nbsp;code</a></span>&nbsp;
@@ -497,6 +632,11 @@
   
   <p>Retrieve the primary text for this item from the server</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>force_download</code></strong> (Boolean) - True to download from the server regardless of the cache's 
+          contents</li>
+    </ul></dd>
     <dt>Returns: String</dt>
         <dd>the primary text</dd>
   </dl>
@@ -597,7 +737,7 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Sun Feb  9 09:52:55 2014
+    Generated by Epydoc 3.0.1 on Tue Feb 11 10:36:29 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
