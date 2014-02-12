@@ -9,6 +9,7 @@ import warnings
 
 import dateutil.parser
 import dateutil.tz
+import yaml
 
 import pdb
 
@@ -340,7 +341,11 @@ class Client(object):
         @rtype: Client
         @returns: the new Client
         """
-        pass
+        f = open(config_file, 'r')
+        c = yaml.safe_load(f.read())
+        f.close()
+        return Client(c['api_key'], c['cache'], c['api_url'], c['use_cache'],
+                      c['update_cache'], c['verbose'])
         
         
     @classmethod
@@ -352,7 +357,9 @@ class Client(object):
         
         
         """
-        pass
+        file_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(file_dir, 'config.yaml')
+        return Client.with_config_file(file_path)
 
     
     def __eq__(self, other):
@@ -904,7 +911,7 @@ class ItemGroup(object):
     def __iter__(self):
         """ Iterate over the item URLs in this ItemGroup """
 
-        return iter(item_urls)
+        return iter(self.item_urls)
 
         
     def __len__(self):
@@ -915,7 +922,7 @@ class ItemGroup(object):
 
 
         """
-        return len(item_urls)
+        return len(self.item_urls)
 
 
     def get_all(self, force_download=False):
@@ -967,7 +974,7 @@ class ItemGroup(object):
             raise KeyError(e.message)
 
 
-    def item_urls(self):
+    def urls(self):
         """ Return a list of all item URLs for this ItemGroup
 
         @rtype: List
@@ -994,7 +1001,7 @@ class ItemGroup(object):
         
         
         """
-        return self.client.get_item(item_urls[item_index], force_download)
+        return self.client.get_item(self.item_urls[item_index], force_download)
 
         
     def add_to_item_list_by_name(name):
@@ -1100,7 +1107,7 @@ class ItemList(ItemGroup):
 
         """
         refreshed = self.client.get_item_list(self.url)
-        self.item_urls = refreshed.item_urls()
+        self.item_urls = refreshed.urls()
         self.name = refreshed.name()
         
         
