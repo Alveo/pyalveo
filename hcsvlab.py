@@ -39,7 +39,7 @@ def create_cache_database(path, file_dir):
     @rtype: String
     @returns: the path to the new database file
     
-    @raise IOError: if there is a problem creating the database file
+    @raises IOError: if there is a problem creating the database file
     
     
     """
@@ -115,6 +115,9 @@ class Cache(object):
         """ Check if the metadata for the given item is present in
         the cache
         
+        If the max_age attribute of this Cache is set to a nonzero value,
+        entries older than the value of max_age in seconds will be ignored
+        
         @type item_url: String
         @param item_url: the URL of the item
         
@@ -123,13 +126,16 @@ class Cache(object):
        
         
         """
-        self.c.execute("SELECT * FROM items WHERE url=?", (item_url,))
+        self.c.execute("SELECT * FROM items WHERE url=?", (str(item_url),))
         return self.__exists_row_not_too_old(self.c.fetchone())
         
         
     def has_document(self, doc_url):
         """ Check if the content of the given document is present
         in the cache
+        
+        If the max_age attribute of this Cache is set to a nonzero value,
+        entries older than the value of max_age in seconds will be ignored
         
         @type doc_url: String
         @param doc_url: the URL of the document
@@ -139,13 +145,16 @@ class Cache(object):
         
         
         """
-        self.c.execute("SELECT * FROM documents WHERE url=?", (doc_url,))
+        self.c.execute("SELECT * FROM documents WHERE url=?", (str(doc_url),))
         return self.__exists_row_not_too_old(self.c.fetchone())
         
         
     def has_primary_text(self, item_url):
         """ Check if the primary text corresponding to the
         given item is present in the cache
+        
+        If the max_age attribute of this Cache is set to a nonzero value,
+        entries older than the value of max_age in seconds will be ignored
         
         @type item_url: String
         @param item_url: the URL of the item
@@ -156,7 +165,7 @@ class Cache(object):
         
         """
         self.c.execute("SELECT * FROM primary_texts WHERE item_url=?",
-                      (item_url,))
+                      (str(item_url),))
         return self.__exists_row_not_too_old(self.c.fetchone())
 
         
@@ -169,11 +178,11 @@ class Cache(object):
         @rtype: String
         @returns: the item metadata, as a JSON string
         
-        @raise ValueError: if the item is not in the cache
+        @raises ValueError: if the item is not in the cache
         
         
         """
-        self.c.execute("SELECT * FROM items WHERE url=?", (item_url,))
+        self.c.execute("SELECT * FROM items WHERE url=?", (str(item_url),))
         row = self.c.fetchone()
         if row is None:
             raise ValueError("Item not present in cache")
@@ -189,11 +198,11 @@ class Cache(object):
         @rtype: String
         @returns: the document data
         
-        @raise ValueError: if the item is not in the cache
+        @raises ValueError: if the item is not in the cache
         
         
         """
-        self.c.execute("SELECT * FROM documents WHERE url=?", (doc_url,))
+        self.c.execute("SELECT * FROM documents WHERE url=?", (str(doc_url),))
         row = self.c.fetchone()
         if row is None:
             raise ValueError("Item not present in cache")
@@ -216,12 +225,12 @@ class Cache(object):
         @rtype: String
         @returns: the primary text
         
-        @raise ValueError: if the primary text is not in the cache
+        @raises ValueError: if the primary text is not in the cache
         
         
         """
         self.c.execute("SELECT * FROM primary_texts WHERE item_url=?", 
-                      (item_url,))
+                      (str(item_url),))
         row = self.c.fetchone()
         if row is None:
             raise ValueError("Item not present in cache")
@@ -240,12 +249,12 @@ class Cache(object):
         
         """
         self.c.execute("INSERT INTO items VALUES (?, ?, ?)", 
-                  (item_url, item_metadata, self.__now_iso_8601()))
+                  (str(item_url), item_metadata, self.__now_iso_8601()))
         self.conn.commit()
         
         
     def __generate_filepath(self):
-        """ Generate a unique file path within the file_dir directory
+        """ Generate a unique (absolute) file path within the file_dir directory
         
         @rtype: String
         @returns: a unique file path
@@ -260,7 +269,7 @@ class Cache(object):
             
         
     def add_document(self, doc_url, data):
-        """ Add the given document to the cache database, updating
+        """ Add the given document to the cache, updating
         the existing content data if the document is already present
         
         @type doc_url: String
@@ -274,7 +283,7 @@ class Cache(object):
         with open(file_path, 'w') as f:
             f.write(data)
         self.c.execute("INSERT INTO documents VALUES (?, ?, ?)", 
-                  (doc_url, file_path, self.__now_iso_8601()))
+                  (str(doc_url), file_path, self.__now_iso_8601()))
         self.conn.commit()
         
         
@@ -290,7 +299,7 @@ class Cache(object):
         
         """
         self.c.execute("INSERT INTO primary_texts VALUES (?, ?, ?)", 
-                  (item_url, primary_text, self.__now_iso_8601()))
+                  (str(item_url), primary_text, self.__now_iso_8601()))
         self.conn.commit()
         
         
@@ -300,8 +309,8 @@ class Client(object):
    
    
     """
-    def __init__(self, api_key, cache, api_url,
-                 use_cache=True, update_cache=True, verbose=False):
+    def __init__(self, api_key, cache, api_url, 
+                 use_cache=True, update_cache=True):
         """ Construct a new Client
 
         @type api_key: String
@@ -316,9 +325,6 @@ class Client(object):
         @type update_cache: Boolean
         @param update_cache: True to update the cache database with
             downloaded data, False to never write to the cache
-        @type verbose: Boolean
-        @param verbose: True to print status messages from the server,
-            False for silence
 
         @rtype: Client
         @returns: the new Client
@@ -328,7 +334,6 @@ class Client(object):
         self.cache = cache
         self.use_cache = use_cache
         self.update_cache = update_cache
-        self.verbose = verbose
 
         
     @classmethod
@@ -345,7 +350,7 @@ class Client(object):
         c = yaml.safe_load(f.read())
         f.close()
         return Client(c['api_key'], c['cache'], c['api_url'], c['use_cache'],
-                      c['update_cache'], c['verbose'])
+                      c['update_cache'])
         
         
     @classmethod
@@ -376,8 +381,7 @@ class Client(object):
         return (self.api_key == other.api_key and
                 self.cache == other.cache and
                 self.use_cache == other.use_cache and
-                self.update_cache == other.update_cache and
-                self.verbose == other.verbose)
+                self.update_cache == other.update_cache)
         
     def __ne__(self, other):
         """ Return true if another Client does not have all identical fields
@@ -405,6 +409,8 @@ class Client(object):
         @rtype: String
         @returns: the response from the server
         
+        @raises APIError: if the API request is not successful
+        
         
         """
         headers = {'X-API-KEY': self.api_key, 'Accept': 'application/json'}
@@ -427,7 +433,7 @@ class Client(object):
         @rtype: String
         @returns: the API version string returned by the server
         
-        @raise APIError: when the API request is not successful
+        @raises APIError: if the API request is not successful
 
 
         """
@@ -441,7 +447,7 @@ class Client(object):
         @rtype: Dict
         @returns: the annotation context
         
-        @raise APIError: when the API request is not successful
+        @raises APIError: if the API request is not successful
 
 
         """
@@ -456,15 +462,15 @@ class Client(object):
         Returns a List of Dicts, each containing metadata regarding 
         an Item List, with the following key-value pairs:
             
-        name: the name of the Item List
-        url: the URL of the Item List
-        num_items: the number of items in the Item List
+            - name: the name of the Item List
+            - url: the URL of the Item List
+            - num_items: the number of items in the Item List
             
         @rtype: List
         @returns: a List of Dicts, each containing metadata regarding
             an Item List
         
-        @raise APIError: when the API request is not successful
+        @raises APIError: if the API request is not successful
 
 
         """
@@ -483,10 +489,11 @@ class Client(object):
         @param force_download: True to download from the server
             regardless of the cache's contents
             
-        @raise APIError: when the API request is not successful
+        @raises APIError: if the API request is not successful
 
         
         """
+        item_url = str(item_url)
         if (self.use_cache and 
                 not force_download and 
                 self.cache.has_item(item_url)):
@@ -508,10 +515,14 @@ class Client(object):
         @param force_download: True to download from the server
             regardless of the cache's contents
             
-        @raise APIError: when the API request is not successful
+        @rtype: String
+        @returns: the document data
+            
+        @raises APIError: if the API request is not successful
         
         
         """
+        doc_url = str(doc_url)
         if (self.use_cache and 
                 not force_download and 
                 self.cache.has_document(doc_url)):
@@ -540,6 +551,7 @@ class Client(object):
         
         
         """
+        item_url = str(item_url)
         metadata = self.get_item(item_url).metadata()
         
         try:
@@ -580,7 +592,7 @@ class Client(object):
         
         
         """
-        md = get_item(item_url).metadata()
+        md = get_item(str(item_url)).metadata()
         try:
             return self.api_request(md['annotations_url'])
         except KeyError:
@@ -602,7 +614,7 @@ class Client(object):
         
         
         """
-        resp = self.api_request(item_url + '/annotations', annotation)
+        resp = self.api_request(str(item_url) + '/annotations', annotation)
         return self.__check_success(resp)
         
         
@@ -648,9 +660,8 @@ class Client(object):
         """ Retrieve a file from the server containing the metadata
         and documents for the speficied items
             
-        @type items: iterable
-        @param items: iterable whose iterator produces the URLs of the items
-            to download as Strings (for example, a list of the Strings)
+        @type items: List
+        @param items: List of the the URLs of the items to download
         @type file_path: String
         @param file_path: the path to which to save the file
         @type format: String
@@ -660,7 +671,7 @@ class Client(object):
         @rtype: String
         @returns: the file path
         
-        @raise APIError: when the API request is not successful
+        @raises APIError: if the API request is not successful
         
         
         """
@@ -682,7 +693,7 @@ class Client(object):
         @rtype: ItemGroup
         @returns: the search results
         
-        @raise APIError: when the API request is not successful
+        @raises APIError: if the API request is not successful
         
          
         """
@@ -703,10 +714,12 @@ class Client(object):
         @rtype: ItemList
         @returns: The ItemList
 
-
+        @raises APIError: if the request was not successful
+        
+        
         """
         resp = json.loads(self.api_request(item_list_url))
-        return ItemList(resp['items'], self, item_list_url, resp['name'])
+        return ItemList(resp['items'], self, str(item_list_url), resp['name'])
 
 
     def get_item_list_by_name(self, item_list_name):
@@ -744,7 +757,7 @@ class Client(object):
         
         
         """
-        
+        item_list_url = str(item_list_url)
         data = json.dumps(item_urls)
         resp = self.api_request(item_list_url, data)
         self.__check_success(resp)
@@ -858,7 +871,7 @@ class ItemGroup(object):
         @returns: A new ItemGroup containing the union of the member items
             of this and the other group
             
-        @raise ValueError: if the other ItemGroup does not have the same Client
+        @raises ValueError: if the other ItemGroup does not have the same Client
         
         
         """
@@ -879,7 +892,7 @@ class ItemGroup(object):
         @returns: a new ItemGroup containing all member items of this
             ItemGroup except those also appearing in the other ItemGroup
         
-        @raise ValueError: if the other ItemGroup does not have the same Client
+        @raises ValueError: if the other ItemGroup does not have the same Client
         
         
         """
@@ -899,7 +912,7 @@ class ItemGroup(object):
         @rtype: ItemGroup
         @returns: a new ItemGroup containing all items that appear in both groups
         
-        @raise ValueError: if the other ItemGroup does not have the same Client
+        @raises ValueError: if the other ItemGroup does not have the same Client
        
        
         """
@@ -909,7 +922,11 @@ class ItemGroup(object):
         return ItemGroup(new_list, self.client)
         
     def __iter__(self):
-        """ Iterate over the item URLs in this ItemGroup """
+        """ Iterate over the item URLs in this ItemGroup 
+        
+        @rtype: Iterator
+        @returns: an iterator over the item URLs in this ItemGroup
+        """
 
         return iter(self.item_urls)
 
@@ -935,7 +952,7 @@ class ItemGroup(object):
         @param force_download: True to download from the server
             regardless of the cache's contents
         
-        @raise APIError: when the API request is not successful
+        @raises APIError: if the API request is not successful
 
 
         """
@@ -994,10 +1011,10 @@ class ItemGroup(object):
         @param force_download: True to download from the server
             regardless of the cache's contents
         
-        @rtype: Dict
-        @returns: the metadata
+        @rtype: Item
+        @returns: the metadata, as an Item object
         
-        @raise APIError: when the API request is not successful
+        @raises APIError: if the API request is not successful
         
         
         """
@@ -1014,7 +1031,7 @@ class ItemGroup(object):
         @rtype: String
         @returns: the URL of the Item List
         
-        @raise APIError: when the API request is not successful
+        @raises APIError: if the API request is not successful
 
       
         """
@@ -1031,7 +1048,7 @@ class ItemGroup(object):
         @rtype: String
         @returns: the URL of the Item List
         
-        @raise APIError: when the API request is not successful
+        @raises APIError: if the API request is not successful
 
       
         """ 
@@ -1102,7 +1119,7 @@ class ItemList(ItemGroup):
     def refresh(self):
         """ Update this ItemList by re-downloading it from the server
         
-        @raise APIError: when the API request is not successful
+        @raises APIError: if the API request is not successful
 
 
         """
@@ -1118,7 +1135,7 @@ class ItemList(ItemGroup):
             ItemList, a List of item URLs as Strings, a single item URL as a
             String, or a single Item object
         
-        @raise APIError: when the API request is not successful
+        @raises APIError: if the API request is not successful
         
         
         """
@@ -1205,10 +1222,10 @@ class Item(object):
         to this Item, each as a Document object
             
         @rtype: List
-        @returns: a list of Document object corresponding to this
+        @returns: a list of Document objects corresponding to this
             Item's documents    
         """
-        return[Document(doc, self.client) for doc in self.metadata['Documents']]
+        return[Document(d, self.client) for d in self.metadata['Documents']]
         
         
     def get_document(self, index=0):
@@ -1236,7 +1253,9 @@ class Item(object):
         @rtype: String
         @returns: the primary text
         
+        @raises APIError: if the API request is not successful
         
+
         """
         return self.client.get_primary_text(self.url, force_download)
         
@@ -1252,7 +1271,9 @@ class Item(object):
         @rtype: String
         @returns: the annotations as a JSON string
         
-    
+        @raises APIError: if the API request is not successful
+        
+        
         """   
         return self.client.get_item_annotations(self.url, type, label)
         
@@ -1264,7 +1285,9 @@ class Item(object):
         @param annotation: the annotation, as a JSON string
         
         @rtype: String
-        @returns: the server response
+        @returns: the server success response
+        
+        @raises APIError: if the API request is not successful
         
         
         """
@@ -1321,6 +1344,8 @@ class Item(object):
         @rtype: String
         @returns: the URL of the Item List
         
+        @raises APIError: if the API request is not successful
+        
         
         """
         return self.client.add_to_item_list([self.url], item_list_url)
@@ -1334,6 +1359,8 @@ class Item(object):
         
         @rtype: String
         @returns: the URL of the Item List
+        
+        @raises APIError: if the API request is not successful
         
         
         """
@@ -1434,16 +1461,32 @@ class Document(object):
         @rtype: String
         @returns: the content data
         
+        @raises APIError: if the API request is not successful
+        
         
         """
         return self.client.get_document(self.url, force_download)
         
         
-    def download_content(self, path, force_download=False):
+    def get_filename(self):
+        """ Get the original filename for this document
+        
+        @rtype: String
+        @returns: the filename
+        
+        
+        """
+        return urllib.unquote(self.url.rsplit('/',1))
+        
+        
+    def download_content(self, dir_path, filename=None, force_download=False):
         """ Download the content for this document to a file
         
-        @type path: String
-        @param path: the path to which to write the data
+        @type dir_path: String
+        @param dir_path: the path to which to write the data
+        @type filename: String
+        @param filename: filename to write to (if None, defaults to the document's
+            name, as specified by its metadata
         @type force_download: Boolean
         @param force_download: True to download from the server
             regardless of the cache's contents
@@ -1451,8 +1494,13 @@ class Document(object):
         @rtype: String
         @returns: the path to the downloaded file
         
+        @raises APIError: if the API request is not successful
+        
         
         """
+        if filename is None:
+            filename = self.get_filename()
+        path = os.path.join(dir_path, filename)
         data = self.client.get_document(self.url, force_download)
         with open(path, 'w') as f:
             f.write(data)
