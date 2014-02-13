@@ -11,7 +11,7 @@ Version
 Introduction
 -----------
 
-PyHCSVlab comprises the hcsvlab module and its dependencies, which provides object-oriented access to the HCSVlab API, with the following features:
+PyHCSVlab comprises the ``hcsvlab`` module and its dependencies, which provides object-oriented access to the HCSVlab API, with the following features:
 
 - An Client class with full API coverage
 - API-aware classes representing HCSvLab Items, Item Lists, and documents, with sensibly overloaded operators
@@ -21,7 +21,7 @@ PyHCSVlab comprises the hcsvlab module and its dependencies, which provides obje
 Dependencies
 --------------
 
-The hcsvlab module requires the following:
+The ``hcsvlab`` module requires the following:
 
 - PyYAML 3.10
 - dateutil 2.0
@@ -31,11 +31,11 @@ Both of these are included in this repository.
 Classes
 ----
 
-Below are short summaries of each class included in the hcsvlab module. For complete documentation, see documentation/index.html
+Below are short summaries of each class included in the ``hcsvlab`` module. For complete documentation, see documentation/index.html
 
 **Client**
 
-Implements all HCSvLab API methods. Generally, you will want to construct a Client using the <code>default_config_file()</code> method, or with the <code>with_config_file()</code> method (see below for information on the format of the configuration file), but you can also specify the configuration manually:
+Implements all HCSvLab API methods. Generally, you will want to construct a Client using the ``default_config_file()`` method, or with the ``with_config_file()`` method (see below for information on the format of the configuration file), but you can also specify the configuration manually:
 
 ```py
 client = hcsvlab.Client.default_config_file()
@@ -45,7 +45,7 @@ client = hcsvlab.Client('MYAPIKEY', hcsvlab.Cache('cache.db'), 'http://ic2-hcsvl
 
 **ItemGroup**
 
-Represents an ordered list of HCSvLab items. Essentially behaves like a List of item URLs. Get an individual item as an Item object with <code>get_item()</code>. Supports addition (union), subtraction (relative complement), and intersection, equality-checking, iteration, length inspection, indexing, and membership checking:
+Represents an ordered list of HCSvLab items. Essentially behaves like a List of item URLs. Get an individual item as an Item object with ``get_item()``. Supports addition (union), subtraction (relative complement), and intersection, equality-checking, iteration, length inspection, indexing, and membership checking:
 
 ```py
 ig1 = client.search_metadata('componentName:digits AND prompt:nine')
@@ -63,31 +63,29 @@ if item in ig1: print('True')
 
 #so you can do things like:
 [i.get_document() for i in (ig1 - ig2).get_all()]
-client.download_items([i in (ig1 + ig2)], 'items.zip')
+client.download_items(ig1 + ig2, 'items.zip')
 ```
 
 **ItemList**
 
-Extends ItemGroup to represent an Item List appearing on the HCSvLab server, with additional Item List-specifc metadata and functionality. Primarily, the <code>refresh()</code> and <code>append()</code> methods:
+Extends (inherits from) ItemGroup to represent an Item List appearing on the HCSvLab server, with additional Item List-specifc metadata and functionality. Primarily, the ``refresh()`` and ``append()`` methods:
 
 ```py
 il = client.get_item_list_by_name('foobar')
-il.append(ig2) #works because ig2.__iter__() lists the item URLS
+il.append(ig2)
 il.refresh() 
 #il should now reflect the new items, both locally and on the server
 ```
 
 **Item**
 
-Represents a single HCSvLab item. Essentially behaves like a String containing the item's URL, but with additional functionality. Access the item's metadata as a dictionary with <code>metadata()</code>, and its documents as Document objects with <code>get_document()</code>.
+Represents a single HCSvLab item. Essentially behaves like a String containing the item's URL, but with additional functionality. Access the item's metadata as a dictionary with ``metadata()``, and its documents as Document objects with ``get_document()``.
 
 ```py
 item = ig1.get_item(2)
 if item == ig2.get_item(2): 
     print(item.metadata()['austalk:prompt'])
 
-#works because item.__str__ produces the item's url
-#and il.__str__ produces the Item List's url
 if item in ig2: item.add_to_item_list(il)
 
 #or, equivalently:
@@ -99,7 +97,7 @@ if item.url() in ig2: il.append(item)
 
 **Document**
 
-Represents a single HCSvLab document. Mostly you probably want to use <code>get_content</code> to get the content data, or <code>download_content</code> to download it to a file.
+Represents a single HCSvLab document. Mostly you probably want to use ``get_content`` to get the content data, or ``download_content`` to download it to a file.
 
 ```py
 doc = item.get_document()
@@ -114,10 +112,19 @@ data = doc.get_content()
 
 Implements caching of item metadata, document content data, and item primary texts. Metadata and primary texts are stored in an SQLite3 database, and data files are stored in the filesystem (the database keeps track of the paths, which are UUIDs, because the orginal filenames are not guaranteed to be unique). 
 
-When you construct a Cache instance, you can specify a maximum age (in seconds), and the <code>has_</code> methods will ignore files older than that, so any Client using that Cache will not 'see' those older records, and will instead download that information from the server if it is requested (and update the cache's record at that point)
+When you construct a Cache instance, you can specify a maximum age (in seconds), and the ``has_`` methods will ignore files older than that, so any Client using that Cache will not 'see' those older records, and will instead download that information from the server if it is requested (and update the cache's record at that point)
 
-You can turn off reading from or writing to the cache entirely for a given Client using the Client's <code>use_cache</code> and <code>update_cache</code> options. Furthermore, all methods of Client, ItemGroup, ItemList, Item, and Document objects which would normally read data from the cache can be forced to download the information from the server instead using the <code>force_download</code> option.
+You can turn off reading from or writing to the cache entirely for a given Client using the Client's ``use_cache`` and ``update_cache`` options. Furthermore, all methods of Client, ItemGroup, ItemList, Item, and Document objects which would normally read data from the cache can be forced to download the information from the server instead using the ``force_download`` option.
 
 **APIError**
 
 Exception thrown whenever an API access is unsuccessful.
+
+Configuration
+----
+``Client.with_config_file()`` reads a YAML file specifying (as key-value pairs) the options that would normally be passed to ``Cache()`` and ``Client()``. A default configuration file, config.yaml is provided, though an API key needs to be filled in before use (this is the file that is passed when ``Client.default_config()`` is called).
+
+To generate a new, empty cache database, call ``hcsvlab.create_cache_database(path, file_dir)``. The database file will be created at ``path``, and data files will be stored in ``file_dir``, which will be created if it does not already exist.
+
+
+

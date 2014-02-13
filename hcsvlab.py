@@ -31,12 +31,12 @@ class APIError(Exception):
 def create_cache_database(path, file_dir):
     """ Create a new SQLite3 database for use with Cache objects
     
-    @type path: String
+    @type path: C{String}
     @param path: path at which to create the database file
-    @type file_dir: String
+    @type file_dir: C{String}
     @param file_dir: directory in which to store large files
     
-    @rtype: String
+    @rtype: C{String}
     @returns: the path to the new database file
     
     @raises IOError: if there is a problem creating the database file
@@ -64,13 +64,13 @@ class Cache(object):
     def __init__(self, database, max_age=0):
         """ Create a new Cache object
         
-        @type database: String
+        @type database: C{String}
         @param database: the SQLite3 database to connect to
-        @type max_age: int
+        @type max_age: C{int}
         @param max_age: cache entries older than this many seconds will be 
         ignored by the has_item, has_document and has_primary_text methods
         
-        @rtype: Cache
+        @rtype: L{Cache}
         @returns: the new Cache
         
         
@@ -118,10 +118,10 @@ class Cache(object):
         If the max_age attribute of this Cache is set to a nonzero value,
         entries older than the value of max_age in seconds will be ignored
         
-        @type item_url: String
-        @param item_url: the URL of the item
+        @type item_url: C{String} or L{Item}
+        @param item_url: the URL of the item, or an Item object
         
-        @rtype: Boolean
+        @rtype: C{Boolean}
         @returns: True if the item is present, False otherwise
        
         
@@ -137,10 +137,10 @@ class Cache(object):
         If the max_age attribute of this Cache is set to a nonzero value,
         entries older than the value of max_age in seconds will be ignored
         
-        @type doc_url: String
-        @param doc_url: the URL of the document
+        @type doc_url: C{String} or L{Document}
+        @param doc_url: the URL of the document, or a Document object
         
-        @rtype: Boolean
+        @rtype: C{Boolean}
         @returns: True if the data is present, False otherwise
         
         
@@ -156,10 +156,10 @@ class Cache(object):
         If the max_age attribute of this Cache is set to a nonzero value,
         entries older than the value of max_age in seconds will be ignored
         
-        @type item_url: String
-        @param item_url: the URL of the item
+        @type item_url: C{String} or L{Item}
+        @param item_url: the URL of the item, or an Item object
         
-        @rtype: Boolean
+        @rtype: C{Boolean}
         @returns: True if the primary text is present, False otherwise
         
         
@@ -172,10 +172,10 @@ class Cache(object):
     def get_item(self, item_url):
         """ Retrieve the metadata for the given item from the cache.
         
-        @type item_url: String
-        @param item_url: the URL of the item
+        @type item_url: C{String} or L{Item}
+        @param item_url: the URL of the item, or an Item object
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the item metadata, as a JSON string
         
         @raises ValueError: if the item is not in the cache
@@ -192,10 +192,10 @@ class Cache(object):
     def get_document(self, doc_url):
         """ Retrieve the content for the given document from the cache.
         
-        @type doc_url: String
-        @param doc_url: the URL of the document
+        @type doc_url: C{String} or L{Document}
+        @param doc_url: the URL of the document, or a Document object
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the document data
         
         @raises ValueError: if the item is not in the cache
@@ -219,10 +219,10 @@ class Cache(object):
     def get_primary_text(self, item_url):
         """ Retrieve the primary text for the given item from the cache.
         
-        @type item_url: String
-        @param item_url: the URL of the item
+        @type item_url: C{String} or L{Item}
+        @param item_url: the URL of the item, or an Item object
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the primary text
         
         @raises ValueError: if the primary text is not in the cache
@@ -241,9 +241,9 @@ class Cache(object):
         """ Add the given item to the cache database, updating
         the existing metadata if the item is already present
         
-        @type item_url: String
-        @param item_url: the URL of the item
-        @type item_metadata: String
+        @type item_url: C{String} or L{Item}
+        @param item_url: the URL of the item, or an Item object
+        @type item_metadata: C{String}
         @param item_metadata: the item's metadata, as a JSON string
         
         
@@ -256,7 +256,7 @@ class Cache(object):
     def __generate_filepath(self):
         """ Generate a unique (absolute) file path within the file_dir directory
         
-        @rtype: String
+        @rtype: C{String}
         @returns: a unique file path
         
         
@@ -272,9 +272,9 @@ class Cache(object):
         """ Add the given document to the cache, updating
         the existing content data if the document is already present
         
-        @type doc_url: String
-        @param doc_url: the URL of the document
-        @type data: String
+        @type doc_url: C{String} or L{Document}
+        @param doc_url: the URL of the document, or a Document object
+        @type data: C{String}
         @param data: the document's content data
         
         
@@ -291,9 +291,9 @@ class Cache(object):
         """ Add the given primary text to the cache database, updating
         the existing record if the primary text is already present
         
-        @type item_url: String
-        @param item_url: the URL of the corresponding item
-        @type primary_text: String
+        @type item_url: C{String} or L{Item}
+        @param item_url: the URL of the corresponding item, or an Item object
+        @type primary_text: C{String}
         @param primary_text: the item's primary text
         
         
@@ -313,20 +313,20 @@ class Client(object):
                  use_cache=True, update_cache=True):
         """ Construct a new Client
 
-        @type api_key: String
+        @type api_key: C{String}
         @param api_key: the API key to use
-        @type cache: Cache
+        @type cache: L{Cache}
         @param cache: the Cache to use
-        @type api_url: String
+        @type api_url: C{String}
         @param api_url: the base URL for the API server used
-        @type use_cache: Boolean
+        @type use_cache: C{Boolean}
         @param use_cache: True to fetch available data from the 
             cache database, False to always fetch data from the server
-        @type update_cache: Boolean
+        @type update_cache: C{Boolean}
         @param update_cache: True to update the cache database with
             downloaded data, False to never write to the cache
 
-        @rtype: Client
+        @rtype: L{Client}
         @returns: the new Client
         """
         self.api_key = api_key
@@ -340,10 +340,10 @@ class Client(object):
     def with_config_file(self, config_file):
         """ Construct a new Client using the specified configuration file
 
-        @type config_file: String
+        @type config_file: C{String}
         @param config_file: path to the configuration file
 
-        @rtype: Client
+        @rtype: L{Client}
         @returns: the new Client
         """
         f = open(config_file, 'r')
@@ -357,7 +357,7 @@ class Client(object):
     def default_config(self):
         """ Construct a new Client using the default configuration file 
         
-        @rtype: Client
+        @rtype: L{Client}
         @returns: the new Client
         
         
@@ -370,10 +370,10 @@ class Client(object):
     def __eq__(self, other):
         """ Return true if another Client has all identical fields
         
-        @type other: Client
+        @type other: L{Client}
         @param other: the other Client to compare to.
         
-        @rtype: Boolean
+        @rtype: C{Boolean}
         @returns: True if the Clients are identical, otherwise False
         
         
@@ -386,10 +386,10 @@ class Client(object):
     def __ne__(self, other):
         """ Return true if another Client does not have all identical fields
         
-        @type other: Client
+        @type other: L{Client}
         @param other: the other Client to compare to.
         
-        @rtype: Boolean
+        @rtype: C{Boolean}
         @returns: False if the Clients are identical, otherwise True
         
         
@@ -401,12 +401,12 @@ class Client(object):
         """ Perform an API request to the given URL, optionally 
         including the specified data
         
-        @type url: String
+        @type url: C{String}
         @param url: the URL to which to make the request
-        @type data: String
+        @type data: C{String}
         @param data: the data to send with the request, if any
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the response from the server
         
         @raises APIError: if the API request is not successful
@@ -430,7 +430,7 @@ class Client(object):
     def get_api_version(self):
         """ Retrieve the API version from the server
 
-        @rtype: String
+        @rtype: C{String}
         @returns: the API version string returned by the server
         
         @raises APIError: if the API request is not successful
@@ -444,7 +444,7 @@ class Client(object):
     def get_annotation_context(self):
         """ Retrieve the JSON-LD annotation context from the server
 
-        @rtype: Dict
+        @rtype: C{Dict}
         @returns: the annotation context
         
         @raises APIError: if the API request is not successful
@@ -466,7 +466,7 @@ class Client(object):
             - url: the URL of the Item List
             - num_items: the number of items in the Item List
             
-        @rtype: List
+        @rtype: C{List}
         @returns: a List of Dicts, each containing metadata regarding
             an Item List
         
@@ -480,12 +480,12 @@ class Client(object):
     def get_item(self, item_url, force_download=False):
         """ Retrieve the item metadata from the server, as an Item object
         
-        @type item_url: String
-        @param item_url: URL of the item
+        @type item_url: C{String} or L{Item}
+        @param item_url: URL of the item, or an Item object
 
-        @rtype: Item
+        @rtype: L{Item}
         @returns: the corresponding metadata, as an Item object
-        @type force_download: Boolean
+        @type force_download: C{Boolean}
         @param force_download: True to download from the server
             regardless of the cache's contents
             
@@ -509,13 +509,13 @@ class Client(object):
     def get_document(self, doc_url, force_download=False):
         """ Retrieve the data for the given document from the server
         
-        @type doc_url: String
-        @param doc_url: the URL of the document
-        @type force_download: Boolean
+        @type doc_url: C{String} or L{Document}
+        @param doc_url: the URL of the document, or a Document object
+        @type force_download: C{Boolean}
         @param force_download: True to download from the server
             regardless of the cache's contents
             
-        @rtype: String
+        @rtype: C{String}
         @returns: the document data
             
         @raises APIError: if the API request is not successful
@@ -538,13 +538,13 @@ class Client(object):
     def get_primary_text(self, item_url, force_download=False):
         """ Retrieve the primary text for an item from the server
          
-        @type item_url: String
-        @param item_url: URL of the item
-        @type force_download: Boolean
+        @type item_url: C{String} or L{Item}
+        @param item_url: URL of the item, or an Item object
+        @type force_download: C{Boolean}
         @param force_download: True to download from the server
             regardless of the cache's contents
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the item's primary text if it has one, otherwise None
         
         @raises APIError: if the request was not successful
@@ -577,14 +577,14 @@ class Client(object):
     def get_item_annotations(self, item_url, type=None, label=None):
         """ Retrieve the annotations for an item from the server
         
-        @type item_url: String
-        @param item_url: URL of the item
-        @type type: String
+        @type item_url: C{String} or L{Item}
+        @param item_url: URL of the item, or an Item object
+        @type type: C{String}
         @param type: return only results with a matching Type field
-        @type label: String
+        @type label: C{String}
         @param label: return only results with a matching Label field
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the annotations as a JSON string, if the item has
             annotations, otherwise None
         
@@ -602,12 +602,13 @@ class Client(object):
     def upload_annotation(self, item_url, annotation):
         """ Upload the given annotation to the server
         
-        @type item_url: String
-        @param item_url: the URL of the item corresponding to the annotation
-        @type annotation: String
+        @type item_url: C{String} or L{Item}
+        @param item_url: the URL of the item corresponding to the annotation,
+            or an Item object
+        @type annotation: C{String}
         @param annotation: the annotation, as a JSON string
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the server's success message, if successful
         
         @raises APIError: if the upload was not successful
@@ -621,10 +622,10 @@ class Client(object):
     def get_collection_info(self, collection_url):
         """ Retrieve information about the specified Collection from the server
         
-        @type collection_url: String
+        @type collection_url: C{String}
         @param collection_url: the URL of the collection
         
-        @rtype: Dict
+        @rtype: C{Dict}
         @returns: a Dict containing information about the Collection
         
         @raises APIError: if the request was not successful
@@ -637,10 +638,10 @@ class Client(object):
     def __check_success(self, resp_json):
         """ Check a JSON server response to see if it was successful
         
-        @type resp_json: String
+        @type resp_json: C{String}
         @param resp_json: the response string
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the success message, if it exists
         
         @raises APIError: if the success message is not present
@@ -660,15 +661,16 @@ class Client(object):
         """ Retrieve a file from the server containing the metadata
         and documents for the speficied items
             
-        @type items: List
-        @param items: List of the the URLs of the items to download
-        @type file_path: String
+        @type items: C{List} or L{ItemGroup}
+        @param items: List of the the URLs of the items to download, 
+            or an ItemGroup object
+        @type file_path: C{String}
         @param file_path: the path to which to save the file
-        @type format: String
+        @type format: C{String}
         @param format: the file format to request from the server: specify
             either 'zip' or 'warc'
             
-        @rtype: String
+        @rtype: C{String}
         @returns: the file path
         
         @raises APIError: if the API request is not successful
@@ -676,7 +678,7 @@ class Client(object):
         
         """
         download_url = self.api_url + '/catalog/download_items'
-        data = api_request(download_url, json.dumps(items))
+        data = api_request(download_url, json.dumps(List(items)))
         
         with open(file_path, 'w') as f:
             f.write(data)
@@ -687,10 +689,10 @@ class Client(object):
     def search_metadata(self, query):
         """ Submit a search query to the server and retrieve the results
         
-        @type query: String
+        @type query: C{String}
         @param query: the search query
         
-        @rtype: ItemGroup
+        @rtype: L{ItemGroup}
         @returns: the search results
         
         @raises APIError: if the API request is not successful
@@ -708,27 +710,28 @@ class Client(object):
     def get_item_list(self, item_list_url):
         """ Retrieve an item list from the server as an ItemList object
 
-        @type item_list_url: String
-        @param item_list_url: URL of the item list to retrieve
+        @type item_list_url: C{String} or L{ItemList}
+        @param item_list_url: URL of the item list to retrieve, or an
+            ItemList object
 
-        @rtype: ItemList
+        @rtype: L{ItemList}
         @returns: The ItemList
 
         @raises APIError: if the request was not successful
         
         
         """
-        resp = json.loads(self.api_request(item_list_url))
+        resp = json.loads(self.api_request(str(item_list_url)))
         return ItemList(resp['items'], self, str(item_list_url), resp['name'])
 
 
     def get_item_list_by_name(self, item_list_name):
         """ Retrieve an item list from the server as an ItemList object
 
-        @type item_list_name: String
+        @type item_list_name: C{String}
         @param item_list_name: name of the item list to retrieve
 
-        @rtype: ItemList
+        @rtype: L{ItemList}
         @returns: The ItemList
 
         @raises APIError: if the request was not successful
@@ -745,12 +748,14 @@ class Client(object):
         """ Instruct the server to add the given items to the specified
         Item List
             
-        @type item_urls: List
-        @param item_urls: List of URLs for the items to add
-        @type item_list_url: String
-        @param item_list_url: the URL of the list to which to add the items
+        @type item_urls: C{List} or L{ItemGroup}
+        @param item_urls: List of URLs for the items to add, 
+            or an ItemGroup object
+        @type item_list_url: C{String} or L{ItemList}
+        @param item_list_url: the URL of the list to which to add the items,
+            or an ItemList object
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the item list URL
         
         @raises APIError: if the request was not successful
@@ -758,7 +763,7 @@ class Client(object):
         
         """
         item_list_url = str(item_list_url)
-        data = json.dumps(item_urls)
+        data = json.dumps(List(item_urls))
         resp = self.api_request(item_list_url, data)
         self.__check_success(resp)
         return item_list_url
@@ -768,12 +773,13 @@ class Client(object):
         """ Instruct the server to add the given items to the specified
         Item List
             
-        @type item_urls: List
-        @param item_urls: List of URLs for the items to add
-        @type item_list_name: String
+        @type item_urls: C{List} or L{ItemGroup}
+        @param item_urls: List of URLs for the items to add, 
+            or an ItemGroup object
+        @type item_list_name: C{String}
         @param item_list_name: name of the item list to retrieve
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the item list URL
         
         @raises APIError: if the request was not successful
@@ -782,7 +788,7 @@ class Client(object):
         """
         url_name = urllib.urlencode((('name', item_list_name),))
         request_url = self.api_url + '/item_lists?' + url_name
-        return self.add_to_item_list(item_urls, request_url)
+        return self.add_to_item_list(List(item_urls), request_url)
         
         
 
@@ -792,25 +798,26 @@ class ItemGroup(object):
     def __init__(self, item_urls, client):
         """ Construct a new ItemGroup
         
-        @type item_urls: List
-        @param item_urls: List of URLs of items in this group (as Strings)
-        @type client: Client
+        @type item_urls: C{List} or L{ItemGroup}
+        @param item_urls: List of URLs of items in this group, 
+            or an ItemGroup object
+        @type client: L{Client}
         @param client: the API client to use for API operations
 
-        @rtype: ItemGroup
+        @rtype: L{ItemGroup}
         @returns: the new ItemGroup
         """  
-        self.item_urls = item_urls
+        self.item_urls = List(item_urls)
         self.client = client
 
         
     def set_client(self, new_client):
         """ Set the Client for this ItemGroup
         
-        @type new_client: Client
+        @type new_client: L{Client}
         @param new_client: the new Client
         
-        @rtype: Client
+        @rtype: L{Client}
         @returns: the new Client
         
         
@@ -822,10 +829,10 @@ class ItemGroup(object):
     def __eq__(self, other):
         """ Return true if another ItemGroup has all identical fields
         
-        @type other: ItemGroup
+        @type other: L{ItemGroup}
         @param other: the other ItemGroup to compare to.
         
-        @rtype: Boolean
+        @rtype: C{Boolean}
         @returns: True if the ItemGroups are identical, otherwise False
         
         
@@ -836,10 +843,10 @@ class ItemGroup(object):
     def __ne__(self, other):
         """ Return true if another ItemGroup does not have all identical fields
         
-        @type other: ItemGroup
+        @type other: L{ItemGroup}
         @param other: the other ItemGroup to compare to.
         
-        @rtype: Boolean
+        @rtype: C{Boolean}
         @returns: False if the ItemGroups are identical, otherwise True
         
         
@@ -852,7 +859,7 @@ class ItemGroup(object):
 
         @param item: either an item URL as a String, or an Item object
 
-        @rtype: Boolean
+        @rtype: C{Boolean}
         @returns: True if the item is present, False otherwise
 
 
@@ -864,10 +871,10 @@ class ItemGroup(object):
         """ Returns the union of this ItemGroup and another ItemGroup 
         which has an identical Client
         
-        @type other: ItemGroup
+        @type other: L{ItemGroup}
         @param other: the other ItemGroup
         
-        @rtype: ItemGroup
+        @rtype: L{ItemGroup}
         @returns: A new ItemGroup containing the union of the member items
             of this and the other group
             
@@ -885,10 +892,10 @@ class ItemGroup(object):
         """ Returns the relative complement of this ItemGroup in another
         ItemGroup which has an identical Client
         
-        @type other: ItemGroup
+        @type other: L{ItemGroup}
         @param other: the other ItemGroup
         
-        @rtype: ItemGroup
+        @rtype: L{ItemGroup}
         @returns: a new ItemGroup containing all member items of this
             ItemGroup except those also appearing in the other ItemGroup
         
@@ -906,10 +913,10 @@ class ItemGroup(object):
         """ Returns the intersection of this ItemGroup with another ItemGroup 
         which has the an identical Client
         
-        @type other: ItemGroup
+        @type other: L{ItemGroup}
         @param other: the other ItemGroup
         
-        @rtype: ItemGroup
+        @rtype: L{ItemGroup}
         @returns: a new ItemGroup containing all items that appear in both groups
         
         @raises ValueError: if the other ItemGroup does not have the same Client
@@ -924,7 +931,7 @@ class ItemGroup(object):
     def __iter__(self):
         """ Iterate over the item URLs in this ItemGroup 
         
-        @rtype: Iterator
+        @rtype: iterator
         @returns: an iterator over the item URLs in this ItemGroup
         """
 
@@ -934,7 +941,7 @@ class ItemGroup(object):
     def __len__(self):
         """ Return the number of items in this ItemGroup
 
-        @rtype: int
+        @rtype: C{int}
         @returns: the number of items in this ItemGroup
 
 
@@ -946,9 +953,9 @@ class ItemGroup(object):
         """ Retrieve the metadata for all items in this list from the server,
         as Item objects
 
-        @rtype: List
+        @rtype: C{List}
         @returns: a List of the corresponding Item objects
-        @type force_download: Boolean
+        @type force_download: C{Boolean}
         @param force_download: True to download from the server
             regardless of the cache's contents
         
@@ -963,10 +970,10 @@ class ItemGroup(object):
     def item_url(self, item_index):
         """ Return the URL of the specified item
 
-        @type item_index: int
+        @type item_index: C{int}
         @param item_index: the index of the item URL
 
-        @rtype: String
+        @rtype: C{String}
         @returns: the URL of the item
 
         
@@ -977,10 +984,10 @@ class ItemGroup(object):
     def __getitem__(self, key):
         """ Return the URL of the specified item
 
-        @type key: int
+        @type key: C{int}
         @param key: the index of the item URL
 
-        @rtype: String
+        @rtype: C{String}
         @returns: the URL of the item
 
         
@@ -994,7 +1001,7 @@ class ItemGroup(object):
     def urls(self):
         """ Return a list of all item URLs for this ItemGroup
 
-        @rtype: List
+        @rtype: C{List}
         @returns: List of item URLs
 
 
@@ -1005,13 +1012,13 @@ class ItemGroup(object):
     def get_item(self, item_index, force_download=False):
         """ Retrieve the metadata for a specific item in this ItemGroup
         
-        @type item_index: int
+        @type item_index: C{int}
         @param item_index: the index of the item
-        @type force_download: Boolean
+        @type force_download: C{Boolean}
         @param force_download: True to download from the server
             regardless of the cache's contents
         
-        @rtype: Item
+        @rtype: L{Item}
         @returns: the metadata, as an Item object
         
         @raises APIError: if the API request is not successful
@@ -1025,10 +1032,10 @@ class ItemGroup(object):
         """ Add the items in this ItemGroup to the specified Item List on
         the server, creating the item list if it does not already exist
 
-        @type name: String
+        @type name: C{String}
         @param name: the name of the Item List
 
-        @rtype: String
+        @rtype: C{String}
         @returns: the URL of the Item List
         
         @raises APIError: if the API request is not successful
@@ -1042,10 +1049,11 @@ class ItemGroup(object):
         """ Add the items in this ItemGroup to the specified Item List on
         the server, creating the item list if it does not already exist
 
-        @type item_list_url: String
-        @param item_list_url: the URL of the Item List
+        @type item_list_url: C{String} or L{ItemList}
+        @param item_list_url: the URL of the Item List,
+            or an ItemList object
 
-        @rtype: String
+        @rtype: C{String}
         @returns: the URL of the Item List
         
         @raises APIError: if the API request is not successful
@@ -1063,30 +1071,31 @@ class ItemList(ItemGroup):
        
     """        
     def __init__(self, item_urls, client, url, name):
-        """ Construct a new ItemGroup 
+        """ Construct a new ItemList
         
-        @type item_urls: List
-        @param item_urls: a List of the item URLs in this Item List
-        @type client: Client
+        @type item_urls: C{List} or L{ItemGroup}
+        @param item_urls: a List of the item URLs in this Item List,
+            or an ItemGroup object
+        @type client: L{Client}
         @param client: the API client to use for API operations
-        @type url: String
+        @type url: C{String}
         @param url: the URL of this Item List
-        @type name: String
+        @type name: C{String}
         @param name: the name of this Item List
         
-        @rtype: ItemList
+        @rtype: L{ItemList}
         @returns: the new ItemList
         
         
         """
-        super(ItemList, self).__init__(item_urls, client) #augh
+        super(ItemList, self).__init__(List(item_urls), client) #augh
         self.url = url
         self.name = name
         
     def __str__(self):
         """ Return the URL corresponding to this ItemList
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the URL
         
 
@@ -1097,7 +1106,7 @@ class ItemList(ItemGroup):
     def name(self):
         """ Return the name of this Item List
         
-        @rtype: Strig
+        @rtype: C{String}
         @returns: the name of this Item List
         
         
@@ -1108,7 +1117,7 @@ class ItemList(ItemGroup):
     def url(self):
         """ Return the URL corresponding to this ItemList
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the URL
         
 
@@ -1146,10 +1155,10 @@ class ItemList(ItemGroup):
     def __eq__(self, other):
         """ Return true if another ItemList has all identical fields
         
-        @type other: ItemList
+        @type other: L{ItemList}
         @param other: the other ItemList to compare to.
         
-        @rtype: Boolean
+        @rtype: C{Boolean}
         @returns: True if the ItemLists are identical, otherwise False
         
         
@@ -1162,10 +1171,10 @@ class ItemList(ItemGroup):
     def __ne__(self, other):
         """ Return true if another ItemList does not have all identical fields
         
-        @type other: ItemList
+        @type other: L{ItemList}
         @param other: the other ItemList to compare to.
         
-        @rtype: Boolean
+        @rtype: C{Boolean}
         @returns: False if the ItemLists are identical, otherwise True
         
         
@@ -1180,12 +1189,12 @@ class Item(object):
     def __init__(self, metadata, client):
         """ Create a new Item object
         
-        @type metadata: Dict
+        @type metadata: C{Dict}
         @param metadata: the metadata for this Item        
-        @type client: Client
+        @type client: L{Client}
         @param client: the API client to use for API operations
 
-        @rtype: Item
+        @rtype: L{Item}
         @returns: the new Item
         
         
@@ -1198,7 +1207,7 @@ class Item(object):
     def metadata(self):
         """ Return the metadata for this Item
         
-        @rtype: Dict
+        @rtype: C{Dict}
         @returns: the metadata for this Item
         
         
@@ -1209,7 +1218,7 @@ class Item(object):
     def url(self):
         """ Return the URL for this Item
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the URL for this Item
         
         
@@ -1221,7 +1230,7 @@ class Item(object):
         """ Return the metadata for each of the documents corresponding
         to this Item, each as a Document object
             
-        @rtype: List
+        @rtype: C{List}
         @returns: a list of Document objects corresponding to this
             Item's documents    
         """
@@ -1232,10 +1241,10 @@ class Item(object):
         """ Return the metadata for the specified document, as a
         Document object
         
-        @type index: int
+        @type index: C{int}
         @param index: the index of the document
             
-        @rtype: Document
+        @rtype: L{Document}
         @returns: the metadata for the specified document
         
         
@@ -1246,11 +1255,11 @@ class Item(object):
     def get_primary_text(self, force_download=False):
         """ Retrieve the primary text for this item from the server
         
-        @type force_download: Boolean
+        @type force_download: C{Boolean}
         @param force_download: True to download from the server
             regardless of the cache's contents
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the primary text
         
         @raises APIError: if the API request is not successful
@@ -1263,12 +1272,12 @@ class Item(object):
     def get_annotations(self, type=None, label=None):
         """ Retrieve the annotations for this item from the server
         
-        @type type: String
+        @type type: C{String}
         @param type: return only results with a matching Type field
-        @type label: String
+        @type label: C{String}
         @param label: return only results with a matching Label field
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the annotations as a JSON string
         
         @raises APIError: if the API request is not successful
@@ -1281,10 +1290,10 @@ class Item(object):
     def upload_annotation(self, annotation):
         """ Upload the given annotation to the server
 
-        @type annotation: String
+        @type annotation: C{String}
         @param annotation: the annotation, as a JSON string
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the server success response
         
         @raises APIError: if the API request is not successful
@@ -1297,7 +1306,7 @@ class Item(object):
     def __str__(self):
         """ Return the URL of this Item
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the URL of this Item
         
         
@@ -1308,10 +1317,10 @@ class Item(object):
     def __eq__(self, other):
         """ Return true if and only if this Item is identical to another
         
-        @type other: Item
+        @type other: L{Item}
         @param other: the other Item
         
-        @rtype: Boolean
+        @rtype: C{Boolean}
         @returns: True if both Items have all identical fields, otherwise False
         
         
@@ -1324,10 +1333,10 @@ class Item(object):
     def __ne__(self, other):
         """ Return true if and only if this Item is not identical to another
         
-        @type other: Item
+        @type other: L{Item}
         @param other: the other Item
         
-        @rtype: Boolean
+        @rtype: C{Boolean}
         @returns: False if both Items have all identical fields, otherwise True
         
         
@@ -1338,10 +1347,11 @@ class Item(object):
     def add_to_item_list(self, item_list_url):
         """ Add this item to the specified Item List on the server
         
-        @type item_list_url: String
-        @param item_list_url: the URL of the Item list
+        @type item_list_url: C{String} or L{ItemList}
+        @param item_list_url: the URL of the Item list,
+            or an ItemList object
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the URL of the Item List
         
         @raises APIError: if the API request is not successful
@@ -1354,10 +1364,10 @@ class Item(object):
     def add_to_item_list_by_name(self, name):
         """ Add this item to the specified Item List on the server
         
-        @type name: String
+        @type name: C{String}
         @param name: the name of the Item list
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the URL of the Item List
         
         @raises APIError: if the API request is not successful
@@ -1373,12 +1383,12 @@ class Document(object):
     def __init__(self, metadata, client):
         """ Create a new Document
         
-        @type metadata: Dict
+        @type metadata: C{Dict}
         @param metadata: the metadata for this Document
-        @type client: Client
+        @type client: L{Client}
         @param client: the API client to use for API operations
         
-        @rtype: Document
+        @rtype: L{Document}
         @returns: the new Document
         
         
@@ -1391,7 +1401,7 @@ class Document(object):
     def metadata(self):
         """ Return the metadata for this Document
         
-        @rtype: Dict
+        @rtype: C{Dict}
         @returns: the metadata for this Document
         
         
@@ -1402,7 +1412,7 @@ class Document(object):
     def url(self):
         """ Return the URL for this Document
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the URL for this Document
         
         
@@ -1413,7 +1423,7 @@ class Document(object):
     def __str__(self):
         """ Return the URL of this Document
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the URL of this Document
         
         
@@ -1424,10 +1434,10 @@ class Document(object):
     def __eq__(self, other):
         """ Return true if and only if this Document is identical to another
         
-        @type other: Document
+        @type other: L{Document}
         @param other: the other Document
         
-        @rtype: Boolean
+        @rtype: C{Boolean}
         @returns: True if both Documents have all identical fields, otherwise False
         
         
@@ -1440,10 +1450,10 @@ class Document(object):
     def __ne__(self, other):
         """ Return true if and only if this Document is not identical to another
         
-        @type other: Document
+        @type other: L{Document}
         @param other: the other Document
         
-        @rtype: Boolean
+        @rtype: C{Boolean}
         @returns: False if both Documents have all identical fields, otherwise True
         
         
@@ -1454,11 +1464,11 @@ class Document(object):
     def get_content(self, force_download=False):
         """ Retrieve the content for this Document from the server
         
-        @type force_download: Boolean
+        @type force_download: C{Boolean}
         @param force_download: True to download from the server
             regardless of the cache's contents
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the content data
         
         @raises APIError: if the API request is not successful
@@ -1471,7 +1481,7 @@ class Document(object):
     def get_filename(self):
         """ Get the original filename for this document
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the filename
         
         
@@ -1482,16 +1492,16 @@ class Document(object):
     def download_content(self, dir_path, filename=None, force_download=False):
         """ Download the content for this document to a file
         
-        @type dir_path: String
+        @type dir_path: C{String}
         @param dir_path: the path to which to write the data
-        @type filename: String
+        @type filename: C{String}
         @param filename: filename to write to (if None, defaults to the document's
             name, as specified by its metadata
-        @type force_download: Boolean
+        @type force_download: C{Boolean}
         @param force_download: True to download from the server
             regardless of the cache's contents
         
-        @rtype: String
+        @rtype: C{String}
         @returns: the path to the downloaded file
         
         @raises APIError: if the API request is not successful
