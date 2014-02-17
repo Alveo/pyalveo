@@ -66,7 +66,7 @@ len(ig1)
 if item in ig1: print('True')
 
 #so you can do things like:
-[i.get_document() for i in (ig1 - ig2).get_all()]
+docs = [i.get_document() for i in (ig1 - ig2).get_all()]
 client.download_items(ig1 + ig2, 'items.zip')
 ```
 

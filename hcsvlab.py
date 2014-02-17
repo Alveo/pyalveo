@@ -851,7 +851,7 @@ class ItemGroup(object):
         
         
         """
-        return (item_urls == other.item_urls and client == other.client)
+        return (self.urls() == other.urls() and self.client == other.client)
         
         
     def __ne__(self, other):
@@ -901,6 +901,7 @@ class ItemGroup(object):
         combined_list = self.item_urls
         combined_list += [url for url in other.item_urls if url not in self.item_urls]
         return ItemGroup(combined_list, self.client)
+       
         
     def __sub__(self, other):
         """ Returns the relative complement of this ItemGroup in another
@@ -1007,7 +1008,7 @@ class ItemGroup(object):
         
         """
         try:
-            return self.item_url(int(key))
+            return self.item_urls[key]
         except (IndexError, ValueError) as e:
             raise KeyError(e.message)
 
@@ -1042,7 +1043,7 @@ class ItemGroup(object):
         return self.client.get_item(self.item_urls[item_index], force_download)
 
         
-    def add_to_item_list_by_name(name):
+    def add_to_item_list_by_name(self, name):
         """ Add the items in this ItemGroup to the specified Item List on
         the server, creating the item list if it does not already exist
 
@@ -1059,7 +1060,7 @@ class ItemGroup(object):
         return self.client.add_to_item_list_by_name(self.item_urls, name)
         
         
-    def add_to_item_list(item_list_url):
+    def add_to_item_list(self, item_list_url):
         """ Add the items in this ItemGroup to the specified Item List on
         the server, creating the item list if it does not already exist
 
@@ -1141,6 +1142,9 @@ class ItemList(ItemGroup):
 
     def refresh(self):
         """ Update this ItemList by re-downloading it from the server
+
+        @rtype: L{ItemList}
+        @returns: this ItemList, after the refresh
         
         @raises APIError: if the API request is not successful
 
@@ -1149,6 +1153,7 @@ class ItemList(ItemGroup):
         refreshed = self.client.get_item_list(self.url())
         self.item_urls = refreshed.urls()
         self.list_name = refreshed.name()
+        return self
         
         
     def append(items):
