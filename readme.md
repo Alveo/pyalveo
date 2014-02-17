@@ -18,6 +18,10 @@ PyHCSVlab comprises the ``hcsvlab`` module and its dependencies, which provides 
 - Seamless (but configurable) local caching of item metadata, document content data and primary texts using SQLite3
 - Comprehensive epydoc documentation
 
+Documentation
+-------------
+This file provides only an introduction to this module. Full documentation for this module can be found at ./documentation/index.html
+
 Dependencies
 --------------
 
@@ -127,4 +131,10 @@ Configuration
 To generate a new, empty cache database, call ``hcsvlab.create_cache_database(path, file_dir)``. The database file will be created at ``path``, and data files will be stored in ``file_dir``, which will be created if it does not already exist.
 
 
+Metadata Search Query Syntax
+----
+The Client method ``metadata_search()`` takes a query string (based on the Apache Solr query syntax) which is passed to the server. The documentation for the query syntax is currently being compiled, but in the meantime, the following is known to work:
 
+- A bare alphanumeric string (e.g. ``digits``) will match all items with that string anywhere in their metadata
+- Individual metadata fields can be searched with ``field_name:value``, but the ``field_name`` is not the name used in the item metadata, but a corresponding identifier obtained from the lookup table at [http://ic2-hcsvlab-staging2-vm.intersect.org.au/catalog/searchable_fields]
+- The latter type can be combined with a Boolean AND, for example ``componentName:digits AND prompt:nine AND created:Sep``

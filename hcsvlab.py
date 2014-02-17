@@ -261,7 +261,7 @@ class Cache(object):
         
         
         """
-        file_path = os.path.join(self.file_dir, uuid.uuid4())
+        file_path = os.path.join(self.file_dir, str(uuid.uuid4()))
         if os.path.exists(file_path):
             warnings.warn("something has almost certainly gone wrong")
             return self.__generate_filepath()
@@ -349,9 +349,9 @@ class Client(object):
         f = open(config_file, 'r')
         c = yaml.safe_load(f.read())
         f.close()
-        return Client(c['api_key'], c['cache'], c['api_url'], c['use_cache'],
-                      c['update_cache'])
-        
+        cache = Cache(c['database'], c['max_age'])
+        return Client(c['api_key'], cache, c['api_url'], c['use_cache'],
+        c['update_cache']) 
         
     @classmethod
     def default_config(self):
@@ -555,7 +555,7 @@ class Client(object):
         metadata = self.get_item(item_url).metadata()
         
         try:
-            primary_text_url = item['primary_text_url']
+            primary_text_url = metadata['primary_text_url']
         except KeyError:
             return None
             
@@ -568,19 +568,19 @@ class Client(object):
             primary_text = self.cache.get_primary_text(item_url)
         else:
             primary_text = self.api_request(primary_text_url)
-            if update_cache:
+            if self.update_cache:
                 self.cache.add_primary_text(item_url, primary_text)
         
         return primary_text
         
         
-    def get_item_annotations(self, item_url, type=None, label=None):
+    def get_item_annotations(self, item_url, annotation_type=None, label=None):
         """ Retrieve the annotations for an item from the server
         
         @type item_url: C{String} or L{Item}
         @param item_url: URL of the item, or an Item object
-        @type type: C{String}
-        @param type: return only results with a matching Type field
+        @type annotation_type: C{String}
+        @param annotation_type: return only results with a matching Type field
         @type label: C{String}
         @param label: return only results with a matching Label field
         
@@ -592,9 +592,19 @@ class Client(object):
         
         
         """
-        md = get_item(str(item_url)).metadata()
+        md = self.get_item(str(item_url)).metadata()
+        req_url = md['annotations_url']
+        if annotation_type is not None:
+            req_url += '?'
+            req_url += urllib.urlencode((('type', annotation_type),))
+        if label is not None:
+            if annotation_type is None:
+                req_url += '?'
+            else:
+                req_url += '&'
+            req_url += urllib.urlencode((('label',label),))
         try:
-            return self.api_request(md['annotations_url'])
+            return self.api_request(req_url)
         except KeyError:
             return None
         
@@ -657,7 +667,7 @@ class Client(object):
         return resp["success"]
         
     
-    def download_items(self, items, file_path, format='zip'):
+    def download_items(self, items, file_path, file_format='zip'):
         """ Retrieve a file from the server containing the metadata
         and documents for the speficied items
             
@@ -666,8 +676,8 @@ class Client(object):
             or an ItemGroup object
         @type file_path: C{String}
         @param file_path: the path to which to save the file
-        @type format: C{String}
-        @param format: the file format to request from the server: specify
+        @type file_format: C{String}
+        @param file_format: the file format to request from the server: specify
             either 'zip' or 'warc'
             
         @rtype: C{String}
@@ -678,7 +688,10 @@ class Client(object):
         
         """
         download_url = self.api_url + '/catalog/download_items'
-        data = api_request(download_url, json.dumps(List(items)))
+        download_url += '?' + urllib.urlencode((('format', file_format),))
+        item_data = {'items': list(items)}
+        
+        data = self.api_request(download_url, json.dumps(item_data))
         
         with open(file_path, 'w') as f:
             f.write(data)
@@ -738,11 +751,12 @@ class Client(object):
         
         
         """
-        url_name = urllib.urlencode((('name', item_list_name),))
-        resp = self.api_request(self.api_url + '/item_lists?' + url_name)
-        item_list_url = json.loads(resp)[0]['item_list_url']
-        return self.get_item_list(item_list_url)
-        
+        resp = self.api_request(self.api_url + '/item_lists')
+        for item_list in json.loads(resp):
+            if item_list['name'] ==item_list_name:
+                return self.get_item_list(item_list['item_list_url'])
+        raise ValueError('List does not exist: ' + item_list_name)
+         
         
     def add_to_item_list(self, item_urls, item_list_url):
         """ Instruct the server to add the given items to the specified
@@ -756,22 +770,20 @@ class Client(object):
             or an ItemList object
         
         @rtype: C{String}
-        @returns: the item list URL
+        @returns: the server success message, if successful
         
         @raises APIError: if the request was not successful
         
         
         """
         item_list_url = str(item_list_url)
-        data = json.dumps(List(item_urls))
-        resp = self.api_request(item_list_url, data)
-        self.__check_success(resp)
-        return item_list_url
+        name = self.get_item_list(item_list_url).name()
+        return self.add_to_item_list_by_name(item_urls, name)
         
         
     def add_to_item_list_by_name(self, item_urls, item_list_name):
         """ Instruct the server to add the given items to the specified
-        Item List
+        Item List (which will be created if it does not already exist)
             
         @type item_urls: C{List} or L{ItemGroup}
         @param item_urls: List of URLs for the items to add, 
@@ -780,7 +792,7 @@ class Client(object):
         @param item_list_name: name of the item list to retrieve
         
         @rtype: C{String}
-        @returns: the item list URL
+        @returns: the server success message, if successful
         
         @raises APIError: if the request was not successful
         
@@ -788,8 +800,10 @@ class Client(object):
         """
         url_name = urllib.urlencode((('name', item_list_name),))
         request_url = self.api_url + '/item_lists?' + url_name
-        return self.add_to_item_list(List(item_urls), request_url)
-        
+        data = json.dumps({'items': list(item_urls)})
+        resp = self.api_request(request_url, data)
+        return self.__check_success(resp)
+      
         
 
 class ItemGroup(object):
@@ -807,7 +821,7 @@ class ItemGroup(object):
         @rtype: L{ItemGroup}
         @returns: the new ItemGroup
         """  
-        self.item_urls = List(item_urls)
+        self.item_urls = list(item_urls)
         self.client = client
 
         
@@ -1006,7 +1020,7 @@ class ItemGroup(object):
 
 
         """
-        return item_urls
+        return self.item_urls
 
 
     def get_item(self, item_index, force_download=False):
@@ -1088,9 +1102,9 @@ class ItemList(ItemGroup):
         
         
         """
-        super(ItemList, self).__init__(List(item_urls), client) #augh
-        self.url = url
-        self.name = name
+        super(ItemList, self).__init__(list(item_urls), client) #augh
+        self.list_url = url
+        self.list_name = name
         
     def __str__(self):
         """ Return the URL corresponding to this ItemList
@@ -1100,7 +1114,7 @@ class ItemList(ItemGroup):
         
 
         """
-        return url()
+        return self.url()
         
     
     def name(self):
@@ -1111,7 +1125,7 @@ class ItemList(ItemGroup):
         
         
         """
-        return self.name
+        return self.list_name
         
         
     def url(self):
@@ -1122,7 +1136,7 @@ class ItemList(ItemGroup):
         
 
         """
-        return self.url
+        return self.list_url
         
 
     def refresh(self):
@@ -1132,9 +1146,9 @@ class ItemList(ItemGroup):
 
 
         """
-        refreshed = self.client.get_item_list(self.url)
+        refreshed = self.client.get_item_list(self.url())
         self.item_urls = refreshed.urls()
-        self.name = refreshed.name()
+        self.list_name = refreshed.name()
         
         
     def append(items):
@@ -1148,7 +1162,7 @@ class ItemList(ItemGroup):
         
         
         """
-        self.client.add_to_item_list(items, self.url)
+        self.client.add_to_item_list(items, self.url())
         self.item_urls += items
         
         
@@ -1163,8 +1177,8 @@ class ItemList(ItemGroup):
         
         
         """
-        return (self.url == other.url and
-                self.name == other.name and
+        return (self.url() == other.url() and
+                self.name() == other.name() and
                 super.__eq__(other))
         
         
@@ -1199,8 +1213,8 @@ class Item(object):
         
         
         """
-        self.url = metadata['catalog_url']
-        self.metadata = metadata
+        self.item_url = metadata['catalog_url']
+        self.item_metadata = metadata
         self.client = client
         
         
@@ -1212,7 +1226,7 @@ class Item(object):
         
         
         """
-        return self.metadata
+        return self.item_metadata
         
         
     def url(self):
@@ -1223,7 +1237,7 @@ class Item(object):
         
         
         """
-        return self.url
+        return self.item_url
         
         
     def get_documents(self):
@@ -1234,7 +1248,7 @@ class Item(object):
         @returns: a list of Document objects corresponding to this
             Item's documents    
         """
-        return[Document(d, self.client) for d in self.metadata['Documents']]
+        return[Document(d, self.client) for d in self.metadata()['documents']]
         
         
     def get_document(self, index=0):
@@ -1249,7 +1263,7 @@ class Item(object):
         
         
         """
-        return Document(self.metadata['Documents'][index], self.client)
+        return Document(self.metadata()['documents'][index], self.client)
         
         
     def get_primary_text(self, force_download=False):
@@ -1266,7 +1280,7 @@ class Item(object):
         
 
         """
-        return self.client.get_primary_text(self.url, force_download)
+        return self.client.get_primary_text(self.url(), force_download)
         
         
     def get_annotations(self, type=None, label=None):
@@ -1284,7 +1298,7 @@ class Item(object):
         
         
         """   
-        return self.client.get_item_annotations(self.url, type, label)
+        return self.client.get_item_annotations(self.url(), type, label)
         
             
     def upload_annotation(self, annotation):
@@ -1300,7 +1314,8 @@ class Item(object):
         
         
         """
-        return self.client.upload_annotation(self.url, annotation)
+        #TODO: figure out how to test this
+        return self.client.upload_annotation(self.url(), annotation)
         
         
     def __str__(self):
@@ -1325,8 +1340,8 @@ class Item(object):
         
         
         """
-        return (self.url == other.url and 
-                self.metadata == other.metadata and
+        return (self.url() == other.url() and 
+                self.metadata() == other.metadata() and
                 self.client == other.client)
         
         
@@ -1358,7 +1373,7 @@ class Item(object):
         
         
         """
-        return self.client.add_to_item_list([self.url], item_list_url)
+        return self.client.add_to_item_list([self.url()], item_list_url)
         
         
     def add_to_item_list_by_name(self, name):
@@ -1374,7 +1389,7 @@ class Item(object):
         
         
         """
-        return self.client.add_to_item_list_by_name([self.url], name)    
+        return self.client.add_to_item_list_by_name([self.url()], name)    
         
         
 class Document(object):
@@ -1393,8 +1408,8 @@ class Document(object):
         
         
         """
-        self.url = metadata['catalog_url']
-        self.metadata = metadata
+        self.doc_url = metadata['url']
+        self.doc_metadata = metadata
         self.client = client
         
         
@@ -1406,7 +1421,7 @@ class Document(object):
         
         
         """
-        return self.metadata
+        return self.doc_metadata
         
         
     def url(self):
@@ -1417,7 +1432,7 @@ class Document(object):
         
         
         """
-        return self.url
+        return self.doc_url
         
         
     def __str__(self):
@@ -1442,9 +1457,9 @@ class Document(object):
         
         
         """
-        return (self.url == other.url and
-                self.metadata == other.metadata and
-                self.client == other.client)
+        return (self.url() == other.url() and
+                self.metadata() == other.metadata() and
+                self.client() == other.client())
         
         
     def __ne__(self, other):
@@ -1475,7 +1490,7 @@ class Document(object):
         
         
         """
-        return self.client.get_document(self.url, force_download)
+        return self.client.get_document(self.url(), force_download)
         
         
     def get_filename(self):
@@ -1486,7 +1501,7 @@ class Document(object):
         
         
         """
-        return urllib.unquote(self.url.rsplit('/',1))
+        return urllib.unquote(self.url().rsplit('/',1))
         
         
     def download_content(self, dir_path, filename=None, force_download=False):
@@ -1511,7 +1526,7 @@ class Document(object):
         if filename is None:
             filename = self.get_filename()
         path = os.path.join(dir_path, filename)
-        data = self.client.get_document(self.url, force_download)
+        data = self.client.get_document(self.url(), force_download)
         with open(path, 'w') as f:
             f.write(data)
         return path
