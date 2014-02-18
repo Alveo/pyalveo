@@ -81,12 +81,13 @@ class Cache(object):
         if not os.path.isfile(database):
             raise ValueError("Database file does not exist")
         self.conn = sqlite3.connect(database)
-        self.c = self.conn.cursor()
-        self.c.execute("SELECT * FROM meta WHERE key=?", ("file_dir",))
-        row = self.c.fetchone()
+        c = self.conn.cursor()
+        c.execute("SELECT * FROM meta WHERE key=?", ("file_dir",))
+        row = c.fetchone()
         if row is None:
             raise ValueError("Database not correctly initialized:"
                              "missing file directory path")
+        c.close()
         self.file_dir = row[1]
 
 
@@ -158,8 +159,11 @@ class Cache(object):
        
         
         """
-        self.c.execute("SELECT * FROM items WHERE url=?", (str(item_url),))
-        return self.__exists_row_not_too_old(self.c.fetchone())
+        c = self.conn.cursor()
+        c.execute("SELECT * FROM items WHERE url=?", (str(item_url),))
+        row = c.fetchone()
+        c.close()
+        return self.__exists_row_not_too_old(row)
         
         
     def has_document(self, doc_url):
@@ -177,8 +181,11 @@ class Cache(object):
         
         
         """
-        self.c.execute("SELECT * FROM documents WHERE url=?", (str(doc_url),))
-        return self.__exists_row_not_too_old(self.c.fetchone())
+        c = self.conn.cursor()
+        c.execute("SELECT * FROM documents WHERE url=?", (str(doc_url),))
+        row = c.fetchone()
+        c.close()
+        return self.__exists_row_not_too_old(row)
         
         
     def has_primary_text(self, item_url):
@@ -196,9 +203,12 @@ class Cache(object):
         
         
         """
-        self.c.execute("SELECT * FROM primary_texts WHERE item_url=?",
+        c = self.conn.cursor()
+        c.execute("SELECT * FROM primary_texts WHERE item_url=?",
                       (str(item_url),))
-        return self.__exists_row_not_too_old(self.c.fetchone())
+        row = c.fetchone()
+        c.close()
+        return self.__exists_row_not_too_old(row)
 
         
     def get_item(self, item_url):
@@ -214,8 +224,10 @@ class Cache(object):
         
         
         """
-        self.c.execute("SELECT * FROM items WHERE url=?", (str(item_url),))
-        row = self.c.fetchone()
+        c = self.conn.cursor()
+        c.execute("SELECT * FROM items WHERE url=?", (str(item_url),))
+        row = c.fetchone()
+        c.close()
         if row is None:
             raise ValueError("Item not present in cache")
         return row[1]
@@ -234,8 +246,10 @@ class Cache(object):
         
         
         """
-        self.c.execute("SELECT * FROM documents WHERE url=?", (str(doc_url),))
-        row = self.c.fetchone()
+        c = self.conn.cursor()
+        c.execute("SELECT * FROM documents WHERE url=?", (str(doc_url),))
+        row = c.fetchone()
+        c.close()
         if row is None:
             raise ValueError("Item not present in cache")
         file_path = row[1]
@@ -261,9 +275,11 @@ class Cache(object):
         
         
         """
-        self.c.execute("SELECT * FROM primary_texts WHERE item_url=?", 
+        c = self.conn.cursor()
+        c.execute("SELECT * FROM primary_texts WHERE item_url=?", 
                       (str(item_url),))
-        row = self.c.fetchone()
+        row = c.fetchone()
+        c.close()
         if row is None:
             raise ValueError("Item not present in cache")
         return row[1]       
@@ -280,9 +296,13 @@ class Cache(object):
         
         
         """
-        self.c.execute("INSERT INTO items VALUES (?, ?, ?)", 
+        c = self.conn.cursor()
+        c.execute("DELETE FROM items WHERE url=?", (str(item_url),))
+        self.conn.commit()
+        c.execute("INSERT INTO items VALUES (?, ?, ?)", 
                   (str(item_url), item_metadata, self.__now_iso_8601()))
         self.conn.commit()
+        c.close()
         
         
     def __generate_filepath(self):
@@ -314,10 +334,19 @@ class Cache(object):
         file_path = self.__generate_filepath()
         with open(file_path, 'w') as f:
             f.write(data)
-        self.c.execute("INSERT INTO documents VALUES (?, ?, ?)", 
+        
+        c = self.conn.cursor()
+        c.execute("SELECT * FROM documents WHERE url=?", (str(doc_url),))
+        for row in c.fetchall():
+            old_file_path = row[1]
+            if os.path.isfile(old_file_path):
+                os.unlink(old_file_path)
+        c.execute("DELETE FROM documents WHERE url=?", (str(doc_url),))
+        self.conn.commit()
+        c.execute("INSERT INTO documents VALUES (?, ?, ?)", 
                   (str(doc_url), file_path, self.__now_iso_8601()))
         self.conn.commit()
-        
+        c.close()
         
     def add_primary_text(self, item_url, primary_text):
         """ Add the given primary text to the cache database, updating
@@ -330,9 +359,14 @@ class Cache(object):
         
         
         """
-        self.c.execute("INSERT INTO primary_texts VALUES (?, ?, ?)", 
+        c = self.conn.cursor()
+        c.execute("DELETE FROM primary_texts WHERE item_url=?", 
+                      (str(item_url),))
+        self.conn.commit()
+        c.execute("INSERT INTO primary_texts VALUES (?, ?, ?)", 
                   (str(item_url), primary_text, self.__now_iso_8601()))
         self.conn.commit()
+        c.close()
         
         
 class Client(object):
@@ -593,7 +627,7 @@ class Client(object):
             
         if primary_text_url == 'No primary text found':
             return None
-        
+       
         if (self.use_cache and 
                 not force_download and 
                 self.cache.has_primary_text(item_url)):        
@@ -1544,7 +1578,7 @@ class Document(object):
         return urllib.unquote(self.url().rsplit('/',1)[1])
         
         
-    def download_content(self, dir_path='', filename=None, force_download=False):
+    def download_content(self, dir_path, filename=None, force_download=False):
         """ Download the content for this document to a file
         
         @type dir_path: C{String}
