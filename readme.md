@@ -6,7 +6,7 @@ A Python library for interfacing with the HCSvLab API
 Version
 ----
 
-0.1a
+0.1
 
 Introduction
 -----------
@@ -42,14 +42,14 @@ Below are short summaries of each class included in the ``hcsvlab`` module. For 
 Implements all HCSvLab API methods. Generally, you will want to construct a Client using the ``default_config_file()`` method, or with the ``with_config_file()`` method (see below for information on the format of the configuration file), but you can also specify the configuration manually:
 
 ```py
-client = hcsvlab.Client.default_config_file()
+client = hcsvlab.Client.default_config()
 client = hcsvlab.Client.with_config_file('my_config.yaml')
 client = hcsvlab.Client('MYAPIKEY', hcsvlab.Cache('cache.db'), 'http://ic2-hcsvlab-staging2-vm.intersect.org.au')
 ```
 
 **ItemGroup**
 
-Represents an ordered list of HCSvLab items. Essentially behaves like a List of item URLs. Get an individual item as an Item object with ``get_item()``. Supports addition (union), subtraction (relative complement), and intersection, equality-checking, iteration, length inspection, indexing, and membership checking:
+Represents an ordered list of HCSvLab items. Essentially behaves like a List of item URLs, but with additional functionality. Get an individual item as an Item object with ``get_item()``. Supports addition (union), subtraction (relative complement), and intersection, equality-checking, iteration, length inspection, indexing, and membership checking:
 
 ```py
 ig1 = client.search_metadata('componentName:digits AND prompt:nine')
@@ -77,8 +77,11 @@ Extends (inherits from) ItemGroup to represent an Item List appearing on the HCS
 ```py
 il = client.get_item_list_by_name('foobar')
 il.append(ig2)
-il.refresh() 
 #il should now reflect the new items, both locally and on the server
+
+#if we add items using another method, the list needs to be refreshed manuallly before it will be updated:
+cl.add_to_item_list([ig1[200]], il)
+il.refresh() 
 ```
 
 **Item**
@@ -88,7 +91,7 @@ Represents a single HCSvLab item. Essentially behaves like a String containing t
 ```py
 item = ig1.get_item(2)
 if item == ig2.get_item(2): 
-    print(item.metadata()['austalk:prompt'])
+    print(item.metadata()['metadata']['austalk:prompt'])
 
 if item in ig2: item.add_to_item_list(il)
 
@@ -105,8 +108,8 @@ Represents a single HCSvLab document. Mostly you probably want to use ``get_cont
 
 ```py
 doc = item.get_document()
-doc.download_content('~/downloads') #uses original filename, or:
-doc.download_content('~/downloads', 'filename.wav')
+doc.download_content('/home/me/downloads') #uses original filename, or:
+doc.download_content('/home/me/downloads', 'filename.wav')
 
 #this produces the actual data
 data = doc.get_content()

@@ -1338,7 +1338,11 @@ class Item(object):
         
         
         """
-        return Document(self.metadata()['documents'][index], self.client)
+        try:
+            return Document(self.metadata()['documents'][index], self.client)
+        except IndexError:
+            raise ValueError('No document exists for this item with index: '
+                             + str(index))
         
         
     def get_primary_text(self, force_download=False):
