@@ -76,6 +76,8 @@ class Cache(object):
         
         """
         self.max_age = max_age
+        self.database = database
+
         if not os.path.isfile(database):
             raise ValueError("Database file does not exist")
         self.conn = sqlite3.connect(database)
@@ -86,8 +88,38 @@ class Cache(object):
             raise ValueError("Database not correctly initialized:"
                              "missing file directory path")
         self.file_dir = row[1]
-        
-        
+
+
+    def __eq__(self, other):
+        """ Return True if this cache has identical fields to another
+
+        @type other: L{Cache}
+        @param other: the other Cache
+
+        @rtype: C{Boolean}
+        @returns: True if the caches are identical, oterwise False
+
+
+        """
+        return(self.max_age == other.max_age and
+               self.database == other.database)
+
+   
+    
+    def __ne__(self, other):                                              
+        """ Return False if this cache has all identical fields to another
+                                                                        
+        @type other: L{Cache}                                            
+        @param other: the other Cache                                    
+                                                                        
+        @rtype: C{Boolean}                                               
+        @returns: False if the caches are identical, oterwise True
+                                                                         
+                                                                         
+        """                                                               
+        return not self.__eq__(other) 
+    
+    
     def __del__(self):
         """ Close the database connection """
         self.conn.close()
@@ -1156,20 +1188,23 @@ class ItemList(ItemGroup):
         return self
         
         
-    def append(items):
+    def append(self, items):
         """ Add some items to this ItemList and save the changes to the server
 
         @param items: the items to add, either as a List of Item objects, an
             ItemList, a List of item URLs as Strings, a single item URL as a
             String, or a single Item object
+
+        @rtype: String
+        @returns: the server success message
         
         @raises APIError: if the API request is not successful
         
         
         """
-        self.client.add_to_item_list(items, self.url())
-        self.item_urls += items
-        
+        resp = self.client.add_to_item_list(items, self.url())
+        self.refresh()
+        return resp
         
     def __eq__(self, other):
         """ Return true if another ItemList has all identical fields
@@ -1184,7 +1219,7 @@ class ItemList(ItemGroup):
         """
         return (self.url() == other.url() and
                 self.name() == other.name() and
-                super.__eq__(other))
+                super(ItemList, self).__eq__(other))
         
         
     def __ne__(self, other):
