@@ -1499,7 +1499,7 @@ class Document(object):
         """
         return (self.url() == other.url() and
                 self.metadata() == other.metadata() and
-                self.client() == other.client())
+                self.client == other.client)
         
         
     def __ne__(self, other):
@@ -1541,10 +1541,10 @@ class Document(object):
         
         
         """
-        return urllib.unquote(self.url().rsplit('/',1))
+        return urllib.unquote(self.url().rsplit('/',1)[1])
         
         
-    def download_content(self, dir_path, filename=None, force_download=False):
+    def download_content(self, dir_path='', filename=None, force_download=False):
         """ Download the content for this document to a file
         
         @type dir_path: C{String}
