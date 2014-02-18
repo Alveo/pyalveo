@@ -691,6 +691,7 @@ class Client(object):
         
         
         """
+        #TODO: test this
         resp = self.api_request(str(item_url) + '/annotations', annotation)
         return self.__check_success(resp)
         
@@ -1578,7 +1579,8 @@ class Document(object):
         return urllib.unquote(self.url().rsplit('/',1)[1])
         
         
-    def download_content(self, dir_path, filename=None, force_download=False):
+    def download_content(self, dir_path='', filename=None, 
+                         force_download=False):
         """ Download the content for this document to a file
         
         @type dir_path: C{String}
