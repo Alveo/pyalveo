@@ -11,8 +11,6 @@ import dateutil.parser
 import dateutil.tz
 import yaml
 
-import pdb
-
 class APIError(Exception):
     """ Raised when an API operation fails for some reason """
     def __init__(self, http_status_code, response, msg):
