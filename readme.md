@@ -136,7 +136,7 @@ To generate a new (empty) cache database, call ``hcsvlab.create_cache_database(p
 
 Metadata Search Query Syntax
 ----
-The Client method ``metadata_search()`` takes a query string (based on the Apache Solr query syntax) which is passed to the server. The documentation for the query syntax is currently being compiled, but in the meantime, the following is known to work:
+The Client method ``search_metadata()`` takes a query string (based on the Apache Solr query syntax) which is passed to the server. The documentation for the query syntax is currently being compiled, but in the meantime, the following is known to work:
 
 - A bare alphanumeric string (e.g. ``digits``) will match all items with that string anywhere in their metadata
 - Individual metadata fields can be searched with ``field_name:value``, but the ``field_name`` is not the name used in the item metadata, but a corresponding identifier obtained from [this lookup table](http://ic2-hcsvlab-staging2-vm.intersect.org.au/catalog/searchable_fields)
