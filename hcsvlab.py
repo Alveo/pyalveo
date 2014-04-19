@@ -619,7 +619,7 @@ class Client(object):
         metadata = self.get_item(item_url).metadata()
         
         try:
-            primary_text_url = metadata['primary_text_url']
+            primary_text_url = metadata['alveo:primary_text_url']
         except KeyError:
             return None
             
@@ -1324,7 +1324,7 @@ class Item(object):
         @returns: a list of Document objects corresponding to this
             Item's documents    
         """
-        return[Document(d, self.client) for d in self.metadata()['documents']]
+        return[Document(d, self.client) for d in self.metadata()['alveo:documents']]
         
         
     def get_document(self, index=0):
@@ -1340,7 +1340,7 @@ class Item(object):
         
         """
         try:
-            return Document(self.metadata()['documents'][index], self.client)
+            return Document(self.metadata()['alveo:documents'][index], self.client)
         except IndexError:
             raise ValueError('No document exists for this item with index: '
                              + str(index))
