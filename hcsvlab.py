@@ -803,11 +803,14 @@ class Client(object):
         return ItemList(resp['items'], self, str(item_list_url), resp['name'])
 
 
-    def get_item_list_by_name(self, item_list_name):
+    def get_item_list_by_name(self, item_list_name, category='own'):
         """ Retrieve an item list from the server as an ItemList object
 
         @type item_list_name: C{String}
         @param item_list_name: name of the item list to retrieve
+        @type category: C{String}
+        @param category: the category of lists to fetch. At the time of
+            writing, supported values are "own" and "shared"
 
         @rtype: L{ItemList}
         @returns: The ItemList
@@ -817,8 +820,8 @@ class Client(object):
         
         """
         resp = self.api_request(self.api_url + '/item_lists')
-        for item_list in json.loads(resp):
-            if item_list['name'] ==item_list_name:
+        for item_list in json.loads(resp)[category]:
+            if item_list['name'] == item_list_name:
                 return self.get_item_list(item_list['item_list_url'])
         raise ValueError('List does not exist: ' + item_list_name)
          
