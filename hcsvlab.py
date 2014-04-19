@@ -1289,7 +1289,7 @@ class Item(object):
         
         
         """
-        self.item_url = metadata['catalog_url']
+        self.item_url = metadata['alveo:catalog_url']
         self.item_metadata = metadata
         self.client = client
         
