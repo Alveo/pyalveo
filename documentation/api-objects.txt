@@ -29,9 +29,11 @@ pyhcsvlab.hcsvlab.Client.add_to_item_list	pyhcsvlab.hcsvlab.Client-class.html#ad
 pyhcsvlab.hcsvlab.Client.api_request	pyhcsvlab.hcsvlab.Client-class.html#api_request
 pyhcsvlab.hcsvlab.Client.add_to_item_list_by_name	pyhcsvlab.hcsvlab.Client-class.html#add_to_item_list_by_name
 pyhcsvlab.hcsvlab.Client.__init__	pyhcsvlab.hcsvlab.Client-class.html#__init__
+pyhcsvlab.hcsvlab.Client.sparql_query	pyhcsvlab.hcsvlab.Client-class.html#sparql_query
 pyhcsvlab.hcsvlab.Client.get_primary_text	pyhcsvlab.hcsvlab.Client-class.html#get_primary_text
 pyhcsvlab.hcsvlab.Client.get_item_lists	pyhcsvlab.hcsvlab.Client-class.html#get_item_lists
 pyhcsvlab.hcsvlab.Client.get_document	pyhcsvlab.hcsvlab.Client-class.html#get_document
+pyhcsvlab.hcsvlab.Client.get_annotation_types	pyhcsvlab.hcsvlab.Client-class.html#get_annotation_types
 pyhcsvlab.hcsvlab.Client.__ne__	pyhcsvlab.hcsvlab.Client-class.html#__ne__
 pyhcsvlab.hcsvlab.Client.download_items	pyhcsvlab.hcsvlab.Client-class.html#download_items
 pyhcsvlab.hcsvlab.Client.get_item_list_by_name	pyhcsvlab.hcsvlab.Client-class.html#get_item_list_by_name
@@ -39,6 +41,7 @@ pyhcsvlab.hcsvlab.Client.with_config_file	pyhcsvlab.hcsvlab.Client-class.html#wi
 pyhcsvlab.hcsvlab.Client.__eq__	pyhcsvlab.hcsvlab.Client-class.html#__eq__
 pyhcsvlab.hcsvlab.Client.__check_success	pyhcsvlab.hcsvlab.Client-class.html#__check_success
 pyhcsvlab.hcsvlab.Client.get_item	pyhcsvlab.hcsvlab.Client-class.html#get_item
+pyhcsvlab.hcsvlab.Client.rename_item_list	pyhcsvlab.hcsvlab.Client-class.html#rename_item_list
 pyhcsvlab.hcsvlab.Client.get_item_annotations	pyhcsvlab.hcsvlab.Client-class.html#get_item_annotations
 pyhcsvlab.hcsvlab.Client.get_annotation_context	pyhcsvlab.hcsvlab.Client-class.html#get_annotation_context
 pyhcsvlab.hcsvlab.Client.get_collection_info	pyhcsvlab.hcsvlab.Client-class.html#get_collection_info
@@ -62,6 +65,7 @@ pyhcsvlab.hcsvlab.Item.add_to_item_list	pyhcsvlab.hcsvlab.Item-class.html#add_to
 pyhcsvlab.hcsvlab.Item.add_to_item_list_by_name	pyhcsvlab.hcsvlab.Item-class.html#add_to_item_list_by_name
 pyhcsvlab.hcsvlab.Item.__init__	pyhcsvlab.hcsvlab.Item-class.html#__init__
 pyhcsvlab.hcsvlab.Item.get_document	pyhcsvlab.hcsvlab.Item-class.html#get_document
+pyhcsvlab.hcsvlab.Item.get_annotation_types	pyhcsvlab.hcsvlab.Item-class.html#get_annotation_types
 pyhcsvlab.hcsvlab.Item.metadata	pyhcsvlab.hcsvlab.Item-class.html#metadata
 pyhcsvlab.hcsvlab.Item.__ne__	pyhcsvlab.hcsvlab.Item-class.html#__ne__
 pyhcsvlab.hcsvlab.Item.__eq__	pyhcsvlab.hcsvlab.Item-class.html#__eq__

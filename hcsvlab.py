@@ -920,7 +920,7 @@ class Client(object):
     
     def sparql_query(self, collection_name, query):
         """ Submit a sparql query to the server to search metadata
-            and annotations.
+        and annotations.
             
         @type collection_name: C{String}
         @param collection_name: the name of the collection to search
