@@ -374,9 +374,12 @@ class Client(object):
    
    
     """
-    def __init__(self, api_key, cache, api_url, 
-                 use_cache=True, update_cache=True):
-        """ Construct a new Client
+    def __init__(self, api_key=None, api_url=None, cache=None,  
+                 use_cache=None, update_cache=None):
+        """ Construct a new Client with the specified parameters.
+        Unspecified parameters will be derived from the configuration
+        file named C{config.yaml} in the same directory as the
+        hcsvlab source file
 
         @type api_key: C{String}
         @param api_key: the API key to use
@@ -394,42 +397,36 @@ class Client(object):
         @rtype: L{Client}
         @returns: the new Client
         """
-        self.api_key = api_key
-        self.api_url = api_url
-        self.cache = cache
-        self.use_cache = use_cache
-        self.update_cache = update_cache
-
+        config_dir = os.path.dirname(os.path.abspath(__file__))
         
-    @classmethod
-    def with_config_file(self, config_file):
-        """ Construct a new Client using the specified configuration file
-
-        @type config_file: C{String}
-        @param config_file: path to the configuration file
-
-        @rtype: L{Client}
-        @returns: the new Client
-        """
-        f = open(config_file, 'r')
-        c = yaml.safe_load(f.read())
-        f.close()
-        cache = Cache(c['database'], c['max_age'])
-        return Client(c['api_key'], cache, c['api_url'], c['use_cache'],
-        c['update_cache']) 
+        try:
+            f = open(os.path.join(config_dir, 'config.yaml'), 'r')
+            conf = yaml.safe_load(f.read())
+            f.close()
+        except IOError as exc:
+            raise IOError('Problem accessing configuration file at ' +
+                          os.path.join(file_dir, 'config.yaml') +
+                          ' with error: ' +
+                          exc.msg())
         
-    @classmethod
-    def default_config(self):
-        """ Construct a new Client using the default configuration file 
+        alveo_config = os.path.expanduser(conf['alveo_config'])
+        alveo_config = os.path.expandvars(alveo_config)
         
-        @rtype: L{Client}
-        @returns: the new Client
-        
-        
-        """
-        file_dir = os.path.dirname(os.path.abspath(__file__))
-        file_path = os.path.join(file_dir, 'config.yaml')
-        return Client.with_config_file(file_path)
+        if api_key is None:
+            self.api_key = json.load(open(alveo_config))['apiKey']
+        else: self.api_key = api_key
+        if api_url is None:
+            self.api_url = json.load(open(alveo_config))['base_url']
+        else: self.api_url = api_url
+        if cache is None:
+            self.cache = Cache(conf['database'], conf['max_age'])
+        else: self.cache = cache   
+        if use_cache is None:
+            self.use_cache = conf['use_cache']
+        else: self.use_cache = use_cache
+        if update_cache is None:
+            self.update_cache = conf['update_cache']
+        else: self.update_cache = update_cache
 
     
     def __eq__(self, other):

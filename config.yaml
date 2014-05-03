@@ -1,6 +1,5 @@
-api_key:        YOUR_API_KEY_HERE
 database:       cache.db
 max_age:        0
-api_url:        http://ic2-hcsvlab-staging2-vm.intersect.org.au
 use_cache:      True
 update_cache:   True
+alveo_config:   ~/alveo.config

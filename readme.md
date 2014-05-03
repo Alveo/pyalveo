@@ -1,12 +1,12 @@
 PyHCSvLab
 =========
 
-A Python library for interfacing with the HCSvLab API
+A Python library for interfacing with the HCSvLab/Alveo API
 
 Version
 ----
 
-0.1
+0.2
 
 Introduction
 -----------
@@ -21,6 +21,8 @@ PyHCSVlab comprises the ``hcsvlab`` module and its dependencies, which provides 
 Documentation
 -------------
 This file provides only an introduction to this module. Full documentation can be found at ./documentation/index.html
+
+To get started immediately, download your ``alveo.config`` file from the Alveo web interface, place it in your home directory, then call ``hcsvlab.Client()`` to obtain a Client instance configured with your API key.
 
 Dependencies
 --------------
@@ -39,12 +41,12 @@ Below are short summaries of each class included in the ``hcsvlab`` module. For 
 
 **Client**
 
-Implements all HCSvLab API methods. Generally, you will want to construct a Client using the ``default_config()`` method, or with the ``with_config_file()`` method (see below for information on the format of the configuration file), but you can also specify the configuration manually:
+Implements all HCSvLab API methods. ItemList, ItemGroup, Item and Document objects all interact with the API using an instance of this class.
 
 ```py
-client = hcsvlab.Client.default_config()
-client = hcsvlab.Client.with_config_file('my_config.yaml')
-client = hcsvlab.Client('MYAPIKEY', hcsvlab.Cache('cache.db'), 'http://ic2-hcsvlab-staging2-vm.intersect.org.au')
+client = hcsvlab.Client()
+client = hcsvlab.Client(api_key='MY_API_KEY', api_url='http://example.com', 
+                        cache='cache.db', use_cache=True, update_cache=True)
 ```
 
 **ItemGroup**
@@ -129,7 +131,7 @@ Exception thrown whenever an API access is unsuccessful.
 
 Configuration
 ----
-``Client.with_config_file()`` reads a YAML file specifying (as key-value pairs) the options that would normally be passed to ``Cache()`` and ``Client()``. A default configuration file, ``config.yaml``, is provided, though an API key needs to be filled in before use (this is the file that is passed to ``Client.with_config_file()`` when ``Client.default_config()`` is called).
+When any parameter is not specified when invoking the Client constructor, the value of that parameter will be derived from the ``config.yaml`` file in the same directory as the ``hcsvlab`` source. This file also specifies the location of the Alveo configuration file from which the API key and URL will be read. By default, this is located at ``~/alveo.config``.
 
 To generate a new (empty) cache database, call ``hcsvlab.create_cache_database(path, file_dir)``. The database file will be created at ``path``, and data files will be stored in ``file_dir``, which will be created if it does not already exist.
 
