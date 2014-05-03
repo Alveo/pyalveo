@@ -37,7 +37,6 @@ pyhcsvlab.hcsvlab.Client.get_annotation_types	pyhcsvlab.hcsvlab.Client-class.htm
 pyhcsvlab.hcsvlab.Client.__ne__	pyhcsvlab.hcsvlab.Client-class.html#__ne__
 pyhcsvlab.hcsvlab.Client.download_items	pyhcsvlab.hcsvlab.Client-class.html#download_items
 pyhcsvlab.hcsvlab.Client.get_item_list_by_name	pyhcsvlab.hcsvlab.Client-class.html#get_item_list_by_name
-pyhcsvlab.hcsvlab.Client.with_config_file	pyhcsvlab.hcsvlab.Client-class.html#with_config_file
 pyhcsvlab.hcsvlab.Client.__eq__	pyhcsvlab.hcsvlab.Client-class.html#__eq__
 pyhcsvlab.hcsvlab.Client.__check_success	pyhcsvlab.hcsvlab.Client-class.html#__check_success
 pyhcsvlab.hcsvlab.Client.get_item	pyhcsvlab.hcsvlab.Client-class.html#get_item
@@ -46,7 +45,6 @@ pyhcsvlab.hcsvlab.Client.get_item_annotations	pyhcsvlab.hcsvlab.Client-class.htm
 pyhcsvlab.hcsvlab.Client.get_annotation_context	pyhcsvlab.hcsvlab.Client-class.html#get_annotation_context
 pyhcsvlab.hcsvlab.Client.get_collection_info	pyhcsvlab.hcsvlab.Client-class.html#get_collection_info
 pyhcsvlab.hcsvlab.Client.search_metadata	pyhcsvlab.hcsvlab.Client-class.html#search_metadata
-pyhcsvlab.hcsvlab.Client.default_config	pyhcsvlab.hcsvlab.Client-class.html#default_config
 pyhcsvlab.hcsvlab.Document	pyhcsvlab.hcsvlab.Document-class.html
 pyhcsvlab.hcsvlab.Document.__ne__	pyhcsvlab.hcsvlab.Document-class.html#__ne__
 pyhcsvlab.hcsvlab.Document.url	pyhcsvlab.hcsvlab.Document-class.html#url
