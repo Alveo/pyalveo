@@ -25,6 +25,28 @@ class APIError(Exception):
         ret += self.response + "\n"
         return ret + self.msg
                 
+
+
+def get_configuration():
+    """ 
+    Load the configuration file called config.yaml in the same directory as this file
+    Return the configuration variable { conf }
+
+    """
+    config_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    try:
+        f = open(os.path.join(config_dir, 'config.yaml'), 'r')
+        conf = yaml.safe_load(f.read())
+        f.close()
+        return conf
+    except IOError as exc:
+        raise IOError('Problem accessing configuration file at ' +
+                      os.path.join(file_dir, 'config.yaml') +
+                      ' with error: ' +
+                      exc.msg())
+    
+
                 
 def create_cache_database(path, file_dir):
     """ Create a new SQLite3 database for use with Cache objects
@@ -41,8 +63,26 @@ def create_cache_database(path, file_dir):
     
     
     """
-    file_dir = os.path.abspath(file_dir)
+    #file_dir = os.path.abspath(file_dir)
+    
+    file_dir = os.path.expanduser(file_dir)
+    file_dir = os.path.expandvars(file_dir)
+    print file_dir
+
+    path = os.path.expanduser(path)
+    path = os.path.expandvars(path)
+    
+
+    if not os.path.exists(file_dir):
+        os.makedirs(file_dir)
+
+    print path
+    #if not os.path.exists(path):
+    #    file(path, "w")
+
+    #print path
     conn = sqlite3.connect(path)
+    conn.text_factory = str
     c = conn.cursor()
     c.execute("""CREATE TABLE items
                  (url text, metadata text, datetime text)""")
@@ -76,10 +116,15 @@ class Cache(object):
         """
         self.max_age = max_age
         self.database = database
+        conf = get_configuration()
 
         if not os.path.isfile(database):
-            raise ValueError("Database file does not exist")
+            # Create database if not present
+            print 'creating new database'
+            create_cache_database(conf['path'], conf['file_dir'])
+
         self.conn = sqlite3.connect(database)
+        self.conn.text_factory = str
         c = self.conn.cursor()
         c.execute("SELECT * FROM meta WHERE key=?", ("file_dir",))
         row = c.fetchone()
@@ -367,6 +412,7 @@ class Cache(object):
         self.conn.commit()
         c.close()
         
+
         
 class Client(object):
     """ Client object used to manipulate HCSvLab objects and interface
@@ -397,20 +443,12 @@ class Client(object):
         @rtype: L{Client}
         @returns: the new Client
         """
-        config_dir = os.path.dirname(os.path.abspath(__file__))
         
-        try:
-            f = open(os.path.join(config_dir, 'config.yaml'), 'r')
-            conf = yaml.safe_load(f.read())
-            f.close()
-        except IOError as exc:
-            raise IOError('Problem accessing configuration file at ' +
-                          os.path.join(file_dir, 'config.yaml') +
-                          ' with error: ' +
-                          exc.msg())
-        
+        conf = get_configuration()
         alveo_config = os.path.expanduser(conf['alveo_config'])
         alveo_config = os.path.expandvars(alveo_config)
+        database = os.path.expanduser(conf['database'])
+        database = os.path.expandvars(database)
         
         if api_key is None:
             self.api_key = json.load(open(alveo_config))['apiKey']
@@ -419,7 +457,7 @@ class Client(object):
             self.api_url = json.load(open(alveo_config))['base_url']
         else: self.api_url = api_url
         if cache is None:
-            self.cache = Cache(conf['database'], conf['max_age'])
+            self.cache = Cache(database, conf['max_age'])
         else: self.cache = cache   
         if use_cache is None:
             self.use_cache = conf['use_cache']
