@@ -74,11 +74,20 @@ class Test(unittest.TestCase):
 
 	def test_item_lists(self):
 		client = hcsvlab.Client()
-		new_item_url = ['https://ic2-hcsvlab-staging1-vm.intersect.org.au/catalog/ace/A01a']
+		new_item_url_1 = ['https://ic2-hcsvlab-staging1-vm.intersect.org.au/catalog/ace/A01a']
 		my_list = client.get_item_list_by_name('my new list')
 		# Make sure to clear the item list from the web before running this
 		# ToDO : clear the item list from api
-		self.assertEqual(client.add_to_item_list_by_name(new_item_url, 'my new list'), '1 items added to existing item list my new list')
+		self.assertEqual(my_list.name(), 'my new list')
+		#self.assertEqual(client.add_to_item_list_by_name(new_item_url_1, 'my new list'), '1 items added to existing item list my new list')
+
+		new_item_url_2 = ['https://ic2-hcsvlab-staging1-vm.intersect.org.au/catalog/ace/A01b']
+		self.assertEqual(client.add_to_item_list(new_item_url_2, my_list.url()), '1 items added to existing item list my new list')
+
+		# ToDO : renaming item list.. client.rename_item_list is not working
+		my_list = my_list.refresh()
+		item = client.get_item(new_item_url_2[0])
+		self.assertTrue(my_list.__contains__(item))
 
 
 

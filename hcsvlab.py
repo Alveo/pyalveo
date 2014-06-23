@@ -508,7 +508,7 @@ class Client(object):
         return not self.__eq__(other)
 
 
-    def api_request(self, url, data=None):
+    def api_request(self, url, data=None, method=None):
         """ Perform an API request to the given URL, optionally 
         including the specified data
         
@@ -529,6 +529,10 @@ class Client(object):
             headers['Content-Type'] = 'application/json'
         
         req = urllib2.Request(url, data=data, headers=headers)
+        
+        if method is not None:
+            req.get_method = lambda: method
+
         try:
             opener = urllib2.build_opener(urllib2.HTTPHandler())
             response = opener.open(req)
@@ -933,8 +937,6 @@ class Client(object):
         url_name = urllib.urlencode((('name', item_list_name),))
         request_url = self.api_url + '/item_lists?' + url_name
         
-        print request_url
-
         data = json.dumps({'items': list(item_urls)})
         resp = self.api_request(request_url, data)
         return self.__check_success(resp)
@@ -957,7 +959,9 @@ class Client(object):
         
         """
         data = json.dumps({'name': new_name})
-        resp = self.api_request(str(item_list_url), data)
+        resp = self.api_request(str(item_list_url), data, method="PUT")
+        resp = json.loads(resp)
+        
         try:
             return ItemList(resp['items'], self, item_list_url, resp['name'])
         except KeyError:
