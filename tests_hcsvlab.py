@@ -75,12 +75,11 @@ class Test(unittest.TestCase):
 	def test_item_lists(self):
 		client = hcsvlab.Client()
 		new_item_url_1 = ['https://ic2-hcsvlab-staging1-vm.intersect.org.au/catalog/ace/A01a']
-		my_list = client.get_item_list_by_name('my_list')
-		# Make sure to clear the item list from the web before running this
-		# ToDO : clear the item list from api
-		self.assertEqual(my_list.name(), 'my_list')
-		#self.assertEqual(client.add_to_item_list_by_name(new_item_url_1, 'my new list'), '1 items added to existing item list my new list')
+		self.assertEqual(client.add_to_item_list_by_name(new_item_url_1, 'my_list'), '1 items added to new item list my_list')
 
+		my_list = client.get_item_list_by_name('my_list')
+		self.assertEqual(my_list.name(), 'my_list')
+		
 		new_item_url_2 = ['https://ic2-hcsvlab-staging1-vm.intersect.org.au/catalog/ace/A01b']
 		self.assertEqual(client.add_to_item_list(new_item_url_2, my_list.url()), '1 items added to existing item list ' + my_list.name())
 
@@ -93,6 +92,10 @@ class Test(unittest.TestCase):
 		client.rename_item_list(my_list, 'brand new list')
 		my_list = my_list.refresh()
 		self.assertEqual(my_list.name(), 'brand new list')
+
+		# Deleting an Item List
+		self.assertEqual(client.delete_item_list(my_list), None)
+
 
 
 
