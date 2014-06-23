@@ -453,7 +453,7 @@ class Client(object):
         
         if api_key is None or api_url is None:
             if not os.path.exists(alveo_config):
-                raise IOError("Could not find file ~/alveo.config. Please download your configuration file from http://hcsvlab.org.au/")
+                raise IOError("Could not find file ~/alveo.config. Please download your configuration file from http://hcsvlab.org.au/ OR try to create a client by specifying your api key")
 
         if api_key is None:
             self.api_key = json.load(open(alveo_config))['apiKey']
@@ -471,10 +471,11 @@ class Client(object):
             self.update_cache = conf['update_cache']
         else: self.update_cache = update_cache
 
+        # Create a client successfully only when the api key is correct
+        # Otherwise raise an Error
         try:
             self.get_item_lists()
         except:
-            #http_status_code, response, msg
             raise APIError(http_status_code="401", response="Unauthorized", msg="Client could not be created. Check your api key")
     
     def __eq__(self, other):
@@ -931,6 +932,9 @@ class Client(object):
         """
         url_name = urllib.urlencode((('name', item_list_name),))
         request_url = self.api_url + '/item_lists?' + url_name
+        
+        print request_url
+
         data = json.dumps({'items': list(item_urls)})
         resp = self.api_request(request_url, data)
         return self.__check_success(resp)

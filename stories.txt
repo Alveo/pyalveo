@@ -1,0 +1,54 @@
+Creating a Client
+========================
+
+1. I have downloaded the API configuration file named "alveo.config" from the web. I have saved it inside my home directory. 
+	a. Now when I create a Client without specifying any parameters, I should be able to get a successful Client object. 
+	b. Even if I dont specify any cache database name, the database should be automatically created for me at ~/alveo_cache/cache.db.
+
+2.  I have not downloaded any configuration file. When I try to create a Client, I must be notified to download the configuration file or create a client by explicitly specifying the api key.
+
+3. Though I have not downloaded any configuration file, I must be able to create a client by specifying my api key and the database should be created for me if not present.
+
+4. If I specify a wrong API key, I should be notified about it and the client object should not be created.
+
+
+
+
+
+Working with Multiple Clients
+================================
+
+1. If I create two clients with default configuration, they must be identical. First Client should be same as Second Client and vice versa.
+
+2. If I create two clients by explicitly specifying all the required fields with the same information, they both must again be identical.
+
+3. If I create a client with default configuration and another client with explicit arguments which are same as default, they must be identical.
+
+4. If I create multiple clients with different arguments they must be different from each other.
+
+
+Item Lists
+===================
+1. After I successfully create a client, I must be able to get all the item lists of the client and also get a specific item list through its name.
+
+2. I must be able to create an item list and add some items into it. (add to item list by name). I should be able to add items either through the url of the item list or its name.
+
+3. I should be able to rename an item list.
+
+4. I should be able to check if an item is present in the item list. 
+
+
+
+
+Items
+==============
+1. I should be able to get all the items inside an item list.
+
+2. 
+
+
+ToDO
+===========
+Check if we can create item list
+SPARQL query
+get_annotation_context()
