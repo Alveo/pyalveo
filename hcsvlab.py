@@ -969,7 +969,21 @@ class Client(object):
                 raise APIError(resp['error'])
             except KeyError:
                 raise APIError(resp)
-        
+    
+
+    def delete_item_list(self, item_list_url):
+
+        try:
+            resp = self.api_request(str(item_list_url), method="DELETE")
+        except APIError as e:
+            if e.http_status_code == 302:
+                print 'Successfully deleted item list'
+            else:
+                raise APIError
+
+
+
+
     
     def sparql_query(self, collection_name, query):
         """ Submit a sparql query to the server to search metadata
