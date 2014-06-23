@@ -67,7 +67,7 @@ def create_cache_database(path, file_dir):
     
     file_dir = os.path.expanduser(file_dir)
     file_dir = os.path.expandvars(file_dir)
-    print file_dir
+    #print file_dir
 
     path = os.path.expanduser(path)
     path = os.path.expandvars(path)
@@ -76,7 +76,7 @@ def create_cache_database(path, file_dir):
     if not os.path.exists(file_dir):
         os.makedirs(file_dir)
 
-    print path
+    #print path
     #if not os.path.exists(path):
     #    file(path, "w")
 
@@ -120,7 +120,7 @@ class Cache(object):
 
         if not os.path.isfile(database):
             # Create database if not present
-            print 'creating new database'
+            # print 'creating new database'
             create_cache_database(conf['path'], conf['file_dir'])
 
         self.conn = sqlite3.connect(database)
@@ -447,9 +447,14 @@ class Client(object):
         conf = get_configuration()
         alveo_config = os.path.expanduser(conf['alveo_config'])
         alveo_config = os.path.expandvars(alveo_config)
+        
         database = os.path.expanduser(conf['database'])
         database = os.path.expandvars(database)
         
+        if api_key is None or api_url is None:
+            if not os.path.exists(alveo_config):
+                raise IOError("Could not find file ~/alveo.config. Please download your configuration file from http://hcsvlab.org.au/")
+
         if api_key is None:
             self.api_key = json.load(open(alveo_config))['apiKey']
         else: self.api_key = api_key
@@ -466,6 +471,11 @@ class Client(object):
             self.update_cache = conf['update_cache']
         else: self.update_cache = update_cache
 
+        try:
+            self.get_item_lists()
+        except:
+            #http_status_code, response, msg
+            raise APIError(http_status_code="401", response="Unauthorized", msg="Client could not be created. Check your api key")
     
     def __eq__(self, other):
         """ Return true if another Client has all identical fields
