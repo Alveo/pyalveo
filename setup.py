@@ -17,7 +17,7 @@ setup(
 
 	author='',
 	author_email='',
-	license = '',
+	license = 'BSD',
 
 	keywords='alveo HCSvLab python library',
 

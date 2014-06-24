@@ -31,6 +31,15 @@ def get_configuration():
     """ 
     Load the configuration file called config.yaml in the same directory as this file
     Return the configuration variable { conf }
+    @rtype: C{Dict}
+    @returns: the dictionary of configuration variables
+                max_age
+                use_cache
+                update_cache
+                file_dir
+                database
+                alveo_config
+                path    
 
     """
     config_dir = os.path.dirname(os.path.abspath(__file__))

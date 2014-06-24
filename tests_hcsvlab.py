@@ -1,10 +1,14 @@
 import unittest
 import hcsvlab
 import os
+import sqlite3
 
 class Test(unittest.TestCase):
 	
 	def test_create_client(self):
+		""" Test that the clients can be created with or without alveo.config file 
+		and correct database is created """
+
 		alveo_config_path = os.path.join(os.path.expanduser('~'), 'alveo.config')
 		cache_db_path = os.path.join(os.path.expanduser('~'), 'alveo_cache', 'cache.db')
 		
@@ -13,6 +17,20 @@ class Test(unittest.TestCase):
 			client = hcsvlab.Client()
 			self.assertEqual(type(client), hcsvlab.Client)	
 			self.assertTrue(os.path.exists(cache_db_path))
+
+			# Test all the tables in the dtabase
+			conn = sqlite3.connect(cache_db_path)
+			cursor = conn.cursor()
+			sql = "SELECT * from sqlite_master WHERE type = 'table'"
+			cursor.execute(sql)
+			result = cursor.fetchall()
+			
+			self.assertEqual(4, len(result), "there should be 4 tables in the database")
+			self.assertEqual(result[0][1], 'items', "first table should be items")
+			self.assertEqual(result[1][1], 'documents', "second table should be documents")
+			self.assertEqual(result[2][1], 'primary_texts', "third table should be primary_texts")
+			self.assertEqual(result[3][1], 'meta', "fourth table should be meta")
+			conn.close()
 
 		else:
 			# Teset when alveo.config is absent
@@ -46,6 +64,9 @@ class Test(unittest.TestCase):
 	
 
 	def identical_clients(self):
+		""" Test that multiple clients can be created with default configuration or specific configuration
+		and check if they are identical or not """
+
 		first_client = hcsvlab.Client()
 		second_client = hcsvlab.Client()
 
@@ -73,6 +94,9 @@ class Test(unittest.TestCase):
 
 
 	def test_item_lists(self):
+		""" Test that the item list can be created, item can be added to the item list, 
+		item list can be renamed and deleted """
+
 		client = hcsvlab.Client()
 		new_item_url_1 = ['https://ic2-hcsvlab-staging1-vm.intersect.org.au/catalog/ace/A01a']
 		self.assertEqual(client.add_to_item_list_by_name(new_item_url_1, 'my_list'), '1 items added to new item list my_list')
