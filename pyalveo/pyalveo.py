@@ -26,6 +26,14 @@ class APIError(Exception):
         return ret + self.msg
                 
 
+CONFIG_DEFAULT = {'max_age': 0, 
+                  'use_cache': True, 
+                  'update_cache': True, 
+                  'file_dir': '~/alveo_cache', 
+                  'database': '~/alveo_cache/cache.db', 
+                  'alveo_config': '~/alveo.config', 
+                  'path': '~/alveo_cache/cache.db'
+              }
 
 def get_configuration():
     """ 
@@ -40,20 +48,19 @@ def get_configuration():
                 database
                 alveo_config
                 path    
-
     """
-    config_dir = os.path.dirname(os.path.abspath(__file__))
+    config_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    configfile = os.path.join(config_dir, 'config.yaml')
     
-    try:
-        f = open(os.path.join(config_dir, 'config.yaml'), 'r')
+    if os.path.exists(configfile):
+        f = open(configfile, 'r')
         conf = yaml.safe_load(f.read())
         f.close()
-        return conf
-    except IOError as exc:
-        raise IOError('Problem accessing configuration file at ' +
-                      os.path.join(file_dir, 'config.yaml') +
-                      ' with error: ' +
-                      exc.msg())
+    else:
+        conf = CONFIG_DEFAULT
+        
+    return conf
+
     
 
                 
