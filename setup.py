@@ -9,7 +9,7 @@ with open(path.join(here, 'readme.md'), encoding='utf-8') as f:
 
 setup(
 	name='pyalveo',
-	version='0.2',
+	version='0.3',
 	description="A Python library for interfacing with the HCSvLab/Alveo API",
 	long_descripotion=long_descripotion,
 

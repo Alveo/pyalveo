@@ -1,17 +1,17 @@
-PyHCSvLab
+PyAlveo
 =========
 
-A Python library for interfacing with the HCSvLab/Alveo API
+A Python library for interfacing with the Alveo (HCSVlab) API
 
 Version
 ----
 
-0.2
+0.3
 
 Introduction
 -----------
 
-PyHCSVlab comprises the ``hcsvlab`` module and its dependencies, which provides object-oriented access to the HCSVlab API, with the following features:
+PyAlveo comprises the ``pyalveo`` module and its dependencies, which provides object-oriented access to the HCSVlab API, with the following features:
 
 - A Client class with full API coverage
 - API-aware classes representing HCSvLab items, Item Lists, and documents, with sensibly overloaded operators
@@ -22,30 +22,29 @@ Documentation
 -------------
 This file provides only an introduction to this module. Full documentation can be found at ./documentation/index.html
 
-To get started immediately, download your ``alveo.config`` file from the Alveo web interface, place it in your home directory, then call ``hcsvlab.Client()`` to obtain a Client instance configured with your API key.
+To get started immediately, download your ``alveo.config`` file from the Alveo web interface, place it in your home directory, then call ``pyalveo.Client()`` to obtain a Client instance configured with your API key.
 
 Dependencies
 --------------
 
-The ``hcsvlab`` module requires the following:
+The ``pyalveo`` module requires the following:
 
 - PyYAML 3.10
 - dateutil 2.0
 
-Both of these are included in this repository.
 
 Classes
 ----
 
-Below are short summaries of each class included in the ``hcsvlab`` module. For complete documentation, see documentation/index.html
+Below are short summaries of each class included in the ``pyalveo`` module. For complete documentation, see documentation/index.html
 
 **Client**
 
 Implements all HCSvLab API methods. ItemList, ItemGroup, Item and Document objects all interact with the API using an instance of this class.
 
 ```py
-client = hcsvlab.Client()
-client = hcsvlab.Client(api_key='MY_API_KEY', api_url='http://example.com', 
+client = pyalveo.Client()
+client = pyalveo.Client(api_key='MY_API_KEY', api_url='http://example.com', 
                         cache='cache.db', use_cache=True, update_cache=True)
 ```
 
@@ -131,9 +130,9 @@ Exception thrown whenever an API access is unsuccessful.
 
 Configuration
 ----
-When any parameter is not specified when invoking the Client constructor, the value of that parameter will be derived from the ``config.yaml`` file in the same directory as the ``hcsvlab`` source. This file also specifies the location of the Alveo configuration file from which the API key and URL will be read. By default, this is located at ``~/alveo.config``.
+When any parameter is not specified when invoking the Client constructor, the value of that parameter will be derived from the ``config.yaml`` file in the same directory as the ``pyalveo`` source. This file also specifies the location of the Alveo configuration file from which the API key and URL will be read. By default, this is located at ``~/alveo.config``.
 
-To generate a new (empty) cache database, call ``hcsvlab.create_cache_database(path, file_dir)``. The database file will be created at ``path``, and data files will be stored in ``file_dir``, which will be created if it does not already exist.
+To generate a new (empty) cache database, call ``pyalveo.create_cache_database(path, file_dir)``. The database file will be created at ``path``, and data files will be stored in ``file_dir``, which will be created if it does not already exist.
 
 
 Metadata Search Query Syntax
