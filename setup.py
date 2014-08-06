@@ -27,4 +27,6 @@ setup(
         "pyyaml",
         "python-dateutil",
     ],
+    
+    test_suite='tests.pyalveo_test'
 	)
