@@ -132,9 +132,18 @@ class Test(unittest.TestCase):
         self.assertEqual(client.delete_item_list(my_list), None)
 
 
+    def test_sparql_query(self):
+        """Can we run a simple SPARQL query"""
 
+        client = pyalveo.Client()
 
-
+        query = """select * where { ?a ?b ?c } LIMIT 10"""
+        
+        result = client.sparql_query('mitcheldelbridge', query)
+        
+        self.assertTrue(result.has_key('results'))
+        self.assertTrue(result['results'].has_key('bindings'))
+        self.assertEqual(len(result['results']['bindings']), 10)
 
 
 if __name__ == "__main__" :

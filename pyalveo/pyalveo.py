@@ -1017,8 +1017,9 @@ class Client(object):
         
         
         """
-        request_url = self.api_url + '/sparql/' + collection_name + '?'
+        request_url = self.api_url + 'sparql/' + collection_name + '?'
         request_url += urllib.urlencode((('query', query),))
+                
         return json.loads(self.api_request(request_url))
         
         
