@@ -45,10 +45,12 @@ class ClientTest(unittest.TestCase):
         """Test that we can create a client with a cache enabled and that it caches things"""
     
         cache_dir = "tmp"
-        item_url = "https://app.alveo.edu.au/catalog/cooee/1-190"
+        
+        client = pyalveo.Client(use_cache=True, cache_dir=cache_dir)
+        
+        item_url = client.api_url + "catalog/cooee/1-190"
         item_meta = ""
 
-        client = pyalveo.Client(use_cache=True, cache_dir=cache_dir)
         
         self.addCleanup(shutil.rmtree, cache_dir, True)
     
@@ -134,11 +136,21 @@ class ClientTest(unittest.TestCase):
 
         client = pyalveo.Client()
         base_url = client.api_url
+        item_list_name = 'pyalveo_test_item_list'
+        
+        # check for an existing list and remove it if needed
+        try:
+            my_list = client.get_item_list_by_name(item_list_name)
+            client.delete_item_list(my_list)
+        except:
+            pass    
+        
         new_item_url_1 = [base_url + 'catalog/ace/A01a']
-        self.assertEqual(client.add_to_item_list_by_name(new_item_url_1, 'my_list'), '1 items added to new item list my_list')
+        self.assertEqual(client.add_to_item_list_by_name(new_item_url_1, item_list_name), '1 items added to new item list ' + item_list_name)
 
-        my_list = client.get_item_list_by_name('my_list')
-        self.assertEqual(my_list.name(), 'my_list')
+        my_list = client.get_item_list_by_name(item_list_name)
+        self.assertEqual(my_list.name(), item_list_name)
+
         
         new_item_url_2 = [base_url + 'catalog/ace/A01b']
         self.assertEqual(client.add_to_item_list(new_item_url_2, my_list.url()), '1 items added to existing item list ' + my_list.name())
