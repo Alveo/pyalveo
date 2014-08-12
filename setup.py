@@ -28,5 +28,5 @@ setup(
         "python-dateutil",
     ],
     
-    test_suite='tests.pyalveo_test'
+    test_suite='tests'
 	)

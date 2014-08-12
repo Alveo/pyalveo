@@ -26,10 +26,8 @@ class APIError(Exception):
 CONFIG_DEFAULT = {'max_age': 0, 
                   'use_cache': True, 
                   'update_cache': True, 
-                  'file_dir': '~/alveo_cache', 
-                  'database': '~/alveo_cache/cache.db', 
+                  'cache_dir': '~/alveo_cache', 
                   'alveo_config': '~/alveo.config', 
-                  'path': '~/alveo_cache/cache.db'
               }
     
 
@@ -42,11 +40,10 @@ class Client(object):
    
     """
     def __init__(self, api_key=None, api_url=None, cache=None,  
-                 use_cache=None, update_cache=None):
+                 use_cache=None, cache_dir=None, update_cache=None):
         """ Construct a new Client with the specified parameters.
-        Unspecified parameters will be derived from the configuration
-        file named C{config.yaml} in the same directory as the
-        hcsvlab source file
+        Unspecified parameters will be derived from the users ~/alveo.config
+        file if present.
 
         @type api_key: C{String}
         @param api_key: the API key to use
@@ -81,6 +78,11 @@ class Client(object):
             self.use_cache = use_cache 
         else:
             self.use_cache = config['use_cache']
+            
+        if cache_dir!=None:
+            self.cache_dir = cache_dir 
+        else:
+            self.cache_dir = config['cache_dir']        
         
         if update_cache!=None:
             self.update_cache = update_cache 
@@ -88,7 +90,13 @@ class Client(object):
             self.update_cache = config['update_cache']
         
         if self.use_cache:
-            self.cache = cache or Cache(config['database'], config['max_age'])
+            if cache == None:
+                if 'max_age' in config:
+                    self.cache = Cache(self.cache_dir, config['max_age'])
+                else:
+                    self.cache = Cache(self.cache_dir)
+            else:
+                self.cache = cache
         else:
             self.cache = None
         
@@ -111,7 +119,7 @@ class Client(object):
         if  os.path.exists(alveo_config):
             config.update(json.load(open(alveo_config)))
                      
-        config['database'] = os.path.expandvars(os.path.expanduser(config['database']))
+        config['cache_dir'] = os.path.expandvars(os.path.expanduser(config['cache_dir']))
         
         return config
         

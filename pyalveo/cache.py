@@ -13,11 +13,11 @@ import dateutil.tz
 class Cache(object):
     """ Handles caching for HCSvLab API Client objects """
     
-    def __init__(self, database, max_age=0):
+    def __init__(self, cache_dir, max_age=0):
         """ Create a new Cache object
         
-        @type database: C{String}
-        @param database: the SQLite3 database to connect to
+        @type cache_dir: C{String}
+        @para cache_dir: directory to store cache database and large files
         @type max_age: C{int}
         @param max_age: cache entries older than this many seconds will be 
         ignored by the has_item, has_document and has_primary_text methods
@@ -28,42 +28,34 @@ class Cache(object):
         
         """
         self.max_age = max_age
-        self.database = database
-
-        if not os.path.isfile(database):
-            # Create database if not present
-            # print 'creating new database'
-            self.create_cache_database(database)
-
-        self.conn = sqlite3.connect(database)
-        self.conn.text_factory = str
-        c = self.conn.cursor()
-        c.execute("SELECT * FROM meta WHERE key=?", ("file_dir",))
-        row = c.fetchone()
-        if row is None:
-            raise ValueError("Database not correctly initialized:"
-                             "missing file directory path")
-        c.close()
-        self.file_dir = row[1]
+        self.cache_dir = os.path.expanduser(cache_dir)
+        self.database = os.path.join(self.cache_dir, 'alveo_cache.db')
+        self.file_dir = os.path.join(self.cache_dir, 'files')
         
+        # create file_dir using makedirs which will also make cache_dir if needed
+        if not os.path.exists(self.file_dir):
+            os.makedirs(self.file_dir)
+        elif not os.path.isdir(self.cache_dir):
+            raise Exception("file_dir exists and is not a directory")
+        
+        if not os.path.isfile(self.database):
+
+            self.create_cache_database()
+        
+        self.conn = sqlite3.connect(self.database)
+        self.conn.text_factory = str
 
     def create_cache_database(self):
         """ Create a new SQLite3 database for use with Cache objects
     
-        @type path: C{String}
-        @param path: path at which to create the database file
-        @type file_dir: C{String}
-        @param file_dir: directory in which to store large files
-    
-        @rtype: C{String}
-        @returns: the path to the new database file
     
         @raises IOError: if there is a problem creating the database file
     
         """
- 
+        
         conn = sqlite3.connect(self.database)
         conn.text_factory = str
+
         c = conn.cursor()
         c.execute("""CREATE TABLE items
                      (url text, metadata text, datetime text)""")
@@ -71,9 +63,6 @@ class Cache(object):
                      (url text, path text, datetime text)""")
         c.execute("""CREATE TABLE primary_texts
                      (item_url text, primary_text text, datetime text)""")
-        c.execute("""CREATE TABLE meta
-                     (key text, value text)""")
-        c.execute("INSERT INTO meta VALUES (?, ?)", ("file_dir", file_dir))
         conn.commit()
         conn.close()
 
