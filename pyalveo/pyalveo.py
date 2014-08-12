@@ -24,8 +24,8 @@ class APIError(Exception):
                 
 
 CONFIG_DEFAULT = {'max_age': 0, 
-                  'use_cache': True, 
-                  'update_cache': True, 
+                  'use_cache': "true", 
+                  'update_cache': "true", 
                   'cache_dir': '~/alveo_cache', 
                   'alveo_config': '~/alveo.config', 
               }
@@ -77,7 +77,7 @@ class Client(object):
         if use_cache!=None:
             self.use_cache = use_cache 
         else:
-            self.use_cache = config['use_cache']
+            self.use_cache = config['use_cache'] == "true"
             
         if cache_dir!=None:
             self.cache_dir = cache_dir 
@@ -87,7 +87,7 @@ class Client(object):
         if update_cache!=None:
             self.update_cache = update_cache 
         else:
-            self.update_cache = config['update_cache']
+            self.update_cache = config['update_cache'] == "true"
         
         if self.use_cache:
             if cache == None:

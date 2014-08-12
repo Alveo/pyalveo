@@ -3,11 +3,6 @@ PyAlveo
 
 A Python library for interfacing with the Alveo (HCSVlab) API
 
-Version
--------
-
-0.3
-
 Introduction
 ------------
 
@@ -33,13 +28,6 @@ Alveo web interface, place it in your home directory, then call
 ``pyalveo.Client()`` to obtain a Client instance configured with your
 API key.
 
-Dependencies
-------------
-
-The ``pyalveo`` module requires the following:
-
--  PyYAML 3.10
--  dateutil 2.0
 
 Classes
 -------
@@ -57,7 +45,7 @@ class.
 
     client = pyalveo.Client()
     client = pyalveo.Client(api_key='MY_API_KEY', api_url='http://example.com', 
-                            cache='cache.db', use_cache=True, update_cache=True)
+                            use_cache=True, update_cache=True)
 
 **ItemGroup**
 
@@ -148,7 +136,7 @@ When you construct a Cache instance, you can specify a maximum age (in
 seconds), and the ``has_`` methods will ignore files older than that, so
 any Client using that Cache will not 'see' those older records, and will
 instead download that information from the server if it is requested
-(and update the cache's record at that point)
+(and update the cache's record at that point).
 
 You can turn off reading from or writing to the cache entirely for a
 given Client using the Client's ``use_cache`` and ``update_cache``
@@ -166,15 +154,15 @@ Configuration
 
 When any parameter is not specified when invoking the Client
 constructor, the value of that parameter will be derived from the
-``config.yaml`` file in the same directory as the ``pyalveo`` source.
-This file also specifies the location of the Alveo configuration file
-from which the API key and URL will be read. By default, this is located
-at ``~/alveo.config``.
+users ~/alveo.config file if that file can be found and it has the
+required value.  Possible values for that file (with their defaults) are:
 
-To generate a new (empty) cache database, call
-``pyalveo.create_cache_database(path, file_dir)``. The database file
-will be created at ``path``, and data files will be stored in
-``file_dir``, which will be created if it does not already exist.
+..code 
+	'apiKey': no default
+	'max_age': 0, 
+	'use_cache': true, 
+	'update_cache': true, 
+	'cache_dir': '~/alveo_cache', 
 
 Metadata Search Query Syntax
 ----------------------------
