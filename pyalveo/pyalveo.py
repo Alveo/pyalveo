@@ -716,14 +716,29 @@ class Client(object):
         @param label: return only results with a matching Label field
         
         @rtype: C{String}
-        @returns: the annotations as a JSON string, if the item has
+        @returns: the annotations as a dictionary, if the item has
             annotations, otherwise None
+            The annotation dictionary has keys:
+              commonProperties - properties common to all annotations
+              @context - the url of the JSON-LD annotation context definition
+              alveo:annotations - a list of annotations, each is a dictionary
+            
         
         @raises APIError: if the request was not successful
         
         
         """
-        req_url = item_url + "/annotations"
+        # get the annotation URL from the item metadata, if not present then there are no annotations
+        item_url = str(item_url)
+        metadata = self.get_item(item_url).metadata()
+        
+        try:
+            annotation_url = metadata['alveo:annotations_url']
+        except KeyError:
+            return None
+        
+        
+        req_url = annotation_url
         if annotation_type is not None:
             req_url += '?'
             req_url += urllib.urlencode((('type', annotation_type),))
@@ -734,7 +749,7 @@ class Client(object):
                 req_url += '&'
             req_url += urllib.urlencode((('label',label),))
         try:
-            return self.api_request(req_url)
+            return json.loads(self.api_request(req_url))
         except KeyError:
             return None
        

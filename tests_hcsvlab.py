@@ -132,9 +132,22 @@ class Test(unittest.TestCase):
         self.assertEqual(client.delete_item_list(my_list), None)
 
 
+    def test_get_annotations(self):
+        
+        client = pyalveo.Client()
+        item_with = client.get_item(client.api_url + "catalog/monash/MEBH2FB_Sanitised")
+        item_without = client.get_item(client.api_url + "catalog/avozes/f6ArtharThan")
 
-
-
+        # get annotations for this item of type 'speaker'
+        anns = item_with.get_annotations(type=u'http://ns.ausnc.org.au/schemas/annotation/ice/speaker')
+        self.assertEqual(anns.keys(), [u'commonProperties', u'@context', u'alveo:annotations'])
+        
+        ann = anns['alveo:annotations'][0]
+        self.assertEqual(ann.keys(), [u'type', u'end', u'@id', u'@type', u'start'])
+        
+        # this one has no annotations
+        anns = item_without.get_annotations(type=u'http://ns.ausnc.org.au/schemas/annotation/ice/speaker')
+        self.assertEqual(anns, None)
 
 
 if __name__ == "__main__" :
