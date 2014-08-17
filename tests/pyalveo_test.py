@@ -2,35 +2,21 @@ import unittest
 import pyalveo
 import os
 import sqlite3
+import shutil
 
-class Test(unittest.TestCase):
+class ClientTest(unittest.TestCase):
     
     def test_create_client(self):
         """ Test that the clients can be created with or without alveo.config file 
         and correct database is created """
 
-        alveo_config_path = os.path.join(os.path.expanduser('~'), 'alveo.config')
-        cache_db_path = os.path.join(os.path.expanduser('~'), 'alveo_cache', 'cache.db')
+        alveo_config_path = os.path.expanduser('~/alveo.config')
+        cache_db_path = 'tmp'
         
         # Test when alveo.config is present
         if os.path.exists(alveo_config_path):
             client = pyalveo.Client()
             self.assertEqual(type(client), pyalveo.Client)  
-            self.assertTrue(os.path.exists(cache_db_path))
-
-            # Test all the tables in the dtabase
-            conn = sqlite3.connect(cache_db_path)
-            cursor = conn.cursor()
-            sql = "SELECT * from sqlite_master WHERE type = 'table'"
-            cursor.execute(sql)
-            result = cursor.fetchall()
-            
-            self.assertEqual(4, len(result), "there should be 4 tables in the database")
-            self.assertEqual(result[0][1], 'items', "first table should be items")
-            self.assertEqual(result[1][1], 'documents', "second table should be documents")
-            self.assertEqual(result[2][1], 'primary_texts', "third table should be primary_texts")
-            self.assertEqual(result[3][1], 'meta', "fourth table should be meta")
-            conn.close()
 
         else:
             # Teset when alveo.config is absent
@@ -43,23 +29,64 @@ class Test(unittest.TestCase):
             )
 
         # Test with correct api key
-        
-        client = pyalveo.Client(cache="cache.db", use_cache=True, update_cache=True)
+        client = pyalveo.Client()
         self.assertEqual(type(client), pyalveo.Client)
-
-        self.assertTrue(os.path.exists(cache_db_path))
-        
-    
 
         # Test with wrong api key
         with self.assertRaises(pyalveo.APIError) as cm:
-                client = pyalveo.Client(api_key="wrongapikey123", cache="cache.db", use_cache=True, update_cache=True)
+                client = pyalveo.Client(api_key="wrongapikey123")
             
         self.assertEqual(
             "HTTP 401\nUnauthorized\nClient could not be created. Check your api key",
             str(cm.exception)
         )       
     
+    def test_client_cache(self):
+        """Test that we can create a client with a cache enabled and that it caches things"""
+    
+        cache_dir = "tmp"
+        
+        client = pyalveo.Client(use_cache=True, cache_dir=cache_dir)
+        
+        item_url = client.api_url + "catalog/cooee/1-190"
+        item_meta = ""
+
+        
+        self.addCleanup(shutil.rmtree, cache_dir, True)
+    
+        self.assertEqual(type(client.cache), pyalveo.Cache)
+        
+        item = client.get_item(item_url)
+        
+        self.assertEqual(type(item), pyalveo.Item)
+        
+        # look in the cache for this item metadata
+        
+        self.assertTrue(client.cache.has_item(item_url))
+        
+        meta = client.cache.get_item(item_url)
+        
+        # check a few things about the metadata json
+        self.assertIn("@context", meta)
+        self.assertIn(item_url, meta)
+        
+        
+        # get a document
+        doc = item.get_document(0)
+        self.assertEqual(type(doc), pyalveo.Document)
+        
+        doc_content = doc.get_content()
+        self.assertEqual(doc_content[:20], "\r\n\r\n\r\nSydney, New So")
+        
+        # there should be a cached file somewhere under cache_dir
+        ldir = os.listdir(os.path.join(cache_dir, "files"))
+        self.assertEqual(1, len(ldir))
+        # the content of the file should be the same as our doc_content
+        h = open(os.path.join(cache_dir, "files", ldir[0]))
+        self.assertEqual(h.read(), doc_content)
+        h.close()
+        
+        
 
     def test_identical_clients(self):
         """ Test that multiple clients can be created with default configuration or specific configuration
@@ -109,11 +136,21 @@ class Test(unittest.TestCase):
 
         client = pyalveo.Client()
         base_url = client.api_url
+        item_list_name = 'pyalveo_test_item_list'
+        
+        # check for an existing list and remove it if needed
+        try:
+            my_list = client.get_item_list_by_name(item_list_name)
+            client.delete_item_list(my_list)
+        except:
+            pass    
+        
         new_item_url_1 = [base_url + 'catalog/ace/A01a']
-        self.assertEqual(client.add_to_item_list_by_name(new_item_url_1, 'my_list'), '1 items added to new item list my_list')
+        self.assertEqual(client.add_to_item_list_by_name(new_item_url_1, item_list_name), '1 items added to new item list ' + item_list_name)
 
-        my_list = client.get_item_list_by_name('my_list')
-        self.assertEqual(my_list.name(), 'my_list')
+        my_list = client.get_item_list_by_name(item_list_name)
+        self.assertEqual(my_list.name(), item_list_name)
+
         
         new_item_url_2 = [base_url + 'catalog/ace/A01b']
         self.assertEqual(client.add_to_item_list(new_item_url_2, my_list.url()), '1 items added to existing item list ' + my_list.name())
@@ -131,7 +168,6 @@ class Test(unittest.TestCase):
         # Deleting an Item List
         self.assertEqual(client.delete_item_list(my_list), None)
 
-
     def test_get_annotations(self):
         
         client = pyalveo.Client()
@@ -148,6 +184,19 @@ class Test(unittest.TestCase):
         # this one has no annotations
         anns = item_without.get_annotations(type=u'http://ns.ausnc.org.au/schemas/annotation/ice/speaker')
         self.assertEqual(anns, None)
+
+    def test_sparql_query(self):
+        """Can we run a simple SPARQL query"""
+
+        client = pyalveo.Client()
+
+        query = """select * where { ?a ?b ?c } LIMIT 10"""
+        
+        result = client.sparql_query('mitcheldelbridge', query)
+        
+        self.assertTrue(result.has_key('results'))
+        self.assertTrue(result['results'].has_key('bindings'))
+        self.assertEqual(len(result['results']['bindings']), 10)
 
 
 if __name__ == "__main__" :
