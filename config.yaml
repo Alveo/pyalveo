@@ -1,7 +1,0 @@
-database:       ~/alveo_cache/cache.db
-max_age:        0
-use_cache:      True
-update_cache:   True
-alveo_config:   ~/alveo.config
-path:           ~/alveo_cache/cache.db
-file_dir:       ~/alveo_cache
