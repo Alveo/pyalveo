@@ -166,7 +166,7 @@ class ClientTest(unittest.TestCase):
         self.assertEqual(my_list.name(), 'brand new list')
 
         # Deleting an Item List
-        self.assertEqual(client.delete_item_list(my_list), None)
+        self.assertEqual(client.delete_item_list(my_list), True)
 
     def test_get_annotations(self):
         

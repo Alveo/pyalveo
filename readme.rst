@@ -20,20 +20,19 @@ features:
 Documentation
 -------------
 
-This file provides only an introduction to this module. Full
-documentation can be found at ./documentation/index.html
+This page provides an introduction to this module. Full
+documentation can be found at :doc:`modules`.
 
 To get started immediately, download your ``alveo.config`` file from the
 Alveo web interface, place it in your home directory, then call
 ``pyalveo.Client()`` to obtain a Client instance configured with your
 API key.
 
-
 Classes
 -------
 
 Below are short summaries of each class included in the ``pyalveo``
-module. For complete documentation, see documentation/index.html
+module. 
 
 **Client**
 
@@ -155,9 +154,9 @@ Configuration
 When any parameter is not specified when invoking the Client
 constructor, the value of that parameter will be derived from the
 users ~/alveo.config file if that file can be found and it has the
-required value.  Possible values for that file (with their defaults) are:
+required value.  Possible values for that file (with their defaults) are::
 
-..code 
+
 	'apiKey': no default
 	'max_age': 0, 
 	'use_cache': true, 

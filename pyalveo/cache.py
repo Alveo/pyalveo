@@ -16,14 +16,14 @@ class Cache(object):
     def __init__(self, cache_dir, max_age=0):
         """ Create a new Cache object
         
-        @type cache_dir: C{String}
+        :type cache_dir: String
         @para cache_dir: directory to store cache database and large files
-        @type max_age: C{int}
-        @param max_age: cache entries older than this many seconds will be 
+        :type max_age: int
+        :param max_age: cache entries older than this many seconds will be 
         ignored by the has_item, has_document and has_primary_text methods
         
-        @rtype: L{Cache}
-        @returns: the new Cache
+        :rtype: Cache
+        :returns: the new Cache
         
         
         """
@@ -49,7 +49,7 @@ class Cache(object):
         """ Create a new SQLite3 database for use with Cache objects
     
     
-        @raises IOError: if there is a problem creating the database file
+        :raises: IOError if there is a problem creating the database file
     
         """
         
@@ -71,11 +71,11 @@ class Cache(object):
     def __eq__(self, other):
         """ Return True if this cache has identical fields to another
 
-        @type other: L{Cache}
-        @param other: the other Cache
+        :type other: Cache
+        :param other: the other Cache
 
-        @rtype: C{Boolean}
-        @returns: True if the caches are identical, oterwise False
+        :rtype: Boolean
+        :returns: True if the caches are identical, oterwise False
 
 
         """
@@ -87,11 +87,11 @@ class Cache(object):
     def __ne__(self, other):                                              
         """ Return False if this cache has all identical fields to another
                                                                         
-        @type other: L{Cache}                                            
-        @param other: the other Cache                                    
+        :type other: Cache                                            
+        :param other: the other Cache                                    
                                                                         
-        @rtype: C{Boolean}                                               
-        @returns: False if the caches are identical, oterwise True
+        :rtype: Boolean                                               
+        :returns: False if the caches are identical, oterwise True
                                                                          
                                                                          
         """                                                               
@@ -128,11 +128,11 @@ class Cache(object):
         If the max_age attribute of this Cache is set to a nonzero value,
         entries older than the value of max_age in seconds will be ignored
         
-        @type item_url: C{String} or L{Item}
-        @param item_url: the URL of the item, or an Item object
+        :type item_url: String or Item
+        :param item_url: the URL of the item, or an Item object
         
-        @rtype: C{Boolean}
-        @returns: True if the item is present, False otherwise
+        :rtype: Boolean
+        :returns: True if the item is present, False otherwise
        
         
         """
@@ -150,11 +150,11 @@ class Cache(object):
         If the max_age attribute of this Cache is set to a nonzero value,
         entries older than the value of max_age in seconds will be ignored
         
-        @type doc_url: C{String} or L{Document}
-        @param doc_url: the URL of the document, or a Document object
+        :type doc_url: String or Document
+        :param doc_url: the URL of the document, or a Document object
         
-        @rtype: C{Boolean}
-        @returns: True if the data is present, False otherwise
+        :rtype: Boolean
+        :returns: True if the data is present, False otherwise
         
         
         """
@@ -172,11 +172,11 @@ class Cache(object):
         If the max_age attribute of this Cache is set to a nonzero value,
         entries older than the value of max_age in seconds will be ignored
         
-        @type item_url: C{String} or L{Item}
-        @param item_url: the URL of the item, or an Item object
+        :type item_url: String or Item
+        :param item_url: the URL of the item, or an Item object
         
-        @rtype: C{Boolean}
-        @returns: True if the primary text is present, False otherwise
+        :rtype: Boolean
+        :returns: True if the primary text is present, False otherwise
         
         
         """
@@ -191,13 +191,13 @@ class Cache(object):
     def get_item(self, item_url):
         """ Retrieve the metadata for the given item from the cache.
         
-        @type item_url: C{String} or L{Item}
-        @param item_url: the URL of the item, or an Item object
+        :type item_url: String or Item
+        :param item_url: the URL of the item, or an Item object
         
-        @rtype: C{String}
-        @returns: the item metadata, as a JSON string
+        :rtype: String
+        :returns: the item metadata, as a JSON string
         
-        @raises ValueError: if the item is not in the cache
+        :raises: ValueError if the item is not in the cache
         
         
         """
@@ -213,13 +213,13 @@ class Cache(object):
     def get_document(self, doc_url):
         """ Retrieve the content for the given document from the cache.
         
-        @type doc_url: C{String} or L{Document}
-        @param doc_url: the URL of the document, or a Document object
+        :type doc_url: String or Document
+        :param doc_url: the URL of the document, or a Document object
         
-        @rtype: C{String}
-        @returns: the document data
+        :rtype: String
+        :returns: the document data
         
-        @raises ValueError: if the item is not in the cache
+        :raises: ValueError if the item is not in the cache
         
         
         """
@@ -242,13 +242,13 @@ class Cache(object):
     def get_primary_text(self, item_url):
         """ Retrieve the primary text for the given item from the cache.
         
-        @type item_url: C{String} or L{Item}
-        @param item_url: the URL of the item, or an Item object
+        :type item_url: String or Item
+        :param item_url: the URL of the item, or an Item object
         
-        @rtype: C{String}
-        @returns: the primary text
+        :rtype: String
+        :returns: the primary text
         
-        @raises ValueError: if the primary text is not in the cache
+        :raises: ValueError if the primary text is not in the cache
         
         
         """
@@ -266,10 +266,10 @@ class Cache(object):
         """ Add the given item to the cache database, updating
         the existing metadata if the item is already present
         
-        @type item_url: C{String} or L{Item}
-        @param item_url: the URL of the item, or an Item object
-        @type item_metadata: C{String}
-        @param item_metadata: the item's metadata, as a JSON string
+        :type item_url: String or Item
+        :param item_url: the URL of the item, or an Item object
+        :type item_metadata: String
+        :param item_metadata: the item's metadata, as a JSON string
         
         
         """
@@ -285,8 +285,8 @@ class Cache(object):
     def __generate_filepath(self):
         """ Generate a unique (absolute) file path within the file_dir directory
         
-        @rtype: C{String}
-        @returns: a unique file path
+        :rtype: String
+        :returns: a unique file path
         
         
         """
@@ -301,10 +301,10 @@ class Cache(object):
         """ Add the given document to the cache, updating
         the existing content data if the document is already present
         
-        @type doc_url: C{String} or L{Document}
-        @param doc_url: the URL of the document, or a Document object
-        @type data: C{String}
-        @param data: the document's content data
+        :type doc_url: String or Document
+        :param doc_url: the URL of the document, or a Document object
+        :type data: String
+        :param data: the document's content data
         
         
         """
@@ -329,10 +329,10 @@ class Cache(object):
         """ Add the given primary text to the cache database, updating
         the existing record if the primary text is already present
         
-        @type item_url: C{String} or L{Item}
-        @param item_url: the URL of the corresponding item, or an Item object
-        @type primary_text: C{String}
-        @param primary_text: the item's primary text
+        :type item_url: String or Item
+        :param item_url: the URL of the corresponding item, or an Item object
+        :type primary_text: String
+        :param primary_text: the item's primary text
         
         
         """
