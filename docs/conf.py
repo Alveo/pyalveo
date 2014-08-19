@@ -55,7 +55,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Alveo Local'
+project = u'Pyalveo'
 copyright = u'2014, Steve Cassidy'
 
 # The version info for the project you're documenting, acts as replacement
@@ -209,7 +209,7 @@ latex_elements = {
 # [howto/manual]).
 latex_documents = [
     ('index', 'pyalveo.tex',
-     u'Alveo Local Documentation',
+     u'Pyalveo Documentation',
      u'Steve Cassidy', 'manual'),
 ]
 
@@ -240,7 +240,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'pyalveo',
-     u'Alveo Local Documentation',
+     u'Pyalveo Documentation',
      [u'Steve Cassidy'], 1)
 ]
 
@@ -255,7 +255,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     ('index', 'pyalveo',
-     u'Alveo Local Documentation',
+     u'Pyalveo Documentation',
      u'Steve Cassidy',
      'pyalveo',
      'One line description of project.',
