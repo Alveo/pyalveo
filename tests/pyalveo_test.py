@@ -188,7 +188,7 @@ class ClientTest(unittest.TestCase):
     def test_sparql_query(self):
         """Can we run a simple SPARQL query"""
 
-        client = pyalveo.Client()
+        client = pyalveo.Client() 
 
         query = """select * where { ?a ?b ?c } LIMIT 10"""
         

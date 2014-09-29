@@ -11,7 +11,7 @@ import dateutil.tz
     
     
 class Cache(object):
-    """ Handles caching for HCSvLab API Client objects """
+    """ Handles caching for Alveo API Client objects """
     
     def __init__(self, cache_dir, max_age=0):
         """ Create a new Cache object

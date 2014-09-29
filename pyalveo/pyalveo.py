@@ -34,7 +34,7 @@ CONFIG_DEFAULT = {'max_age': 0,
             
         
 class Client(object):
-    """ Client object used to manipulate HCSvLab objects and interface
+    """ Client object used to manipulate Alveo objects and interface
     with the API 
    
    
@@ -679,7 +679,7 @@ class Client(object):
         
 
 class ItemGroup(object):
-    """ Represents an ordered group of HCSvLab items""" 
+    """ Represents an ordered group of Alveo items""" 
 
     def __init__(self, item_urls, client):
         """ Construct a new ItemGroup
@@ -952,7 +952,7 @@ class ItemGroup(object):
         
         
 class ItemList(ItemGroup):
-    """ Represents a HCSvLab Item List residing on the server 
+    """ Represents a Alveo Item List residing on the server 
     
         Extends ItemGroup with additional Item List-specific functionality
        
@@ -1079,7 +1079,7 @@ class ItemList(ItemGroup):
         
         
 class Item(object):
-    """ Represents a single HCSvLab item """
+    """ Represents a single Alveo item """
     
     def __init__(self, metadata, client):
         """ Create a new Item object
@@ -1291,7 +1291,7 @@ class Item(object):
         
         
 class Document(object):
-    """ Represents a single HCSvLab document """
+    """ Represents a single Alveo document """
     
     def __init__(self, metadata, client):
         """ Create a new Document
