@@ -168,6 +168,9 @@ class ClientTest(unittest.TestCase):
         # Deleting an Item List
         self.assertEqual(client.delete_item_list(my_list), True)
 
+        # deleting an Item List that isn't there raises an exception
+        self.assertRaises(pyalveo.APIError, client.delete_item_list, my_list)
+
     def test_get_annotations(self):
         
         client = pyalveo.Client()
