@@ -95,7 +95,8 @@ class Client(object):
         else:
             self.update_cache = config['update_cache'] == "true"
 
-        if self.use_cache:
+        # configure a cache if we want to read or write to it
+        if self.use_cache or self.update_cache:
             if cache == None:
                 if 'max_age' in config:
                     self.cache = Cache(self.cache_dir, config['max_age'])
@@ -105,9 +106,6 @@ class Client(object):
                 self.cache = cache
         else:
             self.cache = None
-
-
-        self.get_item_lists()
 
         # Create a client successfully only when the api key is correct
         # Otherwise raise an Error
@@ -559,7 +557,7 @@ class Client(object):
 
         metadata['dcterms:identifier'] = name
         metadata['@type'] = 'ausnc:AusNCObject'
-        
+
         meta = {'items': [{'metadata': { '@context': CONTEXT,
                                          '@graph': [metadata]
                                         }

@@ -18,18 +18,20 @@ API_URL = "http://example.alveo.froob"
 API_KEY = "fakekeyvalue"
 
 
-httpretty.enable()
-httpretty.HTTPretty.allow_net_connect = False
-# mock result for /item_lists.json is needed to create client
-httpretty.register_uri(httpretty.GET,
-                       API_URL + "/item_lists.json",
-                       body=json.dumps({'success': 'yes'}),
-                       content_type='application/json'
-                       )
 
+class CreateTest(unittest.TestCase):
 
+    def setUp(self):
 
-class ClientTest(unittest.TestCase):
+        httpretty.enable()
+        httpretty.HTTPretty.allow_net_connect = False
+        # mock result for /item_lists.json is needed to create client
+        httpretty.register_uri(httpretty.GET,
+                               API_URL + "/item_lists.json",
+                               body=json.dumps({'success': 'yes'}),
+                               content_type='application/json'
+                               )
+
 
 
     def test_create_collection(self):
