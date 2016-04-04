@@ -208,10 +208,10 @@ class ClientTest(unittest.TestCase):
 
         # get annotations for this item of type 'speaker'
         anns = item_with.get_annotations(type=u'http://ns.ausnc.org.au/schemas/annotation/ice/speaker')
-        self.assertEqual(anns.keys(), [u'commonProperties', u'@context', u'alveo:annotations'])
+        self.assertListEqual(sorted(anns.keys()), [u'@context', u'alveo:annotations', u'commonProperties'])
 
         ann = anns['alveo:annotations'][0]
-        self.assertEqual(ann.keys(), [u'type', u'end', u'@id', u'@type', u'start'])
+        self.assertEqual(sorted(ann.keys()), [u'@id', u'@type',  u'end',  u'start', u'type'])
 
         # this one has no annotations
         anns = item_without.get_annotations(type=u'http://ns.ausnc.org.au/schemas/annotation/ice/speaker')
