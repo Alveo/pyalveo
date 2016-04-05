@@ -74,8 +74,8 @@ class ClientTest(unittest.TestCase):
         meta = client.cache.get_item(item_url)
 
         # check a few things about the metadata json
-        self.assertIn("@context", meta)
-        self.assertIn(item_url, meta)
+        self.assertIn("@context", meta.decode('utf-8'))
+        self.assertIn(item_url, meta.decode('utf-8'))
 
 
         # get a document
@@ -83,15 +83,20 @@ class ClientTest(unittest.TestCase):
         self.assertEqual(type(doc), pyalveo.Document)
 
         doc_content = doc.get_content()
-        self.assertEqual(doc_content[:20], "\r\n\r\n\r\nSydney, New So")
+        self.assertEqual(doc_content[:20].decode(), "\r\n\r\n\r\nSydney, New So")
 
         # there should be a cached file somewhere under cache_dir
         ldir = os.listdir(os.path.join(cache_dir, "files"))
         self.assertEqual(1, len(ldir))
         # the content of the file should be the same as our doc_content
-        h = open(os.path.join(cache_dir, "files", ldir[0]))
-        self.assertEqual(h.read(), doc_content)
-        h.close()
+        with open(os.path.join(cache_dir, "files", ldir[0]), 'rb') as h:
+            self.assertEqual(h.read(), doc_content)
+
+        # now trigger a cache hit
+        doc_content_cache = doc.get_content()
+        self.assertEqual(doc_content, doc_content_cache)
+
+
 
     def test_client_no_cache(self):
         """Test that we can create and use a client without a cache enabled"""
@@ -106,14 +111,12 @@ class ClientTest(unittest.TestCase):
 
         self.assertEqual(type(item), pyalveo.Item)
 
-
-
         # get a document
         doc = item.get_document(0)
         self.assertEqual(type(doc), pyalveo.Document)
 
         doc_content = doc.get_content()
-        self.assertEqual(doc_content[:20], "\r\n\r\n\r\nSydney, New So")
+        self.assertEqual(doc_content[:20].decode(), "\r\n\r\n\r\nSydney, New So")
 
 
 
@@ -121,8 +124,8 @@ class ClientTest(unittest.TestCase):
         """ Test that multiple clients can be created with default configuration or specific configuration
         and check if they are identical or not """
 
-        first_client = pyalveo.Client()
-        second_client = pyalveo.Client()
+        first_client = pyalveo.Client(use_cache=False)
+        second_client = pyalveo.Client(use_cache=False)
 
         self.assertTrue(first_client.__eq__(second_client))
         self.assertTrue(second_client.__eq__(first_client))
@@ -148,7 +151,7 @@ class ClientTest(unittest.TestCase):
 
     def test_item_download(self):
         """Test access to individual items"""
-        client = pyalveo.Client()
+        client = pyalveo.Client(use_cache=False)
         item_url = client.api_url + 'catalog/ace/A01a'
         item  = client.get_item(item_url)
 
@@ -163,7 +166,7 @@ class ClientTest(unittest.TestCase):
         """ Test that the item list can be created, item can be added to the item list,
         item list can be renamed and deleted """
 
-        client = pyalveo.Client()
+        client = pyalveo.Client(use_cache=False)
         base_url = client.api_url
         item_list_name = 'pyalveo_test_item_list'
 
@@ -202,7 +205,7 @@ class ClientTest(unittest.TestCase):
 
     def test_get_annotations(self):
 
-        client = pyalveo.Client()
+        client = pyalveo.Client(use_cache=False)
         item_with = client.get_item(client.api_url + "catalog/monash/MEBH2FB_Sanitised")
         item_without = client.get_item(client.api_url + "catalog/avozes/f6ArtharThan")
 
@@ -226,8 +229,8 @@ class ClientTest(unittest.TestCase):
 
         result = client.sparql_query('mitcheldelbridge', query)
 
-        self.assertTrue(result.has_key('results'))
-        self.assertTrue(result['results'].has_key('bindings'))
+        self.assertIn('results', result)
+        self.assertIn('bindings', result['results'])
         self.assertEqual(len(result['results']['bindings']), 10)
 
 

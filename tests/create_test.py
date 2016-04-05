@@ -2,7 +2,6 @@ import unittest
 import pyalveo
 import os
 import uuid
-import urllib2
 import httpretty
 import json
 
