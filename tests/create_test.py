@@ -2,7 +2,7 @@ import unittest
 import pyalveo
 import os
 import uuid
-import httpretty
+import requests_mock
 import json
 
 CONTEXT = { "ausnc": "http://ns.ausnc.org.au/schemas/ausnc_md_model/",
@@ -18,35 +18,20 @@ API_KEY = "fakekeyvalue"
 
 
 
+@requests_mock.Mocker()
 class CreateTest(unittest.TestCase):
 
-    def setUp(self):
-
-        httpretty.enable()
-        httpretty.HTTPretty.allow_net_connect = False
-        # mock result for /item_lists.json is needed to create client
-        httpretty.register_uri(httpretty.GET,
-                               API_URL + "/item_lists.json",
-                               body=json.dumps({'success': 'yes'}),
-                               content_type='application/json'
-                               )
-
-
-
-    def test_create_collection(self):
+    def test_create_collection(self, m):
         """Test that we can create a new collection"""
 
+        m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
         client = pyalveo.Client(api_url=API_URL, api_key=API_KEY)
 
         cname = 'testcollection1'
         curl = client.api_url + "/catalog/" + cname
 
-        httpretty.register_uri(httpretty.POST,
-                               client.api_url + "/catalog",
-                               body='{"success":"New collection \'%s\' (%s) created"}' % (cname, curl),
-                               status=200,
-                               content_type='application/json'
-                               )
+        m.post(client.api_url + "/catalog",
+               json={"success":"New collection \'%s\' (%s) created" % (cname, curl)})
 
         meta = { "@context": CONTEXT,
                  "@type": "dcmitype:Collection",
@@ -61,29 +46,25 @@ class CreateTest(unittest.TestCase):
         self.assertIn("created", result)
 
         # validate the request we made
-        req = httpretty.last_request()
+        req = m.last_request
         self.assertEqual(req.method, 'POST')
-        self.assertIn('name', req.parsed_body)
-        self.assertIn('collection_metadata', req.parsed_body)
-        self.assertDictEqual(meta, req.parsed_body['collection_metadata'])
+        self.assertIn('name', req.json())
+        self.assertIn('collection_metadata', req.json())
+        self.assertDictEqual(meta, req.json()['collection_metadata'])
 
         # TODO: test creating collection that already exists
         # TODO: test other error conditions - no name, no metadata, bad json
 
-    def test_add_items(self):
+    def test_add_items(self, m):
         """Test that we can add new items to a collection"""
 
+        m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
         client = pyalveo.Client(api_url=API_URL, api_key=API_KEY)
         collection_name = "testcollection1"
-        collection_uri = API_URL + "catalog/" + collection_name
+        collection_uri = API_URL + "/catalog/" + collection_name
         itemname = str(uuid.uuid4())
 
-        httpretty.register_uri(httpretty.POST,
-                               collection_uri,
-                               body='{"success": ["%s"]}' % (itemname,),
-                               status=200,
-                               content_type='application/json'
-                               )
+        m.post(collection_uri, json={"success": itemname})
 
         meta = {
                 'dc:title': 'Test Item',
@@ -93,32 +74,21 @@ class CreateTest(unittest.TestCase):
         item_uri = client.add_item(collection_uri, itemname, meta)
 
         self.assertIn(itemname, item_uri)
-        req = httpretty.last_request()
+        req = m.last_request
         self.assertEqual(req.method, 'POST')
         self.assertEqual(req.headers['Content-Type'], 'application/json')
         self.assertEqual(req.headers['X-API-KEY'], API_KEY)
-        self.assertIn('items', req.parsed_body)
+        self.assertIn('items', req.json())
 
         # now delete it
-        httpretty.register_uri(httpretty.DELETE,
-                               item_uri,
-                               body='{"success": ["%s"]}' % (itemname,),
-                               status=200,
-                               content_type='application/json'
-                               )
-
+        m.delete(item_uri, json={"success": itemname})
         client.delete_item(item_uri)
 
         # add a document
 
         docname = "document2.txt"
 
-        httpretty.register_uri(httpretty.POST,
-                               item_uri,
-                               body='{"success":"Added the document %s to item %s in collection %s"}' % (docname, itemname, collection_name),
-                               status=200,
-                               content_type='application/json'
-                               )
+        m.post(item_uri, json={"success":"Added the document %s to item %s in collection %s" % (docname, itemname, collection_name)})
 
         docmeta = {
                    "dcterms:title": "Sample Document",
@@ -127,18 +97,13 @@ class CreateTest(unittest.TestCase):
 
         document_uri = client.add_document(item_uri, docname, docmeta, content="Hello World!")
 
-        req = httpretty.last_request()
-        self.assertIn('document_content', req.parsed_body)
-        self.assertIn('metadata', req.parsed_body)
-        self.assertIn('dcterms:title', req.parsed_body['metadata'])
+        req = m.last_request
+        self.assertIn('document_content', req.json())
+        self.assertIn('metadata', req.json())
+        self.assertIn('dcterms:title', req.json()['metadata'])
 
         # delete the document
-        httpretty.register_uri(httpretty.DELETE,
-                               document_uri,
-                               body='{"success":"Deleted the document %s from item %s in collection %s"}' % (docname, itemname, collection_name),
-                               status=200,
-                               content_type='application/json'
-                               )
+        m.delete(document_uri, json={"success":"Deleted the document %s from item %s in collection %s" % (docname, itemname, collection_name)})
 
         client.delete_item(document_uri)
 

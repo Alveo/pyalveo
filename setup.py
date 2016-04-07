@@ -9,7 +9,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
 	name='pyalveo',
-	version='0.4',
+	version='0.5',
 	description="A Python library for interfacing with the Alveo API",
 	long_description=long_description,
 
@@ -22,10 +22,11 @@ setup(
 	keywords='alveo hcsvlab python library',
 
 	packages = find_packages(exclude=['contrib', 'docs', 'tests*']),
-	
+
     install_requires=[
         "python-dateutil",
+		"requests"
     ],
-    
+
     test_suite='tests'
 	)

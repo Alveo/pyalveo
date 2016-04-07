@@ -3,19 +3,22 @@ import pyalveo
 import os
 import sqlite3
 import shutil
-import httpretty
 
 class ClientTest(unittest.TestCase):
-
-    def setUp(self):
-
-
-        httpretty.disable()
 
 
     def test_create_client(self):
         """ Test that the clients can be created with or without alveo.config file
         and correct database is created """
+
+        # Test with wrong api key
+        with self.assertRaises(pyalveo.APIError) as cm:
+                client = pyalveo.Client(api_key="wrongapikey123")
+
+        self.assertEqual(
+            "HTTP 401\nUnauthorized\nClient could not be created. Check your api key",
+            str(cm.exception)
+        )
 
         alveo_config_path = os.path.expanduser('~/alveo.config')
         cache_db_path = 'tmp'
@@ -39,14 +42,7 @@ class ClientTest(unittest.TestCase):
         client = pyalveo.Client()
         self.assertEqual(type(client), pyalveo.Client)
 
-        # Test with wrong api key
-        with self.assertRaises(pyalveo.APIError) as cm:
-                client = pyalveo.Client(api_key="wrongapikey123")
 
-        self.assertEqual(
-            "HTTP 401\nUnauthorized\nClient could not be created. Check your api key",
-            str(cm.exception)
-        )
 
     def test_client_cache(self):
         """Test that we can create a client with a cache enabled and that it caches things"""

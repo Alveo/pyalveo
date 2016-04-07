@@ -2,11 +2,11 @@ import os
 
 
 try:
-    from urllib.request import Request, build_opener, HTTPHandler, HTTPError
     from urllib.parse import urlencode, unquote
 except ImportError:
-    from urllib2 import Request, build_opener, HTTPHandler, HTTPError
     from urllib import urlencode, unquote
+
+import requests
 
 import json
 import datetime
@@ -117,8 +117,8 @@ class Client(object):
         # Create a client successfully only when the api key is correct
         # Otherwise raise an Error
         try:
-            self.get_item_lists()
-        except:
+            resp = self.get_item_lists()
+        except APIError:
             raise APIError(http_status_code="401", response="Unauthorized", msg="Client could not be created. Check your api key")
 
 
@@ -174,7 +174,7 @@ class Client(object):
         return not self.__eq__(other)
 
 
-    def api_request(self, url, data=None, method=None, raw=False):
+    def api_request(self, url, data=None, method='GET', raw=False):
         """ Perform an API request to the given URL, optionally
         including the specified data
 
@@ -182,6 +182,8 @@ class Client(object):
         :param url: the URL to which to make the request
         :type data: String
         :param data: the data to send with the request, if any
+        :type method: String
+        :param method: the HTTP request method
         :type raw: Boolean
         :para raw: if True, return the raw response, otherwise treat as JSON and return the parsed response
 
@@ -199,24 +201,25 @@ class Client(object):
             headers['Content-Type'] = 'application/json'
             data = data.encode()
 
+        if method is 'GET':
+            response = requests.get(url, headers=headers)
+        elif method is 'POST':
+            response = requests.post(url, headers=headers, data=data)
+        elif method is 'PUT':
+            response = requests.put(url, headers=headers, data=data)
+        elif method is 'DELETE':
+            response = requests.delete(url, headers=headers)
 
-        req = Request(url, data=data, headers=headers)
-
-        if method is not None:
-            req.get_method = lambda: method
-
-        try:
-            opener = build_opener(HTTPHandler())
-            response = opener.open(req)
-        except HTTPError as err:
-            raise APIError(err.code, err.reason, "Error accessing API (url: %s, method: %s)\nData: %s" % (url, req.get_method() or "GET", data or 'None'))
-
-        content = response.read()
+        if response.status_code != requests.codes.ok:
+            raise APIError(response.status_code, '', "Error accessing API (url: %s, method: %s)\nData: %s" % (url, method, data))
 
         if raw:
-            return content
+            return response.content
         else:
-            return json.loads(content.decode('utf-8'))
+            return response.json()
+
+
+
 
 
 
@@ -464,7 +467,7 @@ class Client(object):
 
         """
         #TODO: test this
-        resp = self.api_request(str(item_url) + '/annotations', annotation)
+        resp = self.api_request(str(item_url) + '/annotations', method='POST', data=annotation)
         return self.__check_success(resp)
 
 
@@ -505,7 +508,7 @@ class Client(object):
                     'name': name
                    }
 
-        response = self.api_request(self.api_url + '/catalog', data=json.dumps(payload))
+        response = self.api_request(self.api_url + '/catalog', method='POST', data=json.dumps(payload))
 
         return self.__check_success(response)
 
@@ -533,7 +536,7 @@ class Client(object):
         if not replace is None:
             payload['replace'] = replace
 
-        response = self.api_request(collection_uri, data=json.dumps(payload), method='PUT')
+        response = self.api_request(collection_uri, method='PUT', data=json.dumps(payload))
 
         return self.__check_success(response)
 
@@ -584,11 +587,11 @@ class Client(object):
                           }]
                 }
 
-        response = self.api_request(collection_uri, data=json.dumps(meta))
+        response = self.api_request(collection_uri, method='POST', data=json.dumps(meta))
 
         # this will raise an exception if the request fails
         result = self.__check_success(response)
-        item_uri = collection_uri + "/" + result[0]
+        item_uri = collection_uri + "/" + response['success']
 
         return item_uri
 
@@ -652,7 +655,7 @@ class Client(object):
 
         docmeta["metadata"].update(metadata)
 
-        result = self.api_request(item_uri, data=json.dumps(docmeta))
+        result = self.api_request(item_uri, method='POST', data=json.dumps(docmeta))
 
         self.__check_success(result)
 
@@ -690,9 +693,9 @@ class Client(object):
 
         if "success" not in resp.keys():
             try:
-                raise APIError(resp["error"])
+                raise APIError('200', 'Operation Failed', resp["error"])
             except KeyError:
-                raise APIError(str(resp))
+                raise APIError('200', 'Operation Failed', str(resp))
         return resp["success"]
 
 
@@ -720,7 +723,7 @@ class Client(object):
         download_url += '?' + urlencode((('format', file_format),))
         item_data = {'items': list(items)}
 
-        data = self.api_request(download_url, json.dumps(item_data), raw=True)
+        data = self.api_request(download_url, method='POST', data=json.dumps(item_data), raw=True)
 
         with open(file_path, 'w') as f:
             f.write(data)
@@ -834,7 +837,7 @@ class Client(object):
         request_url = self.api_url + '/item_lists?' + url_name
 
         data = json.dumps({'items': list(item_urls)})
-        resp = self.api_request(request_url, data)
+        resp = self.api_request(request_url,  method='POST', data=data)
         return self.__check_success(resp)
 
 
@@ -881,8 +884,12 @@ class Client(object):
 
         try:
             resp = self.api_request(str(item_list_url), method="DELETE")
+
             # all good if it says success
-            return 'success' in resp
+            if 'success' in resp:
+                return True
+            else:
+                raise APIError('200', 'Operation Failed', 'Delete operation failed')
         except APIError as e:
             if e.http_status_code == 302:
                 return True
