@@ -3,6 +3,7 @@ import pyalveo
 import os
 import sqlite3
 import shutil
+import requests_mock
 
 class ClientTest(unittest.TestCase):
 
@@ -29,7 +30,7 @@ class ClientTest(unittest.TestCase):
             self.assertEqual(type(client), pyalveo.Client)
 
         else:
-            # Teset when alveo.config is absent
+            # Test when alveo.config is absent
             with self.assertRaises(IOError) as cm:
                 client = pyalveo.Client()
 
@@ -206,14 +207,14 @@ class ClientTest(unittest.TestCase):
         item_without = client.get_item(client.api_url + "catalog/avozes/f6ArtharThan")
 
         # get annotations for this item of type 'speaker'
-        anns = item_with.get_annotations(type=u'http://ns.ausnc.org.au/schemas/annotation/ice/speaker')
+        anns = item_with.get_annotations(atype=u'http://ns.ausnc.org.au/schemas/annotation/ice/speaker')
         self.assertListEqual(sorted(anns.keys()), [u'@context', u'alveo:annotations', u'commonProperties'])
 
         ann = anns['alveo:annotations'][0]
         self.assertEqual(sorted(ann.keys()), [u'@id', u'@type',  u'end',  u'start', u'type'])
 
         # this one has no annotations
-        anns = item_without.get_annotations(type=u'http://ns.ausnc.org.au/schemas/annotation/ice/speaker')
+        anns = item_without.get_annotations(atype=u'http://ns.ausnc.org.au/schemas/annotation/ice/speaker')
         self.assertEqual(anns, None)
 
     def test_sparql_query(self):

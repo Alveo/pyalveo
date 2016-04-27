@@ -80,10 +80,6 @@ class CreateTest(unittest.TestCase):
         self.assertEqual(req.headers['X-API-KEY'], API_KEY)
         self.assertIn('items', req.json())
 
-        # now delete it
-        m.delete(item_uri, json={"success": itemname})
-        client.delete_item(item_uri)
-
         # add a document
 
         docname = "document2.txt"
@@ -104,8 +100,59 @@ class CreateTest(unittest.TestCase):
 
         # delete the document
         m.delete(document_uri, json={"success":"Deleted the document %s from item %s in collection %s" % (docname, itemname, collection_name)})
+        client.delete_document(document_uri)
 
-        client.delete_item(document_uri)
+        req = m.last_request
+        self.assertEqual(req.method, 'DELETE')
+
+
+        # now delete the item
+        m.delete(item_uri, json={"success": itemname})
+        client.delete_item(item_uri)
+
+        req = m.last_request
+        self.assertEqual(req.method, 'DELETE')
+
+
+
+
+
+    def test_add_annotations(self, m):
+        """Test that we can add new annotations for an item"""
+
+        m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
+        client = pyalveo.Client(api_url=API_URL, api_key=API_KEY)
+
+        # create an item
+        m.post(collection_uri, json={"success": [itemname]})
+        meta = {
+                'dc:title': 'Test Item',
+                'dc:creator': 'A. Programmer'
+                }
+
+        item_uri = client.add_item(collection_uri, itemname, meta)
+
+        anns = [{
+                    "@type": "dada:TextAnnotation",
+                    "type": "pageno",
+                    "label": "hello",
+                    "start": 421,
+                    "end": 425
+                },
+                {
+                    "@type": "dada:TextAnnotation",
+                    "type": "pageno",
+                    "label": "world",
+                    "start": 2524,
+                    "end": 2529
+                }
+               ]
+
+        # now add some annotations
+        m.post(item_uri + "/annotations", json={'success': 'yes'})
+        client.upload_annotation(item_uri, annotations)
+
+
 
 
 if __name__ == "__main__" :

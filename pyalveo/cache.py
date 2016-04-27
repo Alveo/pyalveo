@@ -1,6 +1,5 @@
 import os
 import sqlite3
-import json
 import datetime
 import uuid
 import warnings
@@ -115,8 +114,8 @@ class Cache(object):
 
         return True
 
-
-    def __now_iso_8601(self):
+    @staticmethod
+    def __now_iso_8601():
         """ Get the current local time as an ISO 8601 string """
         return datetime.datetime.now(dateutil.tz.gettz()).isoformat()
 

@@ -7,11 +7,7 @@ except ImportError:
     from urllib import urlencode, unquote
 
 import requests
-
 import json
-import datetime
-import uuid
-import warnings
 
 from .cache import Cache
 
@@ -53,7 +49,8 @@ class Client(object):
 
     """
     def __init__(self, api_key=None, api_url=None, cache=None,
-                 use_cache=None, cache_dir=None, update_cache=None, configfile=None):
+                 use_cache=None, cache_dir=None, update_cache=None, configfile=None,
+                 verifySSL=True):
         """ Construct a new Client with the specified parameters.
         Unspecified parameters will be derived from the users ~/alveo.config
         file if present.
@@ -70,6 +67,9 @@ class Client(object):
         :type update_cache: Boolean
         :param update_cache: True to update the cache database with
             downloaded data, False to never write to the cache
+        :type verifySSL: Boolean
+        :param verifySSL True to enforce checking of SSL certificates, False
+            to disable checking (eg. for staging/testing servers)
 
         :rtype: Client
         :returns: the new Client
@@ -102,6 +102,8 @@ class Client(object):
         else:
             self.update_cache = config['update_cache'] == "true"
 
+        self.verifySSL = verifySSL
+
         # configure a cache if we want to read or write to it
         if self.use_cache or self.update_cache:
             if cache == None:
@@ -117,13 +119,13 @@ class Client(object):
         # Create a client successfully only when the api key is correct
         # Otherwise raise an Error
         try:
-            resp = self.get_item_lists()
+            self.get_item_lists()
         except APIError:
             raise APIError(http_status_code="401", response="Unauthorized", msg="Client could not be created. Check your api key")
 
 
-
-    def _read_config(self, configfile=None):
+    @staticmethod
+    def _read_config(configfile=None):
 
         config = CONFIG_DEFAULT
 
@@ -194,21 +196,19 @@ class Client(object):
 
 
         """
-
-
         headers = {'X-API-KEY': self.api_key, 'Accept': 'application/json'}
         if data is not None:
             headers['Content-Type'] = 'application/json'
             data = data.encode()
 
         if method is 'GET':
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, verify=self.verifySSL)
         elif method is 'POST':
-            response = requests.post(url, headers=headers, data=data)
+            response = requests.post(url, headers=headers, data=data, verify=self.verifySSL)
         elif method is 'PUT':
-            response = requests.put(url, headers=headers, data=data)
+            response = requests.put(url, headers=headers, data=data, verify=self.verifySSL)
         elif method is 'DELETE':
-            response = requests.delete(url, headers=headers)
+            response = requests.delete(url, headers=headers, verify=self.verifySSL)
 
         if response.status_code != requests.codes.ok:
             raise APIError(response.status_code, '', "Error accessing API (url: %s, method: %s)\nData: %s" % (url, method, data))
@@ -217,10 +217,6 @@ class Client(object):
             return response.content
         else:
             return response.json()
-
-
-
-
 
 
     def get_api_version(self):
@@ -450,24 +446,31 @@ class Client(object):
         return resp['annotation_types']
 
 
-    def upload_annotation(self, item_url, annotation):
-        """ Upload the given annotation to the server
+    def add_annotations(self, item_url, annotation):
+        """Add annotations to the given item
 
         :type item_url: String or Item
         :param item_url: the URL of the item corresponding to the annotation,
             or an Item object
-        :type annotation: String
-        :param annotation: the annotation, as a JSON string
+        :type annotation: list
+        :param annotation: the annotation as a list of dictionaries, each with keys '@type', 'label', 'start', 'end' and 'type'
 
         :rtype: String
         :returns: the server's success message, if successful
 
         :raises: APIError if the upload was not successful
-
-
+        :raises: Exception if the annotations are malformed (missing a required key)
         """
-        #TODO: test this
-        resp = self.api_request(str(item_url) + '/annotations', method='POST', data=annotation)
+        adict = {'@context': "https://alveo-staging1.intersect.org.au/schema/json-ld"}
+
+        for ann in annotations:
+            # verify that we have the required properties
+            for key in ('@type', 'label', 'start', 'end', 'type'):
+                if not key in ann.keys():
+                    raise Exception("required key '%s' not present in annotation" % key)
+        adict['@graph'] = annotations
+
+        resp = self.api_request(str(item_url) + '/annotations', method='POST', data=json.dumps(adict))
         return self.__check_success(resp)
 
 
@@ -590,8 +593,9 @@ class Client(object):
         response = self.api_request(collection_uri, method='POST', data=json.dumps(meta))
 
         # this will raise an exception if the request fails
-        result = self.__check_success(response)
-        item_uri = collection_uri + "/" + response['success']
+        self.__check_success(response)
+        print "ADD ITEM: ", response
+        item_uri = collection_uri + "/" + response['success'][0]
 
         return item_uri
 
@@ -677,7 +681,8 @@ class Client(object):
         result = self.api_request(doc_uri, method='DELETE')
         return self.__check_success(result)
 
-    def __check_success(self, resp):
+    @staticmethod
+    def __check_success(resp):
         """ Check a JSON server response to see if it was successful
 
         :type resp: Dictionary (parsed JSON from response)
@@ -864,9 +869,9 @@ class Client(object):
             return ItemList(resp['items'], self, item_list_url, resp['name'])
         except KeyError:
             try:
-                raise APIError(resp['error'])
+                raise APIError('200', 'Rename operation failed', resp['error'])
             except KeyError:
-                raise APIError(resp)
+                raise APIError('200', 'Rename operation failed', resp)
 
 
     def delete_item_list(self, item_list_url):
@@ -1413,11 +1418,11 @@ class Item(object):
         return self.client.get_primary_text(self.url(), force_download)
 
 
-    def get_annotations(self, type=None, label=None):
+    def get_annotations(self, atype=None, label=None):
         """ Retrieve the annotations for this item from the server
 
-        :type type: String
-        :param type: return only results with a matching Type field
+        :type atype: String
+        :param atype: return only results with a matching Type field
         :type label: String
         :param label: return only results with a matching Label field
 
@@ -1428,7 +1433,7 @@ class Item(object):
 
 
         """
-        return self.client.get_item_annotations(self.url(), type, label)
+        return self.client.get_item_annotations(self.url(), atype, label)
 
 
     def get_annotation_types(self):
@@ -1444,11 +1449,11 @@ class Item(object):
         return self.client.get_annotation_types(self.url())
 
 
-    def upload_annotation(self, annotation):
-        """ Upload the given annotation to the server
+    def add_annotations(self, annotations):
+        """Add annotations to an item
 
         :type annotation: String
-        :param annotation: the annotation, as a JSON string
+        :param annotations: the annotations, a list of dictionaries
 
         :rtype: String
         :returns: the server success response
@@ -1457,8 +1462,7 @@ class Item(object):
 
 
         """
-        #TODO: figure out how to test this
-        return self.client.upload_annotation(self.url(), annotation)
+        return self.client.add_annotations(self.url(), annotations)
 
 
     def __str__(self):
