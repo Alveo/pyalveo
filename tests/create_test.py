@@ -62,9 +62,9 @@ class CreateTest(unittest.TestCase):
         client = pyalveo.Client(api_url=API_URL, api_key=API_KEY)
         collection_name = "testcollection1"
         collection_uri = API_URL + "/catalog/" + collection_name
-        itemname = str(uuid.uuid4())
+        itemname = "item1"
 
-        m.post(collection_uri, json={"success": itemname})
+        m.post(collection_uri, json={"success": [itemname]})
 
         meta = {
                 'dc:title': 'Test Item',
@@ -80,23 +80,17 @@ class CreateTest(unittest.TestCase):
         self.assertEqual(req.headers['X-API-KEY'], API_KEY)
         self.assertIn('items', req.json())
 
-        # add a document
 
-        docname = "document2.txt"
+    def test_delete_document(self, m):
+        """Test deleting a document"""
 
-        m.post(item_uri, json={"success":"Added the document %s to item %s in collection %s" % (docname, itemname, collection_name)})
+        m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
+        client = pyalveo.Client(api_url=API_URL, api_key=API_KEY)
+        collection_name = "testcollection1"
+        itemname = "item1"
+        docname = "doc1.txt"
 
-        docmeta = {
-                   "dcterms:title": "Sample Document",
-                   "dcterms:type": "Text"
-                  }
-
-        document_uri = client.add_document(item_uri, docname, docmeta, content="Hello World!")
-
-        req = m.last_request
-        self.assertIn('document_content', req.json())
-        self.assertIn('metadata', req.json())
-        self.assertIn('dcterms:title', req.json()['metadata'])
+        document_uri = API_URL + "/catalog/%s/%s/documents/%s" % (collection_name, itemname, docname)
 
         # delete the document
         m.delete(document_uri, json={"success":"Deleted the document %s from item %s in collection %s" % (docname, itemname, collection_name)})
@@ -106,6 +100,17 @@ class CreateTest(unittest.TestCase):
         self.assertEqual(req.method, 'DELETE')
 
 
+    def test_delete_item(self, m):
+        """Test deleting an item"""
+
+        m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
+        client = pyalveo.Client(api_url=API_URL, api_key=API_KEY)
+        collection_name = "testcollection1"
+        itemname = "item1"
+        docname = "doc1.txt"
+
+        item_uri = API_URL + "/catalog/%s/%s" % (collection_name, itemname)
+
         # now delete the item
         m.delete(item_uri, json={"success": itemname})
         client.delete_item(item_uri)
@@ -113,8 +118,117 @@ class CreateTest(unittest.TestCase):
         req = m.last_request
         self.assertEqual(req.method, 'DELETE')
 
+    def test_add_document(self, m):
+        """Test adding documents to items"""
+
+        m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
+        client = pyalveo.Client(api_url=API_URL, api_key=API_KEY)
+        collection_name = "testcollection1"
+        itemname = "item1"
+        docname = "doc1.txt"
+        content = "Hello World!\n"
+
+        item_uri = API_URL + "/catalog/%s/%s" % (collection_name, itemname)
+
+        m.post(item_uri, json={"success":"Added the document %s to item %s in collection %s" % (docname, itemname, collection_name)})
+
+        docmeta = {
+                   "dcterms:title": "Sample Document",
+                   "dcterms:type": "Text"
+                  }
+
+        document_uri = client.add_document(item_uri, docname, docmeta, content=content)
+
+        req = m.last_request
+        payload = req.json()
+        self.assertEqual(payload['document_content'], content)
+        self.assertIn('metadata', payload)
+        md = payload['metadata']
+        self.assertIn('dcterms:title', md)
+        self.assertEqual(md['dcterms:title'], docmeta['dcterms:title'])
+        self.assertEqual(md['@type'], "foaf:Document")
+        self.assertEqual(md['dcterms:identifier'], docname)
 
 
+    def test_modify_item(self, m):
+        """Test modify item metadata"""
+
+        m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
+        client = pyalveo.Client(api_url=API_URL, api_key=API_KEY)
+        collection_name = "testcollection1"
+        itemname = "item1"
+        item_uri = API_URL + "/catalog/%s/%s" % (collection_name, itemname)
+
+        meta = {"http://ns.ausnc.org.au/schemas/ausnc_md_model/mode":"An updated test mode"}
+
+        m.put(item_uri, json={'success': "item metadata updated"})
+        client.modify_item(item_uri, meta)
+
+        req = m.last_request
+        self.assertIn('metadata', req.json())
+        self.assertEqual(meta, req.json()['metadata'])
+
+
+    def test_add_document_attachment(self, m):
+        """Test adding a document to an item as a file attachment"""
+
+        m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
+        client = pyalveo.Client(api_url=API_URL, api_key=API_KEY)
+        collection_name = "testcollection1"
+        itemname = "item1"
+        docname = "doc1.txt"
+        content = "Hello World\n"
+
+        # create a temporary file to upload
+        with open(docname, 'w') as out:
+            out.write(content)
+
+        item_uri = API_URL + "/catalog/%s/%s" % (collection_name, itemname)
+
+        m.post(item_uri, json={"success":"Added the document %s to item %s in collection %s" % (docname, itemname, collection_name)})
+
+        docmeta = {
+                   "dcterms:title": "Sample Document",
+                   "dcterms:type": "Text"
+                  }
+
+        document_uri = client.add_document(item_uri, docname, docmeta, file=docname)
+
+        req = m.last_request
+
+        # should be a multipart-form with a json payload and a file attachment
+
+        self.assertIn('multipart/form-data', req.headers['Content-Type'])
+
+        # do a hacky parse of the multipart and check the contents
+        bdy = req.headers['Content-Type'].split(';')[1][len('boundary=')+1:]
+        self.assertIn(bdy, req.text)
+        messages = req.text.split('--'+bdy)
+
+        for msg in messages:
+            msg = msg.strip()
+            # read and skip header lines
+            inheader = True
+            blockname = ""
+            body = ""
+            for line in msg.split('\r\n'):
+                if "metadata" in line:
+                    blockname = "metadata"
+                elif "filename" in line:
+                    blockname = "file"
+                elif line == u'':
+                    inheader = False
+                if not inheader:
+                    body += line + '\n'
+
+            if blockname is "metadata":
+                md = json.loads(body)
+                self.assertIn('dcterms:title', md)
+                self.assertEqual(md['dcterms:title'], docmeta['dcterms:title'])
+                self.assertEqual(md['@type'], "foaf:Document")
+                self.assertEqual(md['dcterms:identifier'], docname)
+            elif blockname is "file":
+                self.assertIn(content, body)
 
 
     def test_add_annotations(self, m):
@@ -122,8 +236,9 @@ class CreateTest(unittest.TestCase):
 
         m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
         client = pyalveo.Client(api_url=API_URL, api_key=API_KEY)
-
+        collection_uri = API_URL + "/catalog/collection1"
         # create an item
+        itemname = "testitem1"
         m.post(collection_uri, json={"success": [itemname]})
         meta = {
                 'dc:title': 'Test Item',
@@ -150,9 +265,7 @@ class CreateTest(unittest.TestCase):
 
         # now add some annotations
         m.post(item_uri + "/annotations", json={'success': 'yes'})
-        client.upload_annotation(item_uri, annotations)
-
-
+        client.add_annotations(item_uri, anns)
 
 
 if __name__ == "__main__" :

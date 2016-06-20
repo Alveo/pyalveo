@@ -1,9 +1,14 @@
 PyAlveo
 =======
 
+.. image:: https://pypip.in/d/pyalveo/badge.png
+        :target: https://pypi.python.org/pypi/pyalveo
+
+Documentation: https://pyalveo.readthedocs.io/
+
 A Python library for interfacing with the Alveo API.
 
-`Alveo <http://alveo.edu.au>`_ is a Virtual Laboratory platform to support 
+`Alveo <http://alveo.edu.au>`_ is a Virtual Laboratory platform to support
 research on Human Communication. It
 stores large collections of audio, video and textual data representing language use
 and provides an API to search and retrieve data and metadata.  This Python library
@@ -23,4 +28,3 @@ features:
 -  Seamless (but configurable) local caching of item metadata, document
    content data and primary texts using SQLite3
 -  Comprehensive epydoc documentation
-
