@@ -1,0 +1,16 @@
+{
+    "own": [
+        {
+        "item_list_url":    "https://app.alveo.edu.au/item_lists/831",
+        "name":    "pyalveo_test_item_list",
+        "num_items":    1,
+        "shared":    false
+        },
+    {
+        "item_list_url":    "https://app.alveo.edu.au/item_lists/891",
+        "name":    "60+female-sydney",
+        "num_items":    326,
+        "shared":    false
+    }],
+    "shared": []
+}

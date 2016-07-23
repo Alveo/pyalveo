@@ -55,7 +55,43 @@ class CreateTest(unittest.TestCase):
         # TODO: test creating collection that already exists
         # TODO: test other error conditions - no name, no metadata, bad json
 
-    def test_add_items(self, m):
+
+    def test_add_text_item(self, m):
+        """Test that we can add new items that have just a text document to a collection """
+
+        doctext = "This is the text of my test document.\nTwo lines.\n"
+
+        m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
+        client = pyalveo.Client(api_url=API_URL, api_key=API_KEY)
+        collection_name = "testcollection1"
+        collection_uri = API_URL + "/catalog/" + collection_name
+        itemname = "item1"
+
+        m.post(collection_uri, json={"success": [itemname]})
+
+        meta = {
+                'dc:title': 'Test Item',
+                'dc:creator': 'A. Programmer'
+                }
+
+        item_uri = client.add_text_item(collection_uri, itemname, meta, text=doctext, title='my test document')
+
+        self.assertIn(itemname, item_uri)
+        req = m.last_request
+        self.assertEqual(req.method, 'POST')
+        self.assertEqual(req.headers['Content-Type'], 'application/json')
+        self.assertEqual(req.headers['X-API-KEY'], API_KEY)
+        self.assertIn('items', req.json())
+        self.assertEqual(1, len(req.json()['items']))
+        itemdict = req.json()['items'][0]
+        self.assertIn('documents', itemdict)
+        self.assertEqual(1, len(itemdict['documents']))
+        self.assertEqual(doctext, itemdict['documents'][0]['content'])
+        self.assertEqual(itemname+'.txt', itemdict['documents'][0]['identifier'])
+
+
+
+    def test_add_item(self, m):
         """Test that we can add new items to a collection"""
 
         m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
@@ -79,7 +115,6 @@ class CreateTest(unittest.TestCase):
         self.assertEqual(req.headers['Content-Type'], 'application/json')
         self.assertEqual(req.headers['X-API-KEY'], API_KEY)
         self.assertIn('items', req.json())
-
 
     def test_delete_document(self, m):
         """Test deleting a document"""

@@ -33,13 +33,12 @@ CONFIG_DEFAULT = {'max_age': 0,
                   'alveo_config': '~/alveo.config',
               }
 
-CONTEXT = { "ausnc": "http://ns.ausnc.org.au/schemas/ausnc_md_model/",
-            "corpus": "http://ns.ausnc.org.au/corpora/",
-            "dc": "http://purl.org/dc/terms/",
-            "dcterms": "http://purl.org/dc/terms/",
-            "foaf": "http://xmlns.com/foaf/0.1/",
-            "hcsvlab": "http://hcsvlab.org/vocabulary/"
-         }
+CONTEXT ={'ausnc': 'http://ns.ausnc.org.au/schemas/ausnc_md_model/',
+          'corpus': 'http://ns.ausnc.org.au/corpora/',
+          'dc': 'http://purl.org/dc/terms/',
+          'dcterms': 'http://purl.org/dc/terms/',
+          'foaf': 'http://xmlns.com/foaf/0.1/',
+          'hcsvlab': 'http://alveo.edu.au/vocabulary/'}
 
 
 class Client(object):
@@ -562,6 +561,70 @@ class Client(object):
         cname = os.path.split(collection_uri)[1]
         return self.search_metadata("collection_name:%s" % cname)
 
+    def add_text_item(self, collection_uri, name, metadata, text, title=None):
+        """Add a new item to a collection containing a single
+        text document.
+
+        The full text of the text document is specified as the text
+        argument and will be stored with the same name as the
+        item and a .txt extension.
+
+        This is a shorthand for the more general add_item method.
+
+        :param collection_uri: The URI that references the collection
+        :type collection_uri: String
+
+        :param name: The item name, suitable for use in a URI (no spaces)
+        :type name: String
+
+        :param metadata: a dictionary of metadata values describing the item
+        :type metadata: Dict
+
+        :param text: the full text of the document associated with this item
+        :type text: String
+
+
+        :param title: document title, defaults to the item name
+        :type title: String
+
+        :rtype String
+        :returns: the URI of the created item
+
+        :raises: APIError if the request was not successful
+
+        """
+
+        docname = name + ".txt"
+        if title is None:
+            title = name
+
+        metadata['dcterms:identifier'] = name
+        metadata['@type'] = 'ausnc:AusNCObject'
+        metadata['hcsvlab:display_document'] = {'@id': docname}
+        metadata['hcsvlab:indexable_document'] = {'@id': docname}
+        metadata['ausnc:document'] =  [{ '@id': 'document1.txt',
+                                         '@type': 'foaf:Document',
+                                         'dcterms:extent': len(text),
+                                         'dcterms:identifier': docname,
+                                         'dcterms:title': title,
+                                         'dcterms:type': 'Text'}]
+
+        meta = {'items': [{'metadata': { '@context': CONTEXT,
+                                         '@graph': [metadata]
+                                        },
+                            'documents': [{'content': text, 'identifier': docname}]
+                          }]
+                }
+
+        response = self.api_request(collection_uri, method='POST', data=json.dumps(meta))
+
+        # this will raise an exception if the request fails
+        self.__check_success(response)
+
+        item_uri = collection_uri + "/" + response['success'][0]
+
+        return item_uri
+        
 
     def add_item(self, collection_uri, name, metadata, documents=None):
         """Add a new item to a collection
@@ -577,7 +640,6 @@ class Client(object):
 
         :param documents: a list of metadata dictionaries, one per document
         :type documents: List of Dict
-
 
         :rtype String
         :returns: the URI of the created item
@@ -691,7 +753,7 @@ class Client(object):
         self.__check_success(result)
 
         if displaydoc:
-            itemmeta = {"hcsvlab:display_document": docid}
+            itemmeta = {"http://alveo.edu.org/vocabulary/display_document": docid}
 
             self.modify_item(item_uri, itemmeta)
 

@@ -1,0 +1,120 @@
+{
+"@context":
+"https://app.alveo.edu.au/schema/json-ld",
+"alveo:annotations_url":
+"https://app.alveo.edu.au/catalog/ace/A01b/annotations.json",
+"alveo:catalog_url":
+"https://app.alveo.edu.au/catalog/ace/A01b",
+"alveo:documents":
+[
+{
+"alveo:size":
+"624 B",
+"alveo:url":
+"https://app.alveo.edu.au/catalog/ace/A01b/document/A01b-plain.txt",
+"dc:extent":
+"624",
+"dc:identifier":
+"A01b-plain.txt",
+"dc:title":
+"A01b#Text",
+"dc:type":
+"Text",
+"rdf:type":
+"http://xmlns.com/foaf/0.1/Document"
+},
+{
+"alveo:size":
+"759 B",
+"alveo:url":
+"https://app.alveo.edu.au/catalog/ace/A01b/document/A01b-raw.txt",
+"dc:extent":
+"759",
+"dc:identifier":
+"A01b-raw.txt",
+"dc:title":
+"A01b#Raw",
+"dc:type":
+"Raw",
+"rdf:type":
+"http://xmlns.com/foaf/0.1/Document"
+},
+{
+"alveo:size":
+null,
+"alveo:url":
+"https://app.alveo.edu.au/catalog/ace/A01b/document/ace_a.txt",
+"dc:extent":
+"579959",
+"dc:identifier":
+"ace_a.txt",
+"dc:title":
+"A01b#Original",
+"dc:type":
+"Original",
+"rdf:type":
+"http://xmlns.com/foaf/0.1/Document"
+}
+],
+"alveo:metadata":
+{
+"ace:genre":
+"Press Reportage",
+"alveo:date_group":
+"1980 - 1989",
+"alveo:display_document":
+"A01b-plain.txt",
+"alveo:full_text":
+"",
+"alveo:handle":
+"ace:A01b",
+"alveo:indexable_document":
+"A01b-plain.txt",
+"alveo:sparqlEndpoint":
+"https://app.alveo.edu.au/sparql/ace",
+"ausnc:audience":
+"mass_market",
+"ausnc:communication_context":
+"unspecified",
+"ausnc:communication_medium":
+"unspecified",
+"ausnc:communication_setting":
+"popular",
+"ausnc:document":
+"A01b-plain.txt, A01b-raw.txt, ace_a.txt",
+"ausnc:interactivity":
+"unspecified",
+"ausnc:itemwordcount":
+"94",
+"ausnc:mode":
+"written",
+"ausnc:publication_status":
+"published",
+"ausnc:source":
+"The Australian 28 October 1986 (2007 words)",
+"ausnc:speech_style":
+"unspecified",
+"ausnc:written_mode":
+"print",
+"dc:created":
+"28 October 1986",
+"dc:extent":
+"624, 759, 579959",
+"dc:identifier":
+"A01b",
+"dc:isPartOf":
+"ace",
+"dc:publisher":
+"Samples \u0026#x27;Used by permission of News Limited",
+"dc:title":
+"Japan acts against dumping",
+"dc:type":
+"Text, Raw, Original",
+"olac:discourse_type":
+"unspecified",
+"olac:language":
+"eng"
+},
+"alveo:primary_text_url":
+"https://app.alveo.edu.au/catalog/ace/A01b/primary_text.json"
+}
