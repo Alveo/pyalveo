@@ -1,10 +1,12 @@
 PyAlveo
 =======
 
-.. image:: https://pypip.in/d/pyalveo/badge.png
-        :target: https://pypi.python.org/pypi/pyalveo
-
-Documentation: https://pyalveo.readthedocs.io/
+.. image:: https://badge.fury.io/py/pyalveo.svg
+    :target: https://badge.fury.io/py/pyalveo
+.. image:: https://travis-ci.org/Alveo/pyalveo.svg?branch=master
+    :target: https://travis-ci.org/Alveo/pyalveo
+.. image:: https://readthedocs.org/projects/pyalveo/badge/
+    :target: https://pyalveo.readthedocs.io/
 
 A Python library for interfacing with the Alveo API.
 
