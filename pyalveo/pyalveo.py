@@ -38,7 +38,13 @@ CONTEXT ={'ausnc': 'http://ns.ausnc.org.au/schemas/ausnc_md_model/',
           'dc': 'http://purl.org/dc/terms/',
           'dcterms': 'http://purl.org/dc/terms/',
           'foaf': 'http://xmlns.com/foaf/0.1/',
-          'hcsvlab': 'http://alveo.edu.au/vocabulary/'}
+          'hcsvlab': 'http://alveo.edu.au/vocabulary/',
+          'austalk': "http://ns.austalk.edu.au/",
+          'olac': "http://www.language-archives.org/OLAC/1.1/",
+          'rdf': "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+          'schema': "http://schema.org/",
+          'xsd': "http://www.w3.org/2001/XMLSchema#",
+          }
 
 
 class Client(object):
@@ -624,7 +630,7 @@ class Client(object):
         item_uri = collection_uri + "/" + response['success'][0]
 
         return item_uri
-        
+
 
     def add_item(self, collection_uri, name, metadata, documents=None):
         """Add a new item to a collection
