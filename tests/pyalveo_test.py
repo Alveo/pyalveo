@@ -56,6 +56,17 @@ class ClientTest(unittest.TestCase):
             self.assertEqual(type(client), pyalveo.Client)
 
 
+    def test_client_context(self, m):
+        """add_context extends the context that is used by the  client"""
+
+        m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
+        client = pyalveo.Client(api_url=API_URL, api_key=API_KEY)
+
+        client.add_context('test', 'http://test.org/')
+
+        self.assertIn('test', client.context)
+        self.assertEqual('http://test.org/', client.context['test'])
+
 
     def test_client_cache(self, m):
         """Test that we can create a client with a cache enabled and that it caches things"""

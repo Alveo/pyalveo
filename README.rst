@@ -27,6 +27,6 @@ features:
 -  A Client class with full API coverage
 -  API-aware classes representing Alveo items, Item Lists, and
    documents, with sensibly overloaded operators
--  Seamless (but configurable) local caching of item metadata, document
-   content data and primary texts using SQLite3
+-  Seamless (but configurable) local caching of item metadata and document
+   content
 -  Comprehensive epydoc documentation

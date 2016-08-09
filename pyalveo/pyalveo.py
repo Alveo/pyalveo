@@ -109,6 +109,10 @@ class Client(object):
 
         self.verifySSL = verifySSL
 
+        # grab the default context
+        self.context = CONTEXT
+
+
         # configure a cache if we want to read or write to it
         if self.use_cache or self.update_cache:
             if cache == None:
@@ -227,6 +231,21 @@ class Client(object):
             return response.content
         else:
             return response.json()
+
+
+    def add_context(self, prefix, url):
+        """ Add a new entry to the context that will be used
+        when uploading new metadata records.
+
+        :type prefix: String
+        :para prefix: the namespace prefix (eg. dc)
+
+        :type url: String
+        :para url: the url to associate with the prefix
+
+        """
+
+        self.context[prefix] = url
 
 
     def get_api_version(self):
@@ -615,7 +634,7 @@ class Client(object):
                                          'dcterms:title': title,
                                          'dcterms:type': 'Text'}]
 
-        meta = {'items': [{'metadata': { '@context': CONTEXT,
+        meta = {'items': [{'metadata': { '@context': self.context,
                                          '@graph': [metadata]
                                         },
                             'documents': [{'content': text, 'identifier': docname}]
@@ -657,7 +676,7 @@ class Client(object):
         metadata['dcterms:identifier'] = name
         metadata['@type'] = 'ausnc:AusNCObject'
 
-        meta = {'items': [{'metadata': { '@context': CONTEXT,
+        meta = {'items': [{'metadata': { '@context': self.context,
                                          '@graph': [metadata]
                                         }
                           }]
@@ -733,7 +752,7 @@ class Client(object):
         else:
             docid = name
 
-        docmeta = {"metadata": {"@context": CONTEXT,
+        docmeta = {"metadata": {"@context": self.context,
                                 "@type": "foaf:Document",
                                 "dcterms:identifier": docid,
                                 }
