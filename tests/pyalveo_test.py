@@ -5,6 +5,7 @@ import sqlite3
 import shutil
 import requests_mock
 import json
+import tempfile
 
 API_URL = "https://app.alveo.edu.au"
 API_KEY = "fakekeyvalue"
@@ -185,7 +186,7 @@ class ClientTest(unittest.TestCase):
         """Test access to individual items"""
 
         m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
-        client = pyalveo.Client(api_url=API_URL, api_key=API_KEY, use_cache=False)
+        client = pyalveo.Client(api_url=API_URL, api_key=API_KEY, use_cache=True)
         item_url = client.api_url + '/catalog/cooee/1-190'
 
         with open('tests/responses/1-190.json', 'rb') as rh:
@@ -197,6 +198,35 @@ class ClientTest(unittest.TestCase):
         meta = item.metadata()
 
         self.assertEqual(meta['alveo:primary_text_url'], client.api_url + u'/catalog/cooee/1-190/primary_text.json')
+
+        # now try it with the cache, should not make a request
+        item2 = client.get_item(item_url)
+        self.assertEqual(item_url, item2.url())
+        self.assertEqual(item.metadata(), item2.metadata())
+
+
+    def test_download_document(self, m):
+        """Download a document"""
+
+        m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
+        client = pyalveo.Client(api_url=API_URL, api_key=API_KEY, use_cache=False)
+
+        # temp directory for output
+        output_dir = tempfile.mkdtemp()
+        outname = "downloaded_sample.wav"
+
+        document_url = client.api_url + '/catalog/cooee/1-190/document/sample.wav'
+
+        meta = {'alveo:url': document_url}
+        document = pyalveo.Document(meta, client)
+
+        with open('tests/responses/sample.wav', 'rb') as rh:
+            m.get(document_url, body=rh)
+            document.download_content(output_dir, outname, force_download=True)
+
+        self.assertTrue(os.path.exists(os.path.join(output_dir, outname)))
+
+
 
 
     def test_item_lists(self, m):

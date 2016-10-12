@@ -1794,6 +1794,6 @@ class Document(object):
             filename = self.get_filename()
         path = os.path.join(dir_path, filename)
         data = self.client.get_document(self.url(), force_download)
-        with open(path, 'w') as f:
+        with open(path, 'wb') as f:
             f.write(data)
         return path
