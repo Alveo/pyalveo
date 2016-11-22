@@ -1,5 +1,5 @@
 import os
-
+from bottle import request
 
 try:
     from urllib.parse import urlencode, unquote
@@ -7,6 +7,7 @@ except ImportError:
     from urllib import urlencode, unquote
 
 import requests
+from requests_oauthlib import OAuth2Session
 import json
 
 from .cache import Cache
@@ -46,6 +47,53 @@ CONTEXT ={'ausnc': 'http://ns.ausnc.org.au/schemas/ausnc_md_model/',
           'xsd': "http://www.w3.org/2001/XMLSchema#",
           }
 
+class OAuth2(object):
+    """ An OAuth2 Manager class for the retrieval and storage of
+        all relavent URI's, tokens and client login data.  """
+    
+    def __init__(self,client_id,client_secret,redirect_url):
+        
+        #### TODO get these from Karl
+        self.auth_base_url = ''
+        self.token_url = ''
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.redirect_url = redirect_url
+        ####
+        self.token = None
+    
+    def get_authorisation_url(self):
+        """ Initialises the OAuth2 Process by asking the auth server for a login URL.
+            Once called, the user can login by being redirected to the url returned by 
+            this function. None will be returned if an error occurred. """
+        try:
+            oauth = OAuth2Session(self.client_id,redirect_uri=self.redirect_url)
+            self.auth_url,self.state = oauth.authorization_url(self.auth_base_url)
+        except:
+            #Handle errors
+            return None
+        return self.auth_url
+        
+    def on_callback(self,request_url):
+        """ Must be called once the authorisation server has responded after 
+            redirecting to the url provided by 'get_authorisation_url' and completing 
+            the login there.
+            Returns True if a token was successfully retrieved, False otherwise."""
+        try:
+            oauth = OAuth2Session(self.client_id,state=self.state)
+            self.token = oauth.fetch_token(self.token_url, code=self.client_secret, 
+                                      authorization_response=request_url)
+        except:
+            #Handle Errors
+            return False
+        return True
+        
+    def request(self):
+        """ Returns an OAuth2 Session to be used to make requests. 
+        Returns None if a token hasn't yet been recieved."""
+        if self.token==None:
+            return None
+        return OAuth2Session(self.client_id,token=self.token)
 
 class Client(object):
     """ Client object used to manipulate Alveo objects and interface
@@ -54,8 +102,10 @@ class Client(object):
 
     """
     def __init__(self, api_key=None, api_url=None, cache=None,
-                 use_cache=None, cache_dir=None, update_cache=None, configfile=None,
-                 verifySSL=True):
+                 use_cache=None, cache_dir=None, update_cache=None,
+                 #OAuth2 Stuff, is compulsory
+                 client_id=None,client_secret=None,redirect_url=None,
+                 configfile=None, verifySSL=True):
         """ Construct a new Client with the specified parameters.
         Unspecified parameters will be derived from the users ~/alveo.config
         file if present.
@@ -86,6 +136,25 @@ class Client(object):
             self.api_key = api_key
         else:
             self.api_key = config['apiKey']
+        
+        
+        #OAuth2 Initial Settings
+        if client_id!=None:
+            self.client_id = client_id
+        else:
+            self.client_id = config['client_id']
+        
+        if client_secret!=None:
+            self.client_secret = client_secret
+        else:
+            self.client_secret = config['client_secret']
+        
+        if redirect_url!=None:
+            self.redirect_url = redirect_url
+        else:
+            self.redirect_url = config['redirect_url']
+        
+        
 
         if api_url!=None:
             self.api_url = api_url
