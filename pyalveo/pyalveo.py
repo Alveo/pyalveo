@@ -1,4 +1,4 @@
-import os
+import os,sys
 from bottle import request
 
 try:
@@ -49,18 +49,23 @@ CONTEXT ={'ausnc': 'http://ns.ausnc.org.au/schemas/ausnc_md_model/',
 
 class OAuth2(object):
     """ An OAuth2 Manager class for the retrieval and storage of
-        all relavent URI's, tokens and client login data.  """
+        all relevant URI's, tokens and client login data.  """
     
-    def __init__(self,client_id,client_secret,redirect_url):
+    def __init__(self,client_id,client_secret,redirect_url,secure=True):
         
-        #### TODO get these from Karl
-        self.auth_base_url = ''
-        self.token_url = ''
+        #### TODO these are only test settings
+        self.auth_base_url = 'http://10.46.34.203:3000/oauth/authorize'
+        self.token_url = 'http://10.46.34.203:3000/oauth/token'
+        self.revoke_url = 'http://10.46.34.203:3000/oauth/revoke'
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_url = redirect_url
         ####
         self.token = None
+        
+        #Only for testing
+        if not secure:
+            os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
     
     def get_authorisation_url(self):
         """ Initialises the OAuth2 Process by asking the auth server for a login URL.
@@ -71,7 +76,9 @@ class OAuth2(object):
             self.auth_url,self.state = oauth.authorization_url(self.auth_base_url)
         except:
             #Handle errors
-            return None
+            #return None
+            print "Unexpected error:", sys.exc_info()[0]
+            raise
         return self.auth_url
         
     def on_callback(self,request_url):
@@ -80,20 +87,36 @@ class OAuth2(object):
             the login there.
             Returns True if a token was successfully retrieved, False otherwise."""
         try:
-            oauth = OAuth2Session(self.client_id,state=self.state)
-            self.token = oauth.fetch_token(self.token_url, code=self.client_secret, 
-                                      authorization_response=request_url)
+            oauth = OAuth2Session(self.client_id,state=self.state,redirect_uri=self.redirect_url)
+            self.token = oauth.fetch_token(self.token_url, authorization_response=request_url, 
+                                           client_secret=self.client_secret)
         except:
             #Handle Errors
-            return False
+            #return False
+            print "Unexpected error:", sys.exc_info()[0]
+            raise
+        return True
+        
+    def revoke_access(self):
+        if self.token==None:
+            return True
+        oauth = OAuth2Session(self.client_id,token=self.token,redirect_uri=self.redirect_url,
+                             state=self.state)
+        data = {}
+        data['client_id'] = self.client_id
+        data['client_secret'] = self.client_secret
+        data['token'] = self.token['access_token']
+        resp = oauth.post(self.revoke_url, data=data, json=None)
+        #TODO: Test Doorkeeper provider doesn't implement revoke
         return True
         
     def request(self):
         """ Returns an OAuth2 Session to be used to make requests. 
-        Returns None if a token hasn't yet been recieved."""
+        Returns None if a token hasn't yet been received."""
         if self.token==None:
             return None
-        return OAuth2Session(self.client_id,token=self.token)
+        return OAuth2Session(self.client_id,token=self.token,redirect_uri=self.redirect_url,
+                             state=self.state)
 
 class Client(object):
     """ Client object used to manipulate Alveo objects and interface
@@ -101,7 +124,7 @@ class Client(object):
 
 
     """
-    def __init__(self, api_key=None, api_url=None, cache=None,
+    def __init__(self, api_url=None, cache=None,
                  use_cache=None, cache_dir=None, update_cache=None,
                  #OAuth2 Stuff, is compulsory
                  client_id=None,client_secret=None,redirect_url=None,
@@ -130,32 +153,19 @@ class Client(object):
         :returns: the new Client
         """
 
-        config = self._read_config(configfile)
-
-        if api_key!=None:
-            self.api_key = api_key
-        else:
-            self.api_key = config['apiKey']
-        
+        config = self._read_config(configfile)        
         
         #OAuth2 Initial Settings
-        if client_id!=None:
-            self.client_id = client_id
-        else:
-            self.client_id = config['client_id']
+        if client_id==None:
+            client_id = config['client_id']
         
-        if client_secret!=None:
-            self.client_secret = client_secret
-        else:
+        if client_secret==None:
             self.client_secret = config['client_secret']
         
-        if redirect_url!=None:
-            self.redirect_url = redirect_url
-        else:
+        if redirect_url==None:
             self.redirect_url = config['redirect_url']
         
         
-
         if api_url!=None:
             self.api_url = api_url
         else:
@@ -197,7 +207,8 @@ class Client(object):
         # Create a client successfully only when the api key is correct
         # Otherwise raise an Error
         try:
-            self.get_item_lists()
+            self.oauth = OAuth2(client_id,client_secret,redirect_url,secure=verifySSL)
+            self.oauth.get_authorisation_url()
         except APIError:
             raise APIError(http_status_code="401", response="Unauthorized", msg="Client could not be created. Check your api key")
 
@@ -281,17 +292,19 @@ class Client(object):
         if data is not None and file is None:
             headers['Content-Type'] = 'application/json'
 
+        request = self.oauth.request()
+
         if method is 'GET':
-            response = requests.get(url, headers=headers, verify=self.verifySSL)
+            response = request.get(url, headers=headers, verify=self.verifySSL)
         elif method is 'POST':
             if file is not None:
-                response = requests.post(url, headers=headers, data=data, files={'file':open(file,'rb')}, verify=self.verifySSL)
+                response = request.post(url, headers=headers, data=data, files={'file':open(file,'rb')}, verify=self.verifySSL)
             else:
-                response = requests.post(url, headers=headers, data=data, verify=self.verifySSL)
+                response = request.post(url, headers=headers, data=data, verify=self.verifySSL)
         elif method is 'PUT':
-            response = requests.put(url, headers=headers, data=data, verify=self.verifySSL)
+            response = request.put(url, headers=headers, data=data, verify=self.verifySSL)
         elif method is 'DELETE':
-            response = requests.delete(url, headers=headers, verify=self.verifySSL)
+            response = request.delete(url, headers=headers, verify=self.verifySSL)
 
         if response.status_code != requests.codes.ok:
             raise APIError(response.status_code, '', "Error accessing API (url: %s, method: %s)\nData: %s\nMessage: %s" % (url, method, data, response.text))
