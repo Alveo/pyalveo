@@ -104,7 +104,10 @@ class OAuth2(object):
     def validate(self):
         """  Confirms the current token is still valid. Returns true if so, false otherwise. """
         
-        resp = self.request().get(self.validate_url).json()
+        try:
+            resp = self.request().get(self.validate_url).json()
+        except TokenExpiredError:
+            return False
         
         if 'error' in resp:
             return False
@@ -127,14 +130,14 @@ class OAuth2(object):
         """  Requests that the currently used token becomes invalid. Call this should a user logout. """
         if self.token==None:
             return True
-        oauth = OAuth2Session(self.client_id,token=self.token,redirect_uri=self.redirect_url,
-                             state=self.state)
-        data = {}
-        #data['client_id'] = self.client_id
-        #data['client_secret'] = self.client_secret
-        data['token'] = self.token['access_token']
-        resp = oauth.post(self.revoke_url, data=data, json=None)
-        #TODO: Test Doorkeeper provider doesn't implement revoke
+        #Don't try to revoke if token is invalid anyway, will cause an error response anyway.
+        if self.validate():
+            data = {}
+            #data['client_id'] = self.client_id
+            #data['client_secret'] = self.client_secret
+            data['token'] = self.token['access_token']
+            resp = self.request().post(self.revoke_url, data=data, json=None)
+            #TODO: Test Doorkeeper provider doesn't implement revoke
         return True
         
     def request(self):
