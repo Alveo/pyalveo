@@ -51,17 +51,21 @@ class OAuth2(object):
     """ An OAuth2 Manager class for the retrieval and storage of
         all relevant URI's, tokens and client login data.  """
     
-    def __init__(self,client_id,client_secret,redirect_url,secure=True):
+    def __init__(self,client_id,client_secret,redirect_url,secure=True,base_url='http://10.46.34.203:3000'):
         
         #### TODO these are only test settings
-        self.auth_base_url = 'http://10.46.34.203:3000/oauth/authorize'
-        self.token_url = 'http://10.46.34.203:3000/oauth/token'
-        self.revoke_url = 'http://10.46.34.203:3000/oauth/revoke'
+        self.base_url = base_url
+        self.auth_base_url = base_url+'/oauth/authorize'
+        self.token_url = base_url+'/oauth/token' #grant_type = authorization_code
+        self.revoke_url = base_url+'/oauth/revoke'
+        self.validate_url = base_url+'/oauth/token/info'
+        self.refresh_url = base_url+'/oauth/token' #grant_type = refresh_token
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_url = redirect_url
         ####
         self.token = None
+        self.auto_refresh = False #TODO add support to enable and disable this
         
         #Only for testing
         if not secure:
@@ -97,14 +101,37 @@ class OAuth2(object):
             raise
         return True
         
+    def validate(self):
+        """  Confirms the current token is still valid. Returns true if so, false otherwise. """
+        
+        resp = self.request.get(self.validate_url).json()
+        
+        if 'error' in resp:
+            return False
+        return True
+        
+    def refresh_token(self):
+        """  Refreshes access token using refresh token. Returns true if successful, false otherwise. """
+        
+        try:
+            self.token = self.request().refresh_token(self.refresh_url, self.token['refresh_token'])
+            
+        except:
+            #Handle Errors
+            #return False
+            print "Unexpected error:", sys.exc_info()[0]
+            raise
+        return True
+    
     def revoke_access(self):
+        """  Requests that the currently used token becomes invalid. Call this should a user logout. """
         if self.token==None:
             return True
         oauth = OAuth2Session(self.client_id,token=self.token,redirect_uri=self.redirect_url,
                              state=self.state)
         data = {}
-        data['client_id'] = self.client_id
-        data['client_secret'] = self.client_secret
+        #data['client_id'] = self.client_id
+        #data['client_secret'] = self.client_secret
         data['token'] = self.token['access_token']
         resp = oauth.post(self.revoke_url, data=data, json=None)
         #TODO: Test Doorkeeper provider doesn't implement revoke
