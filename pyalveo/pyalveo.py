@@ -104,7 +104,7 @@ class OAuth2(object):
     def validate(self):
         """  Confirms the current token is still valid. Returns true if so, false otherwise. """
         
-        resp = self.request.get(self.validate_url).json()
+        resp = self.request().get(self.validate_url).json()
         
         if 'error' in resp:
             return False
