@@ -1,4 +1,5 @@
 import os,sys
+import traceback
 from bottle import request
 from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 
@@ -52,7 +53,7 @@ class OAuth2(object):
     """ An OAuth2 Manager class for the retrieval and storage of
         all relevant URI's, tokens and client login data.  """
     
-    def __init__(self,client_id,client_secret,redirect_url,secure=True,base_url='http://10.46.34.203:3000'):
+    def __init__(self,client_id,client_secret,redirect_url,secure=True,base_url='https://app.alveo.edu.au/'):
         
         #### TODO these are only test settings
         self.base_url = base_url
@@ -123,7 +124,8 @@ class OAuth2(object):
         except:
             #Handle Errors
             #return False
-            print "Unexpected error:", sys.exc_info()[0]
+            print "Unexpected error:"
+            traceback.print_exc()
             raise
         return True
     
@@ -238,7 +240,7 @@ class Client(object):
         # Create a client successfully only when the api key is correct
         # Otherwise raise an Error
         try:
-            self.oauth = OAuth2(client_id,client_secret,redirect_url,secure=verifySSL)
+            self.oauth = OAuth2(client_id,client_secret,redirect_url,secure=verifySSL,base_url="http://10.46.34.203:3000")
             self.oauth.get_authorisation_url()
         except APIError:
             raise APIError(http_status_code="401", response="Unauthorized", msg="Client could not be created. Check your api key")
