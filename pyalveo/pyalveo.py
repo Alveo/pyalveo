@@ -157,7 +157,7 @@ class Client(object):
 
 
     """
-    def __init__(self, api_url=None, cache=None,
+    def __init__(self, api_key=None, api_url=None, cache=None,
                  use_cache=None, cache_dir=None, update_cache=None,
                  #OAuth2 Stuff, is compulsory
                  client_id=None,client_secret=None,redirect_url=None,
@@ -199,6 +199,12 @@ class Client(object):
             self.redirect_url = config['redirect_url']
         
         
+        if api_key!=None:
+            self.api_key = api_key
+        else:
+            if 'apiKey' in config:
+                self.api_key = config['apiKey']
+        
         if api_url!=None:
             self.api_url = api_url
         else:
@@ -239,11 +245,17 @@ class Client(object):
 
         # Create a client successfully only when the api key is correct
         # Otherwise raise an Error
-        try:
-            self.oauth = OAuth2(client_id,client_secret,redirect_url,secure=verifySSL,base_url="http://10.46.34.203:3000")
-            self.oauth.get_authorisation_url()
-        except APIError:
-            raise APIError(http_status_code="401", response="Unauthorized", msg="Client could not be created. Check your api key")
+        if self.api_key==None:
+            try:
+                self.oauth = OAuth2(client_id,client_secret,redirect_url,secure=verifySSL,base_url="http://10.46.34.203:3000")
+                self.oauth.get_authorisation_url()
+            except APIError:
+                raise APIError(http_status_code="401", response="Unauthorized", msg="Client could not be created. Check your api key")
+        else:
+            try:
+                self.get_item_lists()
+            except APIError:
+                raise APIError(http_status_code="401", response="Unauthorized", msg="Client could not be created. Check your api key")
 
 
     @staticmethod
@@ -321,7 +333,8 @@ class Client(object):
 
 
         """
-        headers = {'X-API-KEY': self.api_key, 'Accept': 'application/json'}
+        #TODO: get rid of apikey later
+        headers = {'X-API-KEY': self.api_key,'Accept': 'application/json'}
         if data is not None and file is None:
             headers['Content-Type'] = 'application/json'
 
