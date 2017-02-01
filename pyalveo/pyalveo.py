@@ -340,11 +340,16 @@ class Client(object):
 
         """
         #TODO: get rid of apikey later
-        headers = {'X-API-KEY': self.api_key,'Accept': 'application/json'}
+        
+        headers = {'Accept': 'application/json'}
         if data is not None and file is None:
             headers['Content-Type'] = 'application/json'
-
-        request = self.oauth.request()
+        
+        if self.api_key==None:
+            request = self.oauth.request()
+        else:
+            headers['X-API-KEY'] = self.api_key
+            request = requests
 
         if method is 'GET':
             response = request.get(url, headers=headers, verify=self.verifySSL)
