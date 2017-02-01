@@ -190,13 +190,16 @@ class Client(object):
         
         #OAuth2 Initial Settings
         if client_id==None:
-            client_id = config['client_id']
+            if 'client_id' in config:
+                client_id = config['client_id']
         
         if client_secret==None:
-            self.client_secret = config['client_secret']
+            if 'client_secret' in config:
+                self.client_secret = config['client_secret']
         
         if redirect_url==None:
-            self.redirect_url = config['redirect_url']
+            if 'redirect_url' in config:
+                self.redirect_url = config['redirect_url']
         
         
         if api_key!=None:
@@ -213,17 +216,20 @@ class Client(object):
         if use_cache!=None:
             self.use_cache = use_cache
         else:
-            self.use_cache = config['use_cache'] == "true"
+            if 'use_cache' in config:
+                self.use_cache = config['use_cache'] == "true"
 
         if cache_dir!=None:
             self.cache_dir = cache_dir
         else:
-            self.cache_dir = config['cache_dir']
+            if 'cache_dir' in config:
+                self.cache_dir = config['cache_dir']
 
         if update_cache!=None:
             self.update_cache = update_cache
         else:
-            self.update_cache = config['update_cache'] == "true"
+            if 'update_cache' in config:
+                self.update_cache = config['update_cache'] == "true"
 
         self.verifySSL = verifySSL
 
