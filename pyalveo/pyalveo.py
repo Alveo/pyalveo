@@ -347,10 +347,14 @@ class Client(object):
         if data is not None and file is None:
             headers['Content-Type'] = 'application/json'
         
+        request = None
         if self.api_key==None:
             request = self.oauth.request()
-        else:
-            headers['X-API-KEY'] = self.api_key
+        
+        if request == None:
+            #To be used if API-Key is given or oauth not completed.
+            if not self.api_key==None:
+                headers['X-API-KEY'] = self.api_key
             request = requests
 
         if method is 'GET':
