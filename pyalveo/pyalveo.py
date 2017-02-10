@@ -53,7 +53,7 @@ class OAuth2(object):
     """ An OAuth2 Manager class for the retrieval and storage of
         all relevant URI's, tokens and client login data.  """
     
-    def __init__(self,client_id,client_secret,redirect_url,secure=True,base_url='https://app.alveo.edu.au/'):
+    def __init__(self,client_id,client_secret,redirect_url,secure=True,base_url='https://app.alveo.edu.au/',token=None):
         
         #### TODO these are only test settings
         self.base_url = base_url
@@ -66,7 +66,7 @@ class OAuth2(object):
         self.client_secret = client_secret
         self.redirect_url = redirect_url
         ####
-        self.token = None
+        self.token = token
         self.auto_refresh = False #TODO add support to enable and disable this
         
         #Only for testing
