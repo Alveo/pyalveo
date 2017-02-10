@@ -207,6 +207,8 @@ class Client(object):
         else:
             if 'apiKey' in config:
                 self.api_key = config['apiKey']
+            else:
+                self.api_key = None
         
         if api_url!=None:
             self.api_url = api_url
