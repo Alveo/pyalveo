@@ -255,7 +255,7 @@ class Client(object):
         # Otherwise raise an Error
         if self.api_key==None:
             try:
-                self.oauth = OAuth2(client_id,client_secret,redirect_url,secure=verifySSL,base_url="http://10.46.34.203:3000")
+                self.oauth = OAuth2(client_id,client_secret,redirect_url,secure=verifySSL,base_url=api_url)
                 self.oauth.get_authorisation_url()
             except APIError:
                 raise APIError(http_status_code="401", response="Unauthorized", msg="Client could not be created. Check your api key")
