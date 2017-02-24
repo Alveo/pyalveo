@@ -149,25 +149,14 @@ class OAuth2(object):
             return False
         try:
             oauth = OAuth2Session(self.client_id,token=self.token,redirect_uri=self.redirect_url,state=self.state)
-            print self.base_url+"account_api_key"
+            
             response = oauth.get(self.base_url+"account_api_key",verify=self.verifySSL)
             
-            print "Response Code: ",response.status_code
             if response.status_code != requests.codes.ok:
                 return False
             
-            try:
-                print "Trying to print Content"
-                print response.content
-                print ""
-                print "Trying to print JSON"
-                print response.json()
-            except:
-                pass
             
             self.api_key = response.json()['apiKey']
-            
-            print "API KEY: ", self.api_key
             
             return True
         except Exception, e:
