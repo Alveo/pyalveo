@@ -152,6 +152,7 @@ class OAuth2(object):
             print self.base_url+"account_api_key"
             response = oauth.get(self.base_url+"account_api_key",verify=self.verifySSL)
             
+            print "Response Code: ",response.status_code
             if response.status_code != requests.codes.ok:
                 return False
             
@@ -380,7 +381,7 @@ class Client(object):
         if self.api_key==None:
             print "No API KEY Provided, attempting to retrieve it."
             #Lets check to see if the Token is valid (if we have one)
-            if self.oauth.validate:
+            if self.oauth.validate():
                 #No API KEY, so lets try to get it via OAuth
                 if self.oauth.get_api_key():
                     #Got API KEY, so use this
