@@ -319,6 +319,8 @@ class Client(object):
 
 
         """
+        if not isinstance(other, Client):
+            return False
         return (self.api_key == other.api_key and
                 self.cache == other.cache and
                 self.use_cache == other.use_cache and
