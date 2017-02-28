@@ -150,7 +150,7 @@ class OAuth2(object):
         try:
             oauth = OAuth2Session(self.client_id,token=self.token,redirect_uri=self.redirect_url,state=self.state)
             
-            response = oauth.get(self.base_url+"account_api_key_oauth",verify=self.verifySSL)
+            response = oauth.get(self.base_url+"account_api_key",verify=self.verifySSL)
             
             if response.status_code != requests.codes.ok:
                 print "Response Code: ",response.status_code," !!"
