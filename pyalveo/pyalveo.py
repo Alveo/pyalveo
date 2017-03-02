@@ -143,6 +143,25 @@ class OAuth2(object):
             #TODO: Test Doorkeeper provider doesn't implement revoke
         return True
         
+    def get_user_data(self):
+        if self.token==None:
+            print "No token to use to get the API Key!"
+            return None
+        try:
+            oauth = OAuth2Session(self.client_id,token=self.token,redirect_uri=self.redirect_url,state=self.state)
+            
+            response = oauth.get(self.base_url+"account/get_details",verify=self.verifySSL)
+            
+            if response.status_code != requests.codes.ok: #@UndefinedVariable
+                print "Response Code: ",response.status_code," !!"
+                return None
+            
+            return response.json()
+        except Exception, e:
+            print "Failure while trying to get User Data!\t\t",str(e)
+            return None
+        
+        
     def get_api_key(self):
         if self.token==None:
             print "No token to use to get the API Key!"
@@ -150,9 +169,9 @@ class OAuth2(object):
         try:
             oauth = OAuth2Session(self.client_id,token=self.token,redirect_uri=self.redirect_url,state=self.state)
             
-            response = oauth.get(self.base_url+"account_api_key",verify=self.verifySSL)
+            response = oauth.get(self.base_url+"account/api_key",verify=self.verifySSL)
             
-            if response.status_code != requests.codes.ok:
+            if response.status_code != requests.codes.ok: #@UndefinedVariable
                 print "Response Code: ",response.status_code," !!"
                 return False
             
@@ -403,7 +422,7 @@ class Client(object):
         elif method is 'DELETE':
             response = request.delete(url, headers=headers, verify=self.verifySSL)
 
-        if response.status_code != requests.codes.ok:
+        if response.status_code != requests.codes.ok: #@UndefinedVariable
             raise APIError(response.status_code, '', "Error accessing API (url: %s, method: %s)\nData: %s\nMessage: %s" % (url, method, data, response.text))
 
         if raw:
