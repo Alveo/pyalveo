@@ -1,6 +1,5 @@
 import os,sys
 import traceback
-from bottle import request
 from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 
 try:
@@ -111,6 +110,9 @@ class OAuth2(object):
         try:
             resp = self.request().get(self.validate_url,verify=self.verifySSL).json()
         except TokenExpiredError:
+            return False
+        except AttributeError:
+            #If self.request is None
             return False
         
         if 'error' in resp:
