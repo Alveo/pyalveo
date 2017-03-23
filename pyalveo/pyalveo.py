@@ -366,8 +366,9 @@ class Client(object):
             Returns a json string containing all relevant data to recreate this pyalveo.Client.
         """
         data = self.__dict__
-        data.pop('oauth',None)
         data.update(self.oauth.__dict__)
+        data.pop('oauth',None)
+        data.pop('cache',None)
         
         return json.dumps(data)
 
