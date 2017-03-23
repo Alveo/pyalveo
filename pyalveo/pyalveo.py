@@ -372,7 +372,7 @@ class Client(object):
         return json.dumps(data)
 
     @staticmethod
-    def Client_from_json(self, json_string):
+    def client_from_json(self, json_string):
         """ 
             Returns a pyalveo.Client given a json string built from the client.to_json() method.
         """
