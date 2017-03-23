@@ -191,7 +191,7 @@ class OAuth2(object):
         try:
             oauth = OAuth2Session(self.client_id,token=self.token,redirect_uri=self.redirect_url,state=self.state)
             
-            response = oauth.get(self.api_url+"account/get_details",verify=self.verifySSL)
+            response = oauth.get(self.api_url+"/account/get_details",verify=self.verifySSL)
             
             if response.status_code != requests.codes.ok: #@UndefinedVariable
                 print "Response Code: ",response.status_code," !!"
@@ -210,7 +210,7 @@ class OAuth2(object):
         try:
             oauth = OAuth2Session(self.client_id,token=self.token,redirect_uri=self.redirect_url,state=self.state)
             
-            response = oauth.get(self.api_url+"account_api_key",verify=self.verifySSL)
+            response = oauth.get(self.api_url+"/account_api_key",verify=self.verifySSL)
             
             if response.status_code != requests.codes.ok: #@UndefinedVariable
                 print "Response Code: ",response.status_code," !!"
@@ -263,7 +263,7 @@ class OAuth2(object):
         request,headers = self.request()
         headers.update(kwargs.get('headers',{}))
         
-        return request.get(url, headers=headers, verify=self.verifySSL, **kwargs)
+        return request.get(self.api_url+url, headers=headers, verify=self.verifySSL, **kwargs)
     
     def post(self, url, **kwargs):
         request,headers = self.request()            
@@ -454,7 +454,7 @@ class Client(object):
         """
         
         if method is 'GET':
-            response = self.oauth.get(url, verify=self.verifySSL)
+            response = self.oauth.get(url)
         elif method is 'POST':
             if file is not None:
                 response = self.oauth.post(url, data=data, files={'file':open(file,'rb')})
@@ -1279,7 +1279,7 @@ class Client(object):
 
 
         """
-        request_url = 'sparql/' + collection_name + '?'
+        request_url = '/sparql/' + collection_name + '?'
         request_url += urlencode((('query', query),))
 
         return self.api_request(request_url)
