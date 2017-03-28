@@ -118,17 +118,20 @@ class OAuth2(object):
         if not self.verifySSL:
             os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
     
-    def get_authorisation_url(self):
+    def get_authorisation_url(self,reset=False):
         """ Initialises the OAuth2 Process by asking the auth server for a login URL.
             Once called, the user can login by being redirected to the url returned by 
             this function. None will be returned if an error occurred. """
-        try:
-            oauth = OAuth2Session(self.client_id,redirect_uri=self.redirect_url)
-            self.auth_url,self.state = oauth.authorization_url(self.auth_base_url)
-        except:
-            print "Unexpected error:", sys.exc_info()[0]
-            print "Could not get Authorisation Url!"
-            return None
+        if reset:
+            self.auth_url = None
+        if not self.auth_url:
+            try:
+                oauth = OAuth2Session(self.client_id,redirect_uri=self.redirect_url)
+                self.auth_url,self.state = oauth.authorization_url(self.auth_base_url)
+            except:
+                print "Unexpected error:", sys.exc_info()[0]
+                print "Could not get Authorisation Url!"
+                return None
             
         return self.auth_url
         
@@ -355,7 +358,7 @@ class Client(object):
         
         try:
             self.oauth = OAuth2(**params)
-            if params.get('auth_url',None):
+            if not params.get('auth_url',None):
                 self.oauth.get_authorisation_url()
         except APIError:
             raise APIError(http_status_code="401", response="Unauthorized", msg="Client could not be created. Check your api key")
@@ -365,7 +368,7 @@ class Client(object):
         """ 
             Returns a json string containing all relevant data to recreate this pyalveo.Client.
         """
-        data = self.__dict__
+        data = dict(self.__dict__)
         data.update(self.oauth.__dict__)
         data.pop('oauth',None)
         data.pop('cache',None)
