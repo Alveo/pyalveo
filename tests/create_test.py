@@ -235,7 +235,7 @@ class CreateTest(unittest.TestCase):
 
         self.assertIn('multipart/form-data', req.headers['Content-Type'])
         bdy = req._request.body
-        messages = req.text.split('--'+bdy)
+        messages = req.text.split('--'+str(bdy))
 
         for msg in messages:
             msg = msg.strip()
