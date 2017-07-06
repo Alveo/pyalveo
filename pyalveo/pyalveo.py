@@ -294,7 +294,7 @@ class OAuth2(object):
         headers.update(kwargs.get('headers',{}))
         if not url.startswith(self.api_url):
             url = self.api_url + url
-        return request.put(self.api_url+url, headers=headers, verify=self.verifySSL, **kwargs)
+        return request.put(url, headers=headers, verify=self.verifySSL, **kwargs)
     
     def delete(self, url, **kwargs):
         request,headers = self.request()
