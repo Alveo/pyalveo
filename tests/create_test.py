@@ -234,7 +234,7 @@ class CreateTest(unittest.TestCase):
         # should be a multipart-form with a json payload and a file attachment
 
         self.assertIn('multipart/form-data', req.headers['Content-Type'])
-        
+        bdy = req._request.body
         messages = req.text.split('--'+bdy)
 
         for msg in messages:
