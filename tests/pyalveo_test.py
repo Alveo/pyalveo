@@ -25,10 +25,10 @@ class ClientTest(unittest.TestCase):
         # Test with wrong api key
         with self.assertRaises(pyalveo.APIError) as cm:
             client = pyalveo.Client(api_url=API_URL, api_key=API_KEY)
+            client.get_item_lists()
 
-        self.assertEqual(
-            "HTTP 401\nUnauthorized\nClient could not be created. Check your api key",
-            str(cm.exception)
+        self.assertTrue(
+            "Client could not be created. Check your api key" in str(cm.exception)
         )
 
         m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
@@ -78,7 +78,7 @@ class ClientTest(unittest.TestCase):
         m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
         client = pyalveo.Client(api_url=API_URL, api_key=API_KEY, use_cache=True, cache_dir=cache_dir)
 
-        item_url = client.api_url + "/catalog/cooee/1-190"
+        item_url = client.oauth.api_url + "/catalog/cooee/1-190"
         item_meta = ""
 
         self.addCleanup(shutil.rmtree, cache_dir, True)
@@ -132,7 +132,7 @@ class ClientTest(unittest.TestCase):
         m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
         client = pyalveo.Client(api_url=API_URL, api_key=API_KEY, use_cache=False)
 
-        item_url = client.api_url + "/catalog/cooee/1-190"
+        item_url = client.oauth.api_url + "/catalog/cooee/1-190"
         item_meta = ""
 
         with open('tests/responses/1-190.json', 'rb') as rh:
@@ -187,7 +187,7 @@ class ClientTest(unittest.TestCase):
 
         m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
         client = pyalveo.Client(api_url=API_URL, api_key=API_KEY, use_cache=True)
-        item_url = client.api_url + '/catalog/cooee/1-190'
+        item_url = client.oauth.api_url + '/catalog/cooee/1-190'
 
         with open('tests/responses/1-190.json', 'rb') as rh:
             m.get(item_url, body=rh)
@@ -197,7 +197,7 @@ class ClientTest(unittest.TestCase):
 
         meta = item.metadata()
 
-        self.assertEqual(meta['alveo:primary_text_url'], client.api_url + u'/catalog/cooee/1-190/primary_text.json')
+        self.assertEqual(meta['alveo:primary_text_url'], client.oauth.api_url + u'/catalog/cooee/1-190/primary_text.json')
 
         # now try it with the cache, should not make a request
         item2 = client.get_item(item_url)
@@ -215,7 +215,7 @@ class ClientTest(unittest.TestCase):
         output_dir = tempfile.mkdtemp()
         outname = "downloaded_sample.wav"
 
-        document_url = client.api_url + '/catalog/cooee/1-190/document/sample.wav'
+        document_url = client.oauth.api_url + '/catalog/cooee/1-190/document/sample.wav'
 
         meta = {'alveo:url': document_url}
         document = pyalveo.Document(meta, client)
@@ -235,7 +235,7 @@ class ClientTest(unittest.TestCase):
 
         m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
         client = pyalveo.Client(api_url=API_URL, api_key=API_KEY, use_cache=False)
-        base_url = client.api_url
+        base_url = client.oauth.api_url
         item_list_name = 'pyalveo_test_item_list'
 
         msg = '1 items added to new item list ' + item_list_name
@@ -272,7 +272,7 @@ class ClientTest(unittest.TestCase):
         m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
         client = pyalveo.Client(api_url=API_URL, api_key=API_KEY, use_cache=False)
 
-        item_url = client.api_url + "/catalog/ace/A01b"
+        item_url = client.oauth.api_url + "/catalog/ace/A01b"
         m.get(item_url, content=open('tests/responses/A01b.json', 'rb').read())
         item = client.get_item(item_url)
 
@@ -294,7 +294,7 @@ class ClientTest(unittest.TestCase):
 
         query = """select * where { ?a ?b ?c } LIMIT 10"""
 
-        m.get(API_URL + "sparql/mitcheldelbridge", json={'results': {'bindings': [1,2,3,4,5,6,7,8,9,0]}})
+        m.get(API_URL + "/sparql/mitcheldelbridge", json={'results': {'bindings': [1,2,3,4,5,6,7,8,9,0]}})
         result = client.sparql_query('mitcheldelbridge', query)
 
         self.assertIn('results', result)

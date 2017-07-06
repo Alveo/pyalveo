@@ -1,2 +1,4 @@
 requests==2.9.1
 python-dateutil==2.5.2 
+oauthlib==2.0.0
+requests-oauthlib==0.7.0
