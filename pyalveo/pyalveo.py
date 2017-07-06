@@ -128,7 +128,7 @@ class OAuth2(object):
             try:
                 oauth = OAuth2Session(self.client_id,redirect_uri=self.redirect_url)
                 self.auth_url,self.state = oauth.authorization_url(self.auth_base_url)
-            except:
+            except Exception:
                 print "Unexpected error:", sys.exc_info()[0]
                 print "Could not get Authorisation Url!"
                 return None
@@ -144,7 +144,7 @@ class OAuth2(object):
             oauth = OAuth2Session(self.client_id,state=self.state,redirect_uri=self.redirect_url)
             self.token = oauth.fetch_token(self.token_url, authorization_response=auth_resp, client_secret=self.client_secret,verify=self.verifySSL)
             print "OAUTH Token:    ", self.token
-        except:
+        except Exception:
             print "Unexpected error:", sys.exc_info()[0]
             print "Could not fetch token from OAuth Callback!"
             return False
@@ -184,7 +184,7 @@ class OAuth2(object):
         if self.validate():
             data = {}
             data['token'] = self.token['access_token']
-            resp = self.request().post(self.revoke_url, data=data, json=None,verify=self.verifySSL)
+            self.request().post(self.revoke_url, data=data, json=None,verify=self.verifySSL)
         return True
         
     def get_user_data(self):
@@ -258,9 +258,13 @@ class OAuth2(object):
                         headers['X-API-KEY'] = self.api_key
                         return requests,headers
                     else:
-                        raise APIError(http_status_code="0", response="Local Error", msg="Request Could not be made! Not OAuth details or API Key provided!")
+                        raise APIError(http_status_code="0", 
+                                       response="Local Error", 
+                                       msg="Request Could not be made! Not OAuth details or API Key provided!")
                 else:
-                    raise APIError(http_status_code="0", response="Local Error", msg="Request Could not be made! No OAuth Details Provided! API Key has been depreciated!")
+                    raise APIError(http_status_code="0", 
+                                   response="Local Error", 
+                                   msg="Request Could not be made! No OAuth Details Provided! API Key has been depreciated!")
     
     def get(self, url, **kwargs):
         request,headers = self.request()
@@ -470,7 +474,9 @@ class Client(object):
             response = self.oauth.delete(url)
 
         if response.status_code != requests.codes.ok: #@UndefinedVariable
-            raise APIError(response.status_code, '', "Error accessing API (url: %s, method: %s)\nData: %s\nMessage: %s" % (self.oauth.auth_url+url, method, data, response.text))
+            raise APIError(response.status_code, 
+                           '', 
+                           "Error accessing API (url: %s, method: %s)\nData: %s\nMessage: %s" % (self.oauth.auth_url+url, method, data, response.text))
 
         if raw:
             return response.content
