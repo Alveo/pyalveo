@@ -269,35 +269,39 @@ class OAuth2(object):
     def get(self, url, **kwargs):
         request,headers = self.request()
         headers.update(kwargs.get('headers',{}))
-        
-        return request.get(self.api_url+url, headers=headers, verify=self.verifySSL, **kwargs)
+        if not url.startswith(self.api_url):
+            url = self.api_url + url
+        return request.get(url, headers=headers, verify=self.verifySSL, **kwargs)
     
     def post(self, url, **kwargs):
         request,headers = self.request()            
-
+        if not url.startswith(self.api_url):
+            url = self.api_url + url
         if kwargs.get('file',None) is not None:
             headers.update(kwargs.get('headers',{}))
-            response = request.post(self.api_url+url, headers=headers, files={'file':open(file,'rb')}, verify=self.verifySSL, **kwargs)
+            response = request.post(url, headers=headers, files={'file':open(file,'rb')}, verify=self.verifySSL, **kwargs)
         else:
             #If there is data but no file then set content type to json
             if kwargs.get('data',None):
                 headers['Content-Type'] = 'application/json'
             headers.update(kwargs.get('headers',{}))
-            response = request.post(self.api_url+url, headers=headers, verify=self.verifySSL, **kwargs)
+            response = request.post(url, headers=headers, verify=self.verifySSL, **kwargs)
         return response
     
     def put(self, url, **kwargs):
         request,headers = self.request()
         headers['Content-Type'] = 'application/json'
         headers.update(kwargs.get('headers',{}))
-        
+        if not url.startswith(self.api_url):
+            url = self.api_url + url
         return request.put(self.api_url+url, headers=headers, verify=self.verifySSL, **kwargs)
     
     def delete(self, url, **kwargs):
         request,headers = self.request()
         headers.update(kwargs.get('headers',{}))
-        
-        return request.delete(self.api_url+url, headers=headers, verify=self.verifySSL, **kwargs)
+        if not url.startswith(self.api_url):
+            url = self.api_url + url
+        return request.delete(url, headers=headers, verify=self.verifySSL, **kwargs)
 
 class Client(object):
     """ Client object used to manipulate Alveo objects and interface
