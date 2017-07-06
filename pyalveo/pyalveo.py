@@ -130,8 +130,8 @@ class OAuth2(object):
                 oauth = OAuth2Session(self.client_id,redirect_uri=self.redirect_url)
                 self.auth_url,self.state = oauth.authorization_url(self.auth_base_url)
             except Exception:
-                print "Unexpected error:", sys.exc_info()[0]
-                print "Could not get Authorisation Url!"
+                print("Unexpected error:", sys.exc_info()[0])
+                print("Could not get Authorisation Url!")
                 return None
             
         return self.auth_url
@@ -144,10 +144,10 @@ class OAuth2(object):
         try:
             oauth = OAuth2Session(self.client_id,state=self.state,redirect_uri=self.redirect_url)
             self.token = oauth.fetch_token(self.token_url, authorization_response=auth_resp, client_secret=self.client_secret,verify=self.verifySSL)
-            print "OAUTH Token:    ", self.token
+            print("OAUTH Token:    ", self.token)
         except Exception:
-            print "Unexpected error:", sys.exc_info()[0]
-            print "Could not fetch token from OAuth Callback!"
+            print("Unexpected error:", sys.exc_info()[0])
+            print("Could not fetch token from OAuth Callback!")
             return False
         return True
         
@@ -172,7 +172,7 @@ class OAuth2(object):
             self.token = self.request().refresh_token(self.refresh_url, self.token['refresh_token'])
             
         except Exception, e:
-            print "Unexpected error:\t\t", str(e)
+            print("Unexpected error:\t\t", str(e))
             traceback.print_exc()
             raise
         return True
@@ -190,7 +190,7 @@ class OAuth2(object):
         
     def get_user_data(self):
         if self.token is None:
-            print "No token to use to get the API Key!"
+            print("No token to use to get the API Key!")
             return None
         try:
             oauth = OAuth2Session(self.client_id,token=self.token,redirect_uri=self.redirect_url,state=self.state)
@@ -198,18 +198,18 @@ class OAuth2(object):
             response = oauth.get(self.api_url+"/account/get_details",verify=self.verifySSL)
             
             if response.status_code != requests.codes.ok: #@UndefinedVariable
-                print "Response Code: ",response.status_code," !!"
+                print("Response Code: ",response.status_code," !!")
                 return None
             
             return response.json()
         except Exception, e:
-            print "Failure while trying to get User Data!\t\t",str(e)
+            print("Failure while trying to get User Data!\t\t",str(e))
             return None
         
         
     def get_api_key(self):
         if self.token is None:
-            print "No token to use to get the API Key!"
+            print("No token to use to get the API Key!")
             return False
         try:
             oauth = OAuth2Session(self.client_id,token=self.token,redirect_uri=self.redirect_url,state=self.state)
@@ -217,7 +217,7 @@ class OAuth2(object):
             response = oauth.get(self.api_url+"/account_api_key",verify=self.verifySSL)
             
             if response.status_code != requests.codes.ok: #@UndefinedVariable
-                print "Response Code: ",response.status_code," !!"
+                print("Response Code: ",response.status_code," !!")
                 return False
             
             
@@ -225,7 +225,7 @@ class OAuth2(object):
             
             return True
         except Exception, e:
-            print "Failure while trying to get API Key!\t\t",str(e)
+            print("Failure while trying to get API Key!\t\t",str(e))
             return False
         
     def request(self):
