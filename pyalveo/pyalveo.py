@@ -171,7 +171,7 @@ class OAuth2(object):
         try:
             self.token = self.request().refresh_token(self.refresh_url, self.token['refresh_token'])
             
-        except Exception, e:
+        except Exception as e:
             print("Unexpected error:\t\t", str(e))
             traceback.print_exc()
             raise
@@ -202,7 +202,7 @@ class OAuth2(object):
                 return None
             
             return response.json()
-        except Exception, e:
+        except Exception as e:
             print("Failure while trying to get User Data!\t\t",str(e))
             return None
         
@@ -224,7 +224,7 @@ class OAuth2(object):
             self.api_key = response.json()['apiKey']
             
             return True
-        except Exception, e:
+        except Exception as e:
             print("Failure while trying to get API Key!\t\t",str(e))
             return False
         
