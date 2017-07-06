@@ -25,10 +25,10 @@ class ClientTest(unittest.TestCase):
         # Test with wrong api key
         with self.assertRaises(pyalveo.APIError) as cm:
             client = pyalveo.Client(api_url=API_URL, api_key=API_KEY)
+            client.get_item_lists()
 
-        self.assertEqual(
-            "HTTP 401\nUnauthorized\nClient could not be created. Check your api key",
-            str(cm.exception)
+        self.assertTrue(
+            "Client could not be created. Check your api key" in str(cm.exception)
         )
 
         m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
@@ -78,7 +78,7 @@ class ClientTest(unittest.TestCase):
         m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
         client = pyalveo.Client(api_url=API_URL, api_key=API_KEY, use_cache=True, cache_dir=cache_dir)
 
-        item_url = client.api_url + "/catalog/cooee/1-190"
+        item_url = client.oauth.api_url + "/catalog/cooee/1-190"
         item_meta = ""
 
         self.addCleanup(shutil.rmtree, cache_dir, True)
@@ -86,7 +86,7 @@ class ClientTest(unittest.TestCase):
         self.assertEqual(type(client.cache), pyalveo.Cache)
 
 
-        with open('tests/responses/1-190.json', 'rb') as rh:
+        with open('responses/1-190.json', 'rb') as rh:
             m.get(item_url, body=rh)
             item = client.get_item(item_url)
 
@@ -104,7 +104,7 @@ class ClientTest(unittest.TestCase):
 
 
         # get a document
-        with open('tests/responses/1-190-plain.txt', 'rb') as rh:
+        with open('responses/1-190-plain.txt', 'rb') as rh:
             m.get(item_url + "/document/1-190-plain.txt", body=rh)
             doc = item.get_document(0)
 
@@ -132,17 +132,17 @@ class ClientTest(unittest.TestCase):
         m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
         client = pyalveo.Client(api_url=API_URL, api_key=API_KEY, use_cache=False)
 
-        item_url = client.api_url + "/catalog/cooee/1-190"
+        item_url = client.oauth.api_url + "/catalog/cooee/1-190"
         item_meta = ""
 
-        with open('tests/responses/1-190.json', 'rb') as rh:
+        with open('responses/1-190.json', 'rb') as rh:
             m.get(item_url, body=rh)
             item = client.get_item(item_url)
 
         self.assertEqual(type(item), pyalveo.Item)
 
         # get a document
-        with open('tests/responses/1-190-plain.txt', 'rb') as rh:
+        with open('responses/1-190-plain.txt', 'rb') as rh:
             m.get(item_url + "/document/1-190-plain.txt", body=rh)
             doc = item.get_document(0)
 
@@ -187,9 +187,9 @@ class ClientTest(unittest.TestCase):
 
         m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
         client = pyalveo.Client(api_url=API_URL, api_key=API_KEY, use_cache=True)
-        item_url = client.api_url + '/catalog/cooee/1-190'
+        item_url = client.oauth.api_url + '/catalog/cooee/1-190'
 
-        with open('tests/responses/1-190.json', 'rb') as rh:
+        with open('responses/1-190.json', 'rb') as rh:
             m.get(item_url, body=rh)
             item = client.get_item(item_url)
 
@@ -197,7 +197,7 @@ class ClientTest(unittest.TestCase):
 
         meta = item.metadata()
 
-        self.assertEqual(meta['alveo:primary_text_url'], client.api_url + u'/catalog/cooee/1-190/primary_text.json')
+        self.assertEqual(meta['alveo:primary_text_url'], client.oauth.api_url + u'/catalog/cooee/1-190/primary_text.json')
 
         # now try it with the cache, should not make a request
         item2 = client.get_item(item_url)
@@ -215,12 +215,12 @@ class ClientTest(unittest.TestCase):
         output_dir = tempfile.mkdtemp()
         outname = "downloaded_sample.wav"
 
-        document_url = client.api_url + '/catalog/cooee/1-190/document/sample.wav'
+        document_url = client.oauth.api_url + '/catalog/cooee/1-190/document/sample.wav'
 
         meta = {'alveo:url': document_url}
         document = pyalveo.Document(meta, client)
 
-        with open('tests/responses/sample.wav', 'rb') as rh:
+        with open('responses/sample.wav', 'rb') as rh:
             m.get(document_url, body=rh)
             document.download_content(output_dir, outname, force_download=True)
 
@@ -235,7 +235,7 @@ class ClientTest(unittest.TestCase):
 
         m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
         client = pyalveo.Client(api_url=API_URL, api_key=API_KEY, use_cache=False)
-        base_url = client.api_url
+        base_url = client.oauth.api_url
         item_list_name = 'pyalveo_test_item_list'
 
         msg = '1 items added to new item list ' + item_list_name
@@ -243,8 +243,8 @@ class ClientTest(unittest.TestCase):
         new_item_url_1 = [base_url + '/catalog/ace/A01a']
         self.assertEqual(client.add_to_item_list_by_name(new_item_url_1, item_list_name), msg)
 
-        m.get(API_URL + '/item_lists', content=open('tests/responses/item-lists.json', 'rb').read())
-        ilist_831 = json.loads(open('tests/responses/item-list-831.json').read())
+        m.get(API_URL + '/item_lists', content=open('responses/item-lists.json', 'rb').read())
+        ilist_831 = json.loads(open('responses/item-list-831.json').read())
         m.get(API_URL + '/item_lists/831', json=ilist_831)
         my_list = client.get_item_list_by_name(item_list_name)
         self.assertEqual(my_list.name(), item_list_name)
@@ -272,13 +272,13 @@ class ClientTest(unittest.TestCase):
         m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
         client = pyalveo.Client(api_url=API_URL, api_key=API_KEY, use_cache=False)
 
-        item_url = client.api_url + "/catalog/ace/A01b"
-        m.get(item_url, content=open('tests/responses/A01b.json', 'rb').read())
+        item_url = client.oauth.api_url + "/catalog/ace/A01b"
+        m.get(item_url, content=open('responses/A01b.json', 'rb').read())
         item = client.get_item(item_url)
 
         # get annotations for this item of type 'speaker'
         ann_url = item_url + '/annotations.json'
-        m.get(ann_url, content=open('tests/responses/A01b-annotations.json', 'rb').read())
+        m.get(ann_url, content=open('responses/A01b-annotations.json', 'rb').read())
         anns = item.get_annotations(atype=u'http://ns.ausnc.org.au/schemas/annotation/ice/speaker')
         self.assertListEqual(sorted(anns.keys()), [u'@context', u'alveo:annotations', u'commonProperties'])
 
@@ -294,7 +294,7 @@ class ClientTest(unittest.TestCase):
 
         query = """select * where { ?a ?b ?c } LIMIT 10"""
 
-        m.get(API_URL + "sparql/mitcheldelbridge", json={'results': {'bindings': [1,2,3,4,5,6,7,8,9,0]}})
+        m.get(API_URL + "/sparql/mitcheldelbridge", json={'results': {'bindings': [1,2,3,4,5,6,7,8,9,0]}})
         result = client.sparql_query('mitcheldelbridge', query)
 
         self.assertIn('results', result)

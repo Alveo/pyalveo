@@ -28,9 +28,9 @@ class CreateTest(unittest.TestCase):
         client = pyalveo.Client(api_url=API_URL, api_key=API_KEY)
 
         cname = 'testcollection1'
-        curl = client.api_url + "/catalog/" + cname
+        curl = client.oauth.api_url + "/catalog/" + cname
 
-        m.post(client.api_url + "/catalog",
+        m.post(client.oauth.api_url + "/catalog",
                json={"success":"New collection \'%s\' (%s) created" % (cname, curl)})
 
         meta = { "@context": CONTEXT,
@@ -234,9 +234,8 @@ class CreateTest(unittest.TestCase):
         # should be a multipart-form with a json payload and a file attachment
 
         self.assertIn('multipart/form-data', req.headers['Content-Type'])
-
-        # do a hacky parse of the multipart and check the contents
-        bdy = req.headers['Content-Type'].split(';')[1][len('boundary=')+1:]
+        #spl[3].replace('filename="doc1.txt"','').split('--')[0].strip()
+        bdy = req._request.body
         self.assertIn(bdy, req.text)
         messages = req.text.split('--'+bdy)
 

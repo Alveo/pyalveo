@@ -1,6 +1,7 @@
 import os,sys
 import traceback
 from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
+from __builtin__ import str
 
 try:
     from urllib.parse import urlencode, unquote
@@ -277,9 +278,12 @@ class OAuth2(object):
         request,headers = self.request()            
         if not url.startswith(self.api_url):
             url = self.api_url + url
-        if kwargs.get('file',None) is not None:
-            headers.update(kwargs.get('headers',{}))
-            response = request.post(url, headers=headers, files={'file':open(file,'rb')}, verify=self.verifySSL, **kwargs)
+        afile = kwargs.pop('file',None)
+        if afile is not None:
+            #A file was given to us, so we should update headers
+            #with what is provided, if not default to: multipart/form-data
+            headers.update(kwargs.get('headers',{'Content-Type':'multipart/form-data'}))
+            response = request.post(url, headers=headers, files={'file':open(afile,'rb')}, verify=self.verifySSL, **kwargs)
         else:
             #If there is data but no file then set content type to json
             if kwargs.get('data',None):
@@ -348,10 +352,9 @@ class Client(object):
         # grab the default context
         self.context = params.get('context',config.get('context',CONTEXT))
 
-
         # configure a cache if we want to read or write to it
         if self.use_cache or self.update_cache:
-            if cache is None:
+            if cache is None or isinstance(cache, str):
                 if 'max_age' in config:
                     self.cache = Cache(self.cache_dir, config['max_age'])
                 else:
@@ -425,7 +428,21 @@ class Client(object):
         """
         if not isinstance(other, Client):
             return False
-        return (self.__dict__ == other.__dict__)
+        d1 = dict(self.__dict__)
+        d1['oauth'] = dict(self.oauth.__dict__)
+        if d1['cache']:
+            d1['cache'] = dict(self.cache.__dict__)
+            d1['cache'].pop('conn',None)
+        d1['oauth'].pop('state',None)
+        d1['oauth'].pop('auth_url',None)
+        d2 = dict(other.__dict__)
+        d2['oauth'] = dict(other.oauth.__dict__)
+        if d2['cache']:
+            d2['cache'] = dict(other.cache.__dict__)
+            d2['cache'].pop('conn',None)
+        d2['oauth'].pop('state',None)
+        d2['oauth'].pop('auth_url',None)
+        return (d1 == d2)
 
     def __ne__(self, other):
         """ Return true if another Client does not have all identical fields
@@ -469,7 +486,7 @@ class Client(object):
             response = self.oauth.get(url)
         elif method is 'POST':
             if file is not None:
-                response = self.oauth.post(url, data=data, files={'file':open(file,'rb')})
+                response = self.oauth.post(url, data=data, file=file)
             else:
                 response = self.oauth.post(url, data=data)
         elif method is 'PUT':
