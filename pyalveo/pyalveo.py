@@ -1,7 +1,6 @@
 import os,sys
 import traceback
 from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
-from __builtin__ import str
 
 try:
     from urllib.parse import urlencode, unquote
