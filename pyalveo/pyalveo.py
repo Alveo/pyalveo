@@ -178,7 +178,7 @@ class OAuth2(object):
     
     def revoke_access(self):
         """  Requests that the currently used token becomes invalid. Call this should a user logout. """
-        if self.token==None:
+        if self.token is None:
             return True
         #Don't try to revoke if token is invalid anyway, will cause an error response anyway.
         if self.validate():
@@ -188,7 +188,7 @@ class OAuth2(object):
         return True
         
     def get_user_data(self):
-        if self.token==None:
+        if self.token is None:
             print "No token to use to get the API Key!"
             return None
         try:
@@ -207,7 +207,7 @@ class OAuth2(object):
         
         
     def get_api_key(self):
-        if self.token==None:
+        if self.token is None:
             print "No token to use to get the API Key!"
             return False
         try:
@@ -343,7 +343,7 @@ class Client(object):
 
         # configure a cache if we want to read or write to it
         if self.use_cache or self.update_cache:
-            if cache == None:
+            if cache is None:
                 if 'max_age' in config:
                     self.cache = Cache(self.cache_dir, config['max_age'])
                 else:
@@ -387,7 +387,7 @@ class Client(object):
 
         config = CONFIG_DEFAULT
 
-        if configfile==None:
+        if configfile is None:
             alveo_config = os.path.expanduser(CONFIG_DEFAULT['alveo_config'])
         else:
             alveo_config = configfile
