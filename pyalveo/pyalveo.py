@@ -109,7 +109,38 @@ class OAuth2(object):
         # trigger authorisation if we are to use oauth
         if not self.api_key:
             self.get_authorisation_url()
-
+    
+    def to_json(self):
+        """
+            Returns a json string containing all relevant data to recreate this pyalveo.OAuth2.
+        """
+        data = dict()
+        data['api_url'] = self.api_url
+        data['api_key'] = self.api_key
+        data['verifySSL'] = self.verifySSL
+        data['client_id'] = self.client_id
+        data['client_secret'] = self.client_secret
+        data['redirect_url'] = self.redirect_url
+        data['token'] = self.token
+        data['state'] = self.state
+        data['auth_url'] = self.auth_url
+        return json.dumps(data)
+    
+    @staticmethod
+    def from_json(json_string):
+        """
+            Returns a pyalveo.OAuth2 given a json string built from the oauth.to_json() method.
+        """
+        data = json.loads(json_string)
+        oauth = OAuth2(api_url=data.get('api_url',None), api_key=data.get('api_key',None), verifySSL=data.get('verifySSL',True))
+        oauth.client_id = data.get('client_id',None)
+        oauth.client_secret = data.get('client_secret',None)
+        oauth.redirect_url = data.get('redirect_url',None)
+        oauth.token = data.get('token',None)
+        oauth.state = data.get('state',None)
+        oauth.auth_url = data.get('auth_url',None)
+        return oauth
+    
     def get_authorisation_url(self, reset=False):
         """ Initialises the OAuth2 Process by asking the auth server for a login URL.
             Once called, the user can login by being redirected to the url returned by
