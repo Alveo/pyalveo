@@ -3,6 +3,7 @@ import sqlite3
 import datetime
 import uuid
 import warnings
+import json
 
 import dateutil.parser
 import dateutil.tz
@@ -43,6 +44,24 @@ class Cache(object):
 
         self.conn = sqlite3.connect(self.database)
         self.conn.text_factory = str
+
+    def to_json(self):
+        """
+            Returns a json string containing all relevant data to recreate this pyalveo.OAuth2.
+        """
+        data = dict()
+        data['max_age'] = self.max_age
+        data['cache_dir'] = self.cache_dir
+        return json.dumps(data)
+    
+    @staticmethod
+    def from_json(json_string):
+        """
+            Returns a pyalveo.OAuth2 given a json string built from the oauth.to_json() method.
+        """
+        data = json.loads(json_string)
+        oauth = Cache(cache_dir=data.get('cache_dir',None), max_age=data.get('max_age',None))
+        return oauth
 
     def create_cache_database(self):
         """ Create a new SQLite3 database for use with Cache objects
