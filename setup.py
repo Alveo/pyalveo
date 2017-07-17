@@ -25,8 +25,14 @@ setup(
 
     install_requires=[
         "python-dateutil",
-		"requests"
+		"requests",
+		"oauthlib",
+		"requests-oauthlib",
     ],
+
+	tests_require=[
+		"requests-mock"
+	],
 
     test_suite='tests'
 	)

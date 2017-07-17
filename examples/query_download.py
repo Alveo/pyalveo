@@ -40,6 +40,8 @@ if __name__=='__main__':
 
     print "Query found ", len(items), "items"
 
+    client = pyalveo.Client(use_cache=False)
+    items = client.get_item_list(item_list_url)
     for itemurl in items:
         item = client.get_item(itemurl)
         meta = item.metadata()
@@ -54,6 +56,4 @@ if __name__=='__main__':
             filename = doc.get_filename()
 
             if filename.endswith('speaker16.wav') or filename.endswith('.TextGrid'):
-                sys.stdout.write('.')
-                sys.stdout.flush()
                 doc.download_content(dir_path=subdir)
