@@ -16,7 +16,7 @@ class Cache(object):
         """ Create a new Cache object
 
         :type cache_dir: String
-        @para cache_dir: directory to store cache database and large files
+        :param: cache_dir: directory to store cache database and large files
         :type max_age: int
         :param max_age: cache entries older than this many seconds will be
         ignored by the has_item, has_document and has_primary_text methods

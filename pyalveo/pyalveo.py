@@ -35,8 +35,6 @@ CONFIG_DEFAULT = {'max_age': 0,
                   'alveo_config': '~/alveo.config',
               }
 
-ALLOW_API_KEY = True
-
 CONTEXT ={'ausnc': 'http://ns.ausnc.org.au/schemas/ausnc_md_model/',
           'corpus': 'http://ns.ausnc.org.au/corpora/',
           'dc': 'http://purl.org/dc/terms/',
@@ -53,75 +51,71 @@ CONTEXT ={'ausnc': 'http://ns.ausnc.org.au/schemas/ausnc_md_model/',
 class OAuth2(object):
     """ An OAuth2 Manager class for the retrieval and storage of
         all relevant URI's, tokens and client login data.  """
-    
-    def __init__(self,**params):
+
+    def __init__(self, api_url, api_key=None, oauth=None, verifySSL=True):
         """ Construct the OAuth requests module along with support for using
             an API Key if Allowed.
 
-        :type api_key: :class:String
-        :param api_key: the API key to use
-        :type client_id: :class:String
-        :param client_id: The OAuth Client Id
-        :type client_secret: :class:String
-        :param client_secret: The OAuth Client Secret
-        :type redirect_url: :class:String
-        :param redirect_url: The OAuth redirect URL (Your full address pointing to your callback route)
-        
         :type api_url: String
         :param api_url: the base URL for the API server used
-        :type use_cache: Boolean
-        :param use_cache: True to fetch available data from the
-            cache database, False to always fetch data from the server
-        :type update_cache: Boolean
-        :param update_cache: True to update the cache database with
-            downloaded data, False to never write to the cache
+        :type oauth: Dictionary
+        :param oauth dictionary of configuation settings for oauth containing keys
+            client_id, client_secret and redirect_url, default None means to use
+            api_key instead
+        :type api_key: :class:String
+        :param api_key: the API key to use, if set, we use this rather than trying OAuth
         :type verifySSL: Boolean
         :param verifySSL True to enforce checking of SSL certificates, False
             to disable checking (eg. for staging/testing servers)
 
-        :rtype: Client
-        :returns: the new Client
+        :rtype: OAuth2
+        :returns: the new OAuth2 client that can be used to make API requests
         """
-        
-        
-        config = params.get('config',{})
-        
-        #Compulsory Parameters
-        self.client_id = params.get('client_id',config.get('client_id',None))
-        self.client_secret = params.get('client_secret',config.get('client_secret',None))
-        self.redirect_url = params.get('redirect_url',config.get('redirect_url',None))
-        
-        self.api_key = params.get('api_key',config.get('api_key',None))
-        
+
+        # Application specific parameters
+        self.api_url = api_url
+        self.verifySSL = verifySSL
+        self.api_key = api_key
+
+        if oauth is not None:
+            self.client_id = oauth['client_id']
+            self.client_secret = oauth['client_secret']
+            self.redirect_url = oauth['redirect_url']
+        else:
+            self.client_id = None
+            self.client_secret = None
+            self.redirect_url = None
+
         if self.client_id is None or self.client_secret is None or self.redirect_url is None:
-            #There better be an API Key and I'm allowed to use it or I'll cry
-            if not (self.api_key and ALLOW_API_KEY):
+            # There better be an API Key and I'm allowed to use it or I'll cry
+            if not (self.api_key):
                 raise APIError(http_status_code="0", response="Local Error", msg="Client could not be created. Check your api key")
-        
-        #API Urls
-        self.api_url = params.get('api_url',config.get('api_url','https://app.alveo.edu.au'))
+
+        # API Urls derived from the main URL
         self.auth_base_url = self.api_url+'/oauth/authorize'
         self.token_url = self.api_url+'/oauth/token' #grant_type = authorization_code
         self.revoke_url = self.api_url+'/oauth/revoke'
         self.validate_url = self.api_url+'/oauth/token/info'
         self.refresh_url = self.api_url+'/oauth/token' #grant_type = refresh_token
-        
-        #Optional Params
-        self.token =  params.get('token',config.get('token',None))
-        self.verifySSL =  params.get('verifySSL',config.get('verifySSL',True))
-        self.auto_refresh = params.get('auto_refresh',config.get('auto_refresh',False))
-        
-        self.state = params.get('state',config.get('state',None))
-        self.auth_url = params.get('auth_url',config.get('auth_url',None))
-        self.prefer_api_key = params.get('prefer_api_key',config.get('prefer_api_key',True)) #Change to False when OAuth completed
-        
+
+        self.token = None
+        self.auto_refresh = False
+        self.state = None
+        self.auth_url = None
+
         if not self.verifySSL:
             os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-    
-    def get_authorisation_url(self,reset=False):
+
+        # trigger authorisation if we are to use oauth
+        if not self.api_key:
+            self.get_authorisation_url()
+
+    def get_authorisation_url(self, reset=False):
         """ Initialises the OAuth2 Process by asking the auth server for a login URL.
-            Once called, the user can login by being redirected to the url returned by 
-            this function. None will be returned if an error occurred. """
+            Once called, the user can login by being redirected to the url returned by
+            this function.
+            If there is an error during authorisation, None is returned."""
+
         if reset:
             self.auth_url = None
         if not self.auth_url:
@@ -129,53 +123,58 @@ class OAuth2(object):
                 oauth = OAuth2Session(self.client_id,redirect_uri=self.redirect_url)
                 self.auth_url,self.state = oauth.authorization_url(self.auth_base_url)
             except Exception:
-                print("Unexpected error:", sys.exc_info()[0])
-                print("Could not get Authorisation Url!")
+                #print("Unexpected error:", sys.exc_info()[0])
+                #print("Could not get Authorisation Url!")
                 return None
-            
+
         return self.auth_url
-        
+
     def on_callback(self,auth_resp):
-        """ Must be called once the authorisation server has responded after 
-            redirecting to the url provided by 'get_authorisation_url' and completing 
+        """ Must be called once the authorisation server has responded after
+            redirecting to the url provided by 'get_authorisation_url' and completing
             the login there.
             Returns True if a token was successfully retrieved, False otherwise."""
         try:
             oauth = OAuth2Session(self.client_id,state=self.state,redirect_uri=self.redirect_url)
-            self.token = oauth.fetch_token(self.token_url, authorization_response=auth_resp, client_secret=self.client_secret,verify=self.verifySSL)
-            print("OAUTH Token:    ", self.token)
+            self.token = oauth.fetch_token(self.token_url,
+                                           authorization_response=auth_resp,
+                                           client_secret=self.client_secret,
+                                           verify=self.verifySSL)
         except Exception:
-            print("Unexpected error:", sys.exc_info()[0])
-            print("Could not fetch token from OAuth Callback!")
+            #print("Unexpected error:", sys.exc_info()[0])
+            #print("Could not fetch token from OAuth Callback!")
             return False
         return True
-        
+
     def validate(self):
-        """  Confirms the current token is still valid. Returns true if so, false otherwise. """
-        
+        """  Confirms the current token is still valid.
+        Returns True if it is valid, False otherwise. """
+
         try:
-            resp = self.request().get(self.validate_url,verify=self.verifySSL).json()
+            resp = self.request().get(self.validate_url, verify=self.verifySSL).json()
         except TokenExpiredError:
             return False
         except AttributeError:
             return False
-        
+
         if 'error' in resp:
             return False
         return True
-        
+
     def refresh_token(self):
         """  Refreshes access token using refresh token. Returns true if successful, false otherwise. """
-        
+
         try:
-            self.token = self.request().refresh_token(self.refresh_url, self.token['refresh_token'])
-            
+            if self.token:
+                self.token = self.request().refresh_token(self.refresh_url, self.token['refresh_token'])
+                return True
         except Exception as e:
-            print("Unexpected error:\t\t", str(e))
-            traceback.print_exc()
-            raise
-        return True
-    
+            # TODO: what might go wrong here - handle this error properly
+            #print("Unexpected error:\t\t", str(e))
+            #traceback.print_exc()
+            pass
+        return False
+
     def revoke_access(self):
         """  Requests that the currently used token becomes invalid. Call this should a user logout. """
         if self.token is None:
@@ -186,95 +185,72 @@ class OAuth2(object):
             data['token'] = self.token['access_token']
             self.request().post(self.revoke_url, data=data, json=None,verify=self.verifySSL)
         return True
-        
+
     def get_user_data(self):
         if self.token is None:
             print("No token to use to get the API Key!")
             return None
         try:
-            oauth = OAuth2Session(self.client_id,token=self.token,redirect_uri=self.redirect_url,state=self.state)
-            
+            oauth = OAuth2Session(self.client_id,
+                                  token=self.token,
+                                  redirect_uri=self.redirect_url,
+                                  state=self.state)
+
             response = oauth.get(self.api_url+"/account/get_details",verify=self.verifySSL)
-            
+
             if response.status_code != requests.codes.ok: #@UndefinedVariable
-                print("Response Code: ",response.status_code," !!")
                 return None
-            
+
             return response.json()
         except Exception as e:
-            print("Failure while trying to get User Data!\t\t",str(e))
             return None
-        
-        
+
     def get_api_key(self):
         if self.token is None:
-            print("No token to use to get the API Key!")
             return False
         try:
-            oauth = OAuth2Session(self.client_id,token=self.token,redirect_uri=self.redirect_url,state=self.state)
-            
+            oauth = OAuth2Session(self.client_id,
+                                  token=self.token,
+                                  redirect_uri=self.redirect_url,
+                                  state=self.state)
+
             response = oauth.get(self.api_url+"/account_api_key",verify=self.verifySSL)
-            
+
             if response.status_code != requests.codes.ok: #@UndefinedVariable
-                print("Response Code: ",response.status_code," !!")
                 return False
-            
-            
+
             self.api_key = response.json()['apiKey']
-            
+
             return True
         except Exception as e:
-            print("Failure while trying to get API Key!\t\t",str(e))
             return False
-        
+
     def request(self):
-        """ Returns an OAuth2 Session to be used to make requests. 
+        """ Returns an OAuth2 Session to be used to make requests.
         Returns None if a token hasn't yet been received."""
-        
+
         headers = {'Accept': 'application/json'}
-        
-        if ALLOW_API_KEY and self.prefer_api_key:
-            #Use API Key if possible
-            if self.api_key:
-                headers['X-API-KEY'] = self.api_key
-                return requests,headers
-            else:
-                #Try to get API Key with OAuth
-                if self.get_api_key():
-                    headers['X-API-KEY'] = self.api_key
-                    return requests,headers
-                else:
-                    raise APIError(http_status_code="0", response="Local Error", msg="Request Could not be made! Not OAuth details or API Key provided!")
-                
+
+        #Use API Key if possible
+        if self.api_key:
+            headers['X-API-KEY'] = self.api_key
+            return requests,headers
         else:
-            #Use OAuth if possible
+            # Try to use OAuth
             if self.token:
-                return OAuth2Session(self.client_id,token=self.token),headers
+                return OAuth2Session(self.client_id, token=self.token),headers
             else:
-                #Can we use an API Key?
-                if ALLOW_API_KEY:
-                    #Use API Key if exists
-                    if self.api_key:
-                        headers['X-API-KEY'] = self.api_key
-                        return requests,headers
-                    else:
-                        raise APIError(http_status_code="0", 
-                                       response="Local Error", 
-                                       msg="Request Could not be made! Not OAuth details or API Key provided!")
-                else:
-                    raise APIError(http_status_code="0", 
-                                   response="Local Error", 
-                                   msg="Request Could not be made! No OAuth Details Provided! API Key has been depreciated!")
-    
+                raise APIError("No API key and no OAuth session available")
+
     def get(self, url, **kwargs):
         request,headers = self.request()
         headers.update(kwargs.get('headers',{}))
         if not url.startswith(self.api_url):
             url = self.api_url + url
         return request.get(url, headers=headers, verify=self.verifySSL, **kwargs)
-    
+
     def post(self, url, **kwargs):
-        request,headers = self.request()            
+        request,headers = self.request()
         if not url.startswith(self.api_url):
             url = self.api_url + url
         afile = kwargs.pop('file',None)
@@ -282,7 +258,8 @@ class OAuth2(object):
             #A file was given to us, so we should update headers
             #with what is provided, if not default to: multipart/form-data
             headers.update(kwargs.get('headers',{'Content-Type':'multipart/form-data'}))
-            response = request.post(url, headers=headers, files={'file':open(afile,'rb')}, verify=self.verifySSL, **kwargs)
+            with open(afile,'rb') as fd:
+                response = request.post(url, headers=headers, files={'file':fd}, verify=self.verifySSL, **kwargs)
         else:
             #If there is data but no file then set content type to json
             if kwargs.get('data',None):
@@ -290,7 +267,7 @@ class OAuth2(object):
             headers.update(kwargs.get('headers',{}))
             response = request.post(url, headers=headers, verify=self.verifySSL, **kwargs)
         return response
-    
+
     def put(self, url, **kwargs):
         request,headers = self.request()
         headers['Content-Type'] = 'application/json'
@@ -298,7 +275,7 @@ class OAuth2(object):
         if not url.startswith(self.api_url):
             url = self.api_url + url
         return request.put(url, headers=headers, verify=self.verifySSL, **kwargs)
-    
+
     def delete(self, url, **kwargs):
         request,headers = self.request()
         headers.update(kwargs.get('headers',{}))
@@ -309,10 +286,12 @@ class OAuth2(object):
 class Client(object):
     """ Client object used to manipulate Alveo objects and interface
     with the API
-
-
     """
-    def __init__(self, **params):
+    def __init__(self, api_key=None, cache=None, api_url=None,
+                 use_cache=True, update_cache=True, cache_dir=None,
+                 verifySSL=True,
+                 oauth=None, configfile=None):
+
         """ Construct a new Client with the specified parameters.
         Unspecified parameters will be derived from the users ~/alveo.config
         file if present.
@@ -332,24 +311,44 @@ class Client(object):
         :type verifySSL: Boolean
         :param verifySSL True to enforce checking of SSL certificates, False
             to disable checking (eg. for staging/testing servers)
+        :type oauth: Dictionary
+        :param oauth dictionary of configuation settings for oauth containing keys
+            client_id, client_secret and redirect_url, default None means to use
+            api_key instead
+        :type configfile: String
+        :param configfile File name to read configuration from, default ~/alveo.config
 
         :rtype: Client
         :returns: the new Client
         """
 
-        config = self._read_config(params.get('configfile',None))        
-        
+        config = self._read_config(configfile)
+        # api_key, api_url args override config settings
+        if api_key:
+            self.api_key = api_key
+        else:
+            self.api_key = config.get('apiKey', None)
+
+        if api_url:
+            self.api_url = api_url
+        else:
+            self.api_url = config.get('base_url', None)
+
         #pyAlveo Cache Settings
-        self.use_cache = params.get('use_cache',config.get('use_cache',None))
+        if use_cache is not None:
+            self.use_cache = use_cache
+        else:
+            self.use_cache = config.get('use_cache', None)
 
-        self.cache_dir = params.get('cache_dir',config.get('cache_dir',None))
+        if cache_dir:
+            self.cache_dir = cache_dir
+        else:
+            self.cache_dir = config.get('cache_dir', None)
 
-        self.update_cache = params.get('update_cache',config.get('update_cache',None)== "true")
+        self.update_cache = update_cache
 
-        cache = params.get('cache',config.get('cache',None))
-        
         # grab the default context
-        self.context = params.get('context',config.get('context',CONTEXT))
+        self.context = config.get('context', CONTEXT)
 
         # configure a cache if we want to read or write to it
         if self.use_cache or self.update_cache:
@@ -363,31 +362,25 @@ class Client(object):
         else:
             self.cache = None
 
-        #Pass Params into OAuth + config data
-        params['config'] = config
-        
-        try:
-            self.oauth = OAuth2(**params)
-            if not params.get('auth_url',None):
-                self.oauth.get_authorisation_url()
-        except APIError:
-            raise APIError(http_status_code="401", response="Unauthorized", msg="Client could not be created. Check your api key")
-
+        self.oauth = OAuth2(api_url=self.api_url,
+                            oauth=oauth,
+                            api_key=self.api_key,
+                            verifySSL=verifySSL)
 
     def to_json(self):
-        """ 
+        """
             Returns a json string containing all relevant data to recreate this pyalveo.Client.
         """
         data = dict(self.__dict__)
         data.update(self.oauth.__dict__)
         data.pop('oauth',None)
         data.pop('cache',None)
-        
+
         return json.dumps(data)
 
     @staticmethod
     def client_from_json(json_string):
-        """ 
+        """
             Returns a pyalveo.Client given a json string built from the client.to_json() method.
         """
         return Client(**json.loads(json_string))
@@ -395,7 +388,8 @@ class Client(object):
     @staticmethod
     def _read_config(configfile=None):
 
-        config = CONFIG_DEFAULT
+        # copy the default configuration so we don't update it
+        config = CONFIG_DEFAULT.copy()
 
         if configfile is None:
             alveo_config = os.path.expanduser(CONFIG_DEFAULT['alveo_config'])
@@ -411,8 +405,6 @@ class Client(object):
         config['cache_dir'] = os.path.expandvars(os.path.expanduser(config['cache_dir']))
 
         return config
-
-
 
     def __eq__(self, other):
         """ Return true if another Client has all identical fields
@@ -456,7 +448,6 @@ class Client(object):
         """
         return not self.__eq__(other)
 
-
     def api_request(self, url, data=None, method='GET', raw=False, file=None):
         """ Perform an API request to the given URL, optionally
         including the specified data
@@ -480,7 +471,7 @@ class Client(object):
 
 
         """
-        
+
         if method is 'GET':
             response = self.oauth.get(url)
         elif method is 'POST':
@@ -494,15 +485,14 @@ class Client(object):
             response = self.oauth.delete(url)
 
         if response.status_code != requests.codes.ok: #@UndefinedVariable
-            raise APIError(response.status_code, 
-                           '', 
-                           "Error accessing API (url: %s, method: %s)\nData: %s\nMessage: %s" % (self.oauth.auth_url+url, method, data, response.text))
+            raise APIError(response.status_code,
+                           '',
+                           "Error accessing API (url: %s, method: %s)\nData: %s\nMessage: %s" % (url, method, data, response.text))
 
         if raw:
             return response.content
         else:
             return response.json()
-
 
     def add_context(self, prefix, url):
         """ Add a new entry to the context that will be used
@@ -518,7 +508,6 @@ class Client(object):
 
         self.context[prefix] = url
 
-
     def get_api_version(self):
         """ Retrieve the API version from the server
 
@@ -532,7 +521,6 @@ class Client(object):
         resp = self.api_request('/version')
         return resp['API version']
 
-
     def get_annotation_context(self):
         """ Retrieve the JSON-LD annotation context from the server
 
@@ -545,7 +533,6 @@ class Client(object):
         """
         return self.api_request('/schema/json-ld')
 
-
     def get_collections(self):
         """Retrieve a list of the collection URLs for all collections
         hosted on the server.
@@ -557,7 +544,6 @@ class Client(object):
 
         # get the collection name from the url
         return [(os.path.split(x)[1], x) for x in result['collections']]
-
 
     def get_item_lists(self):
         """ Retrieve metadata about each of the Item Lists associated
@@ -579,7 +565,6 @@ class Client(object):
 
         """
         return self.api_request('/item_lists.json')
-
 
     def get_item(self, item_url, force_download=False):
         """ Retrieve the item metadata from the server, as an Item object
@@ -610,7 +595,6 @@ class Client(object):
 
         return Item(json.loads(item_json.decode('utf-8')), self)
 
-
     def get_document(self, doc_url, force_download=False):
         """ Retrieve the data for the given document from the server
 
@@ -638,7 +622,6 @@ class Client(object):
                 self.cache.add_document(doc_url, doc_data)
 
         return doc_data
-
 
     def get_primary_text(self, item_url, force_download=False):
         """ Retrieve the primary text for an item from the server
@@ -677,7 +660,6 @@ class Client(object):
                 self.cache.add_primary_text(item_url, primary_text)
 
         return primary_text
-
 
     def get_item_annotations(self, item_url, annotation_type=None, label=None):
         """ Retrieve the annotations for an item from the server
@@ -727,7 +709,6 @@ class Client(object):
         except KeyError:
             return None
 
-
     def get_annotation_types(self, item_url):
         """ Retrieve the annotation types for the given item from the server
 
@@ -744,7 +725,6 @@ class Client(object):
         req_url = item_url + "/annotations/types"
         resp = self.api_request(req_url)
         return resp['annotation_types']
-
 
     def add_annotations(self, item_url, annotations):
         """Add annotations to the given item
@@ -773,7 +753,6 @@ class Client(object):
         resp = self.api_request(str(item_url) + '/annotations', method='POST', data=json.dumps(adict))
         return self.__check_success(resp)
 
-
     def get_collection_info(self, collection_url):
         """ Retrieve information about the specified Collection from the server
 
@@ -788,7 +767,6 @@ class Client(object):
 
         """
         return self.api_request(collection_url)
-
 
     def create_collection(self, name, metadata):
         """ Create a new collection with the given name
@@ -814,7 +792,6 @@ class Client(object):
         response = self.api_request('/catalog', method='POST', data=json.dumps(payload))
 
         return self.__check_success(response)
-
 
     def modify_collection_metadata(self, collection_uri, metadata, replace=None, name=''):
         """Modify the metadata for the given collection.
@@ -921,7 +898,6 @@ class Client(object):
 
         return item_uri
 
-
     def add_item(self, collection_uri, name, metadata, documents=None):
         """Add a new item to a collection
 
@@ -962,7 +938,6 @@ class Client(object):
 
         return item_uri
 
-
     def modify_item(self, item_uri, metadata):
         """Modify the metadata on an item
 
@@ -972,7 +947,6 @@ class Client(object):
 
         response = self.api_request(item_uri, method='PUT', data=md)
         return self.__check_success(response)
-
 
     def delete_item(self, item_uri):
         """Delete an item from a collection
@@ -988,7 +962,6 @@ class Client(object):
 
         response = self.api_request(item_uri, method='DELETE')
         return self.__check_success(response)
-
 
     def add_document(self, item_uri, name, metadata, content=None, docurl=None, file=None, displaydoc=False):
         """Add a document to an existing item
@@ -1093,7 +1066,6 @@ class Client(object):
                 raise APIError('200', 'Operation Failed', str(resp))
         return resp["success"]
 
-
     def download_items(self, items, file_path, file_format='zip'):
         """ Retrieve a file from the server containing the metadata
         and documents for the speficied items
@@ -1125,7 +1097,6 @@ class Client(object):
 
         return file_path
 
-
     def search_metadata(self, query):
         """ Submit a search query to the server and retrieve the results
 
@@ -1145,7 +1116,6 @@ class Client(object):
         resp = self.api_request(query_url)
         return ItemGroup(resp['items'], self)
 
-
     def get_item_list(self, item_list_url):
         """ Retrieve an item list from the server as an ItemList object
 
@@ -1162,7 +1132,6 @@ class Client(object):
         """
         resp = self.api_request(str(item_list_url))
         return ItemList(resp['items'], self, str(item_list_url), resp['name'])
-
 
     def get_item_list_by_name(self, item_list_name, category='own'):
         """ Retrieve an item list from the server as an ItemList object
@@ -1186,7 +1155,6 @@ class Client(object):
                 return self.get_item_list(item_list['item_list_url'])
         raise ValueError('List does not exist: ' + item_list_name)
 
-
     def add_to_item_list(self, item_urls, item_list_url):
         """ Instruct the server to add the given items to the specified
         Item List
@@ -1208,7 +1176,6 @@ class Client(object):
         item_list_url = str(item_list_url)
         name = self.get_item_list(item_list_url).name()
         return self.add_to_item_list_by_name(item_urls, name)
-
 
     def add_to_item_list_by_name(self, item_urls, item_list_name):
         """ Instruct the server to add the given items to the specified
@@ -1233,7 +1200,6 @@ class Client(object):
         data = json.dumps({'items': list(item_urls)})
         resp = self.api_request(request_url,  method='POST', data=data)
         return self.__check_success(resp)
-
 
     def rename_item_list(self, item_list_url, new_name):
         """ Rename an Item List on the server
@@ -1262,7 +1228,6 @@ class Client(object):
             except KeyError:
                 raise APIError('200', 'Rename operation failed', resp)
 
-
     def delete_item_list(self, item_list_url):
         """ Delete an Item List on the server
 
@@ -1290,7 +1255,6 @@ class Client(object):
             else:
                 raise e
 
-
     def sparql_query(self, collection_name, query):
         """ Submit a sparql query to the server to search metadata
         and annotations.
@@ -1313,9 +1277,6 @@ class Client(object):
         request_url += urlencode((('query', query),))
 
         return self.api_request(request_url)
-
-
-
 
 class ItemGroup(object):
     """ Represents an ordered group of Alveo items"""
@@ -1589,7 +1550,6 @@ class ItemGroup(object):
         """
         return self.client.add_to_item_list(self.item_urls, item_list_url)
 
-
 class ItemList(ItemGroup):
     """ Represents a Alveo Item List residing on the server
 
@@ -1714,8 +1674,6 @@ class ItemList(ItemGroup):
 
         """
         return not self.__eq__(other)
-
-
 
 class Item(object):
     """ Represents a single Alveo item """
@@ -1926,7 +1884,6 @@ class Item(object):
 
         """
         return self.client.add_to_item_list_by_name([self.url()], name)
-
 
 class Document(object):
     """ Represents a single Alveo document """

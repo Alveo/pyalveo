@@ -57,6 +57,19 @@ class ClientTest(unittest.TestCase):
             self.assertEqual(type(client), pyalveo.Client)
 
 
+    def test_to_json(self, m):
+        """Test saving a client to JSON and reloading"""
+
+        m.get(API_URL + "/item_lists.json",
+              json={'failure': 'Client could not be created. Check your api key'},
+              status_code=401)
+        client = pyalveo.Client(api_url=API_URL, api_key=API_KEY)
+
+        jj = client.to_json()
+
+        # TODO: complete this test
+
+
     def test_client_context(self, m):
         """add_context extends the context that is used by the  client"""
 
@@ -226,9 +239,6 @@ class ClientTest(unittest.TestCase):
 
         self.assertTrue(os.path.exists(os.path.join(output_dir, outname)))
 
-
-
-
     def test_item_lists(self, m):
         """ Test that the item list can be created, item can be added to the item list,
         item list can be renamed and deleted """
@@ -243,8 +253,12 @@ class ClientTest(unittest.TestCase):
         new_item_url_1 = [base_url + '/catalog/ace/A01a']
         self.assertEqual(client.add_to_item_list_by_name(new_item_url_1, item_list_name), msg)
 
-        m.get(API_URL + '/item_lists', content=open('tests/responses/item-lists.json', 'rb').read())
-        ilist_831 = json.loads(open('tests/responses/item-list-831.json').read())
+        with open('tests/responses/item-lists.json', 'rb') as fd:
+            m.get(API_URL + '/item_lists', content=fd.read())
+
+        with open('tests/responses/item-list-831.json') as fd:
+            ilist_831 = json.loads(fd.read())
+
         m.get(API_URL + '/item_lists/831', json=ilist_831)
         my_list = client.get_item_list_by_name(item_list_name)
         self.assertEqual(my_list.name(), item_list_name)
@@ -273,12 +287,14 @@ class ClientTest(unittest.TestCase):
         client = pyalveo.Client(api_url=API_URL, api_key=API_KEY, use_cache=False)
 
         item_url = client.oauth.api_url + "/catalog/ace/A01b"
-        m.get(item_url, content=open('tests/responses/A01b.json', 'rb').read())
+        with open('tests/responses/A01b.json', 'rb') as fd:
+            m.get(item_url, content=fd.read())
         item = client.get_item(item_url)
 
         # get annotations for this item of type 'speaker'
         ann_url = item_url + '/annotations.json'
-        m.get(ann_url, content=open('tests/responses/A01b-annotations.json', 'rb').read())
+        with open('tests/responses/A01b-annotations.json', 'rb') as fd:
+            m.get(ann_url, content=fd.read())
         anns = item.get_annotations(atype=u'http://ns.ausnc.org.au/schemas/annotation/ice/speaker')
         self.assertListEqual(sorted(anns.keys()), [u'@context', u'alveo:annotations', u'commonProperties'])
 
