@@ -143,7 +143,6 @@ class OAuth2(object):
         try:
             oauth = OAuth2Session(self.client_id,state=self.state,redirect_uri=self.redirect_url)
             self.token = oauth.fetch_token(self.token_url, authorization_response=auth_resp, client_secret=self.client_secret,verify=self.verifySSL)
-            print("OAUTH Token:    ", self.token)
         except Exception:
             print("Unexpected error:", sys.exc_info()[0])
             print("Could not fetch token from OAuth Callback!")
