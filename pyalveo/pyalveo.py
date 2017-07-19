@@ -48,6 +48,11 @@ CONTEXT ={'ausnc': 'http://ns.ausnc.org.au/schemas/ausnc_md_model/',
           'xsd': "http://www.w3.org/2001/XMLSchema#",
           }
 
+#This is here to prevent continuous attempts at getting
+#the api key once it is fully phased out
+#set to false to not bother trying to get it
+API_KEY_DEFAULT = True
+
 class OAuth2(object):
     """ An OAuth2 Manager class for the retrieval and storage of
         all relevant URI's, tokens and client login data.  """
@@ -212,12 +217,17 @@ class OAuth2(object):
             redirecting to the url provided by 'get_authorisation_url' and completing
             the login there.
             Returns True if a token was successfully retrieved, False otherwise."""
+        global API_KEY_DEFAULT
         try:
             oauth = OAuth2Session(self.client_id,state=self.state,redirect_uri=self.redirect_url)
             self.token = oauth.fetch_token(self.token_url,
                                            authorization_response=auth_resp,
                                            client_secret=self.client_secret,
                                            verify=self.verifySSL)
+            if not self.api_key and API_KEY_DEFAULT:
+                self.api_key = self.get_api_key()
+                if not self.api_key:
+                    API_KEY_DEFAULT = False
         except Exception:
             #print("Unexpected error:", sys.exc_info()[0])
             #print("Could not fetch token from OAuth Callback!")
