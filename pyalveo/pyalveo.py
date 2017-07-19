@@ -489,6 +489,7 @@ class Client(object):
                         verifySSL=data.get('oauth',{}).get('verifySSL',None)
                         )
         client.cache = Cache.from_json(data.get('cache',None))
+        client.oauth = OAuth2.from_json(data.get('oauth',None))
         return client
 
     @staticmethod
