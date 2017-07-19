@@ -476,9 +476,9 @@ class Client(object):
         else:
             data = json_data
         oauth_dict = {
-                      'client_id':data['oauth'].get('client_id',None),
-                      'client_secret':data['oauth'].get('client_secret',None),
-                      'redirect_url':data['oauth'].get('redirect_url',None),
+                      'client_id':data.get('oauth',{}).get('client_id',None),
+                      'client_secret':data.get('oauth',{}).get('client_secret',None),
+                      'redirect_url':data.get('oauth',{}).get('redirect_url',None),
                       }
         client = Client(api_key=data.get('api_key',None),
                         api_url=data.get('api_url',None),
@@ -486,7 +486,7 @@ class Client(object):
                         use_cache=data.get('use_cache',None),
                         cache_dir=data.get('cache_dir',None),
                         update_cache=data.get('update_cache',None),
-                        verifySSL=data['oauth'].get('verifySSL',None)
+                        verifySSL=data.get('oauth',{}).get('verifySSL',None)
                         )
         client.cache = Cache.from_json(data.get('cache',None))
         return client
