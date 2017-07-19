@@ -110,9 +110,44 @@ class OAuth2(object):
         if not self.api_key:
             self.get_authorisation_url()
     
-    def to_json(self):
+    def __eq__(self, other):
+        """ Return true if another OAuth2 has all identical fields
+
+        :type other: $1
+        :param other: the other OAuth2 to compare to.
+
+        :rtype: Boolean
+        :returns: True if the OAuth2s are identical, otherwise False
+
+
         """
-            Returns a json string containing all relevant data to recreate this pyalveo.OAuth2.
+        if not isinstance(other, OAuth2):
+            return False
+        d1 = dict(self.__dict__)
+        d1.pop('state',None)
+        d1.pop('auth_url',None)
+        d2 = dict(other.__dict__)
+        d2.pop('state',None)
+        d2.pop('auth_url',None)
+        return (d1 == d2)
+
+    def __ne__(self, other):
+        """ Return true if another Client does not have all identical fields
+
+        :type other: Client
+        :param other: the other Client to compare to.
+
+        :rtype: Boolean
+        :returns: False if the Clients are identical, otherwise True
+
+
+        """
+        return not self.__eq__(other)
+    
+    def to_dict(self):
+        """ 
+            Returns a dict of all of it's necessary components.
+            Not the same as the __dict__ method
         """
         data = dict()
         data['api_url'] = self.api_url
@@ -124,18 +159,30 @@ class OAuth2(object):
         data['token'] = self.token
         data['state'] = self.state
         data['auth_url'] = self.auth_url
-        return json.dumps(data)
+        return data
+    
+    def to_json(self):
+        """
+            Returns a json string containing all relevant data to recreate this pyalveo.OAuth2.
+        """
+        return json.dumps(self.to_dict())
     
     @staticmethod
-    def from_json(json_string):
+    def from_json(json_data):
         """
             Returns a pyalveo.OAuth2 given a json string built from the oauth.to_json() method.
         """
-        data = json.loads(json_string)
-        oauth = OAuth2(api_url=data.get('api_url',None), api_key=data.get('api_key',None), verifySSL=data.get('verifySSL',True))
-        oauth.client_id = data.get('client_id',None)
-        oauth.client_secret = data.get('client_secret',None)
-        oauth.redirect_url = data.get('redirect_url',None)
+        #If we have a string, then decode it, otherwise assume it's already decoded
+        if isinstance(json_data, str):
+            data = json.loads(json_data)
+        else:
+            data = json_data
+        oauth_dict = {
+                      'client_id':data.get('client_id',None),
+                      'client_secret':data.get('client_secret',None),
+                      'redirect_url':data.get('redirect_url',None),
+                      }
+        oauth = OAuth2(api_url=data.get('api_url',None), api_key=data.get('api_key',None),oauth=oauth_dict, verifySSL=data.get('verifySSL',True))
         oauth.token = data.get('token',None)
         oauth.state = data.get('state',None)
         oauth.auth_url = data.get('auth_url',None)
@@ -403,18 +450,36 @@ class Client(object):
             Returns a json string containing all relevant data to recreate this pyalveo.Client.
         """
         data = dict(self.__dict__)
-        data.update(self.oauth.__dict__)
-        data.pop('oauth',None)
-        data.pop('cache',None)
-
+        data.pop('context',None)
+        data['oauth'] = self.oauth.to_dict()
+        data['cache'] = self.cache.to_dict()
         return json.dumps(data)
 
     @staticmethod
-    def client_from_json(json_string):
+    def from_json(json_data):
         """
             Returns a pyalveo.Client given a json string built from the client.to_json() method.
         """
-        return Client(**json.loads(json_string))
+        #If we have a string, then decode it, otherwise assume it's already decoded
+        if isinstance(json_data, str):
+            data = json.loads(json_data)
+        else:
+            data = json_data
+        oauth_dict = {
+                      'client_id':data['oauth'].get('client_id',None),
+                      'client_secret':data['oauth'].get('client_secret',None),
+                      'redirect_url':data['oauth'].get('redirect_url',None),
+                      }
+        client = Client(api_key=data.get('api_key',None),
+                        api_url=data.get('api_url',None),
+                        oauth=oauth_dict,
+                        use_cache=data.get('use_cache',None),
+                        cache_dir=data.get('cache_dir',None),
+                        update_cache=data.get('update_cache',None),
+                        verifySSL=data['oauth'].get('verifySSL',None)
+                        )
+        client.cache = Cache.from_json(data.get('cache',None))
+        return client
 
     @staticmethod
     def _read_config(configfile=None):
@@ -451,20 +516,17 @@ class Client(object):
         if not isinstance(other, Client):
             return False
         d1 = dict(self.__dict__)
-        d1['oauth'] = dict(self.oauth.__dict__)
-        if d1['cache']:
-            d1['cache'] = dict(self.cache.__dict__)
-            d1['cache'].pop('conn',None)
-        d1['oauth'].pop('state',None)
-        d1['oauth'].pop('auth_url',None)
+        d1oauth = d1['oauth']
+        d1.pop('oauth',None)
+        d1cache = d1['cache']
+        d1.pop('cache',None)
+        
         d2 = dict(other.__dict__)
-        d2['oauth'] = dict(other.oauth.__dict__)
-        if d2['cache']:
-            d2['cache'] = dict(other.cache.__dict__)
-            d2['cache'].pop('conn',None)
-        d2['oauth'].pop('state',None)
-        d2['oauth'].pop('auth_url',None)
-        return (d1 == d2)
+        d2oauth = d2['oauth']
+        d2.pop('oauth',None)
+        d2cache = d2['cache']
+        d2.pop('cache',None)
+        return (d1 == d2 and d1oauth == d2oauth and d1cache == d2cache)
 
     def __ne__(self, other):
         """ Return true if another Client does not have all identical fields

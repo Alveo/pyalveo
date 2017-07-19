@@ -48,6 +48,32 @@ class CacheTest(unittest.TestCase):
         self.assertTrue(cache.has_item(item_url))
         self.assertEqual(item_meta, cache.get_item(item_url))
 
+    def test_to_from_json(self):
+        """ Test packing the cache into a json form then reloading it. """
+        
+        file_dir = 'tmp'
+        expected_json = '{"max_age": 0, "cache_dir": "tmp"}'
+        cache = pyalveo.Cache(file_dir)
+        
+        json_string = cache.to_json()
+        
+        #Test json comes out as expected
+        self.assertEqual(json_string, expected_json)
+        
+        cache2 = pyalveo.Cache.from_json(json_string)
+        
+        #Test generated json creates an identical object
+        self.assertEqual(cache, cache2)
+        
+        starting_json = '{"max_age": 500, "cache_dir": "tmp"}'
+        
+        cache = pyalveo.Cache(file_dir,max_age=500)
+        
+        cache2 = pyalveo.Cache.from_json(starting_json)
+        
+        #test manually created json creates an identical cache to one properly setup
+        self.assertEqual(cache, cache2)
+        
 
     def test_add_primary_text(self):
         """Test adding a primary text to the cache and retrieving it"""

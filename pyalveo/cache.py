@@ -45,21 +45,32 @@ class Cache(object):
         self.conn = sqlite3.connect(self.database)
         self.conn.text_factory = str
 
-    def to_json(self):
-        """
-            Returns a json string containing all relevant data to recreate this pyalveo.OAuth2.
+    def to_dict(self):
+        """ 
+            Returns a dict of all of it's necessary components.
+            Not the same as the __dict__ method
         """
         data = dict()
         data['max_age'] = self.max_age
         data['cache_dir'] = self.cache_dir
-        return json.dumps(data)
+        return data
+    
+    def to_json(self):
+        """
+            Returns a json string containing all relevant data to recreate this pyalveo.OAuth2.
+        """
+        return json.dumps(self.to_dict())
     
     @staticmethod
-    def from_json(json_string):
+    def from_json(json_data):
         """
             Returns a pyalveo.OAuth2 given a json string built from the oauth.to_json() method.
         """
-        data = json.loads(json_string)
+        #If we have a string, then decode it, otherwise assume it's already decoded
+        if isinstance(json_data, str):
+            data = json.loads(json_data)
+        else:
+            data = json_data
         oauth = Cache(cache_dir=data.get('cache_dir',None), max_age=data.get('max_age',None))
         return oauth
 
