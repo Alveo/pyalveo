@@ -225,7 +225,7 @@ class OAuth2(object):
                                            client_secret=self.client_secret,
                                            verify=self.verifySSL)
             if not self.api_key and API_KEY_DEFAULT:
-                self.api_key = self.get_api_key()
+                self.get_api_key()
                 if not self.api_key:
                     API_KEY_DEFAULT = False
         except Exception:
