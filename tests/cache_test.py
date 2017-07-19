@@ -1,6 +1,7 @@
 import unittest
 import pyalveo
 import os
+import json
 import sqlite3
 import shutil
 
@@ -58,7 +59,9 @@ class CacheTest(unittest.TestCase):
         json_string = cache.to_json()
         
         #Test json comes out as expected
-        self.assertEqual(json_string, expected_json)
+        json_dict = json.loads(json_string)
+        expected_dict = json.loads(expected_json)
+        self.assertEqual(json_dict, expected_dict)
         
         cache2 = pyalveo.Cache.from_json(json_string)
         
