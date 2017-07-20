@@ -55,12 +55,12 @@ class ClientTest(unittest.TestCase):
             # Test with correct api key
             client = pyalveo.Client()
             self.assertEqual(type(client), pyalveo.Client)
-            
+
 
     def test_to_from_json(self,m):
         """ Test packing the oath object into a json form then reloading it. """
-        
-        api_url = 'https://fake.com'
+
+        api_url = 'https://example.org'
         api_key = 'thisisrandomtext'
         verifySSL = False
         cache_dir = 'tmp'
@@ -69,8 +69,8 @@ class ClientTest(unittest.TestCase):
                       'client_secret':'secretrandomtext',
                       'redirect_url':'https://anotherfake.com'
                       }
-        expected_json = '{"use_cache": false, "api_url": "https://fake.com", "cache": {"max_age": 0, "cache_dir": "tmp"}, "cache_dir": "tmp", "update_cache": true, "oauth": {"client_id": "morerandomtext", "state": "cgLXfsICCMsuTeY6HWkzsqMPyxTA8K", "token": null, "auth_url": "https://fake.com/oauth/authorize?response_type=code&client_id=morerandomtext&redirect_uri=https%3A%2F%2Fanotherfake.com&state=cgLXfsICCMsuTeY6HWkzsqMPyxTA8K", "redirect_url": "https://anotherfake.com", "client_secret": "secretrandomtext", "api_key": null, "verifySSL": false, "api_url": "https://fake.com"}, "api_key": null}'
-        client = pyalveo.Client(api_url=api_url,oauth=oauth_dict,verifySSL=verifySSL,use_cache=False,cache_dir=cache_dir)
+        expected_json = '{"use_cache": false, "api_url": "https://example.org", "cache": {"max_age": 0, "cache_dir": "tmp"}, "cache_dir": "tmp", "update_cache": true, "oauth": {"client_id": "morerandomtext", "state": "cgLXfsICCMsuTeY6HWkzsqMPyxTA8K", "token": null, "auth_url": "https://example.org/oauth/authorize?response_type=code&client_id=morerandomtext&redirect_uri=https%3A%2F%2Fanotherfake.com&state=cgLXfsICCMsuTeY6HWkzsqMPyxTA8K", "redirect_url": "https://anotherfake.com", "client_secret": "secretrandomtext", "api_key": "secretkey", "verifySSL": false, "api_url": "https://example.org"}, "api_key": "secretkey"}'
+        client = pyalveo.Client(api_url=api_url,oauth=oauth_dict,verifySSL=verifySSL,use_cache=False,cache_dir=cache_dir, configfile="tests/alveo.config")
         json_string = client.to_json()
         #Test json comes out as expected
         #A state will be generated which should be different always
@@ -87,21 +87,21 @@ class ClientTest(unittest.TestCase):
         expected_dict['cache'].pop('cache_dir',None)
         json_dict.pop('cache_dir',None)
         expected_dict.pop('cache_dir',None)
-        
+
         self.assertEqual(json_dict, expected_dict)
-        
+
         client2 = pyalveo.Client.from_json(json_string)
-        
+
         #Test generated json creates an identical object
         #These should have identical states however
         self.assertEqual(client, client2)
-        
-        starting_json = '{"use_cache": true, "api_url": "https://fake.com", "cache": {"max_age": 0, "cache_dir": "tmp"}, "cache_dir": "tmp", "update_cache": true, "oauth": {"client_id": null, "state": null, "token": null, "auth_url": null, "redirect_url": null, "client_secret": null, "api_key": "thisisrandomtext", "verifySSL": false, "api_url": "https://fake.com"}, "api_key": "thisisrandomtext"}'
-        
+
+        starting_json = '{"use_cache": true, "api_url": "https://example.org", "cache": {"max_age": 0, "cache_dir": "tmp"}, "cache_dir": "tmp", "update_cache": true, "oauth": {"client_id": null, "state": null, "token": null, "auth_url": null, "redirect_url": null, "client_secret": null, "api_key": "thisisrandomtext", "verifySSL": false, "api_url": "https://example.org"}, "api_key": "thisisrandomtext"}'
+
         client = pyalveo.Client(api_url=api_url,api_key=api_key,verifySSL=verifySSL,use_cache=True,cache_dir=cache_dir)
-        
+
         client2 = pyalveo.Client.from_json(starting_json)
-        
+
         #test manually created json creates an identical cache to one properly setup
         self.assertEqual(client, client2)
 

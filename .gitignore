@@ -23,6 +23,8 @@ var/
 .installed.cfg
 *.egg
 MANIFEST
+htmlcov
+docs/_build
 
 # Installer logs
 pip-log.txt
