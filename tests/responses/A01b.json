@@ -12,13 +12,13 @@
 "624 B",
 "alveo:url":
 "https://app.alveo.edu.au/catalog/ace/A01b/document/A01b-plain.txt",
-"dc:extent":
+"dcterms:extent":
 "624",
-"dc:identifier":
+"dcterms:identifier":
 "A01b-plain.txt",
-"dc:title":
+"dcterms:title":
 "A01b#Text",
-"dc:type":
+"dcterms:type":
 "Text",
 "rdf:type":
 "http://xmlns.com/foaf/0.1/Document"
@@ -28,13 +28,13 @@
 "759 B",
 "alveo:url":
 "https://app.alveo.edu.au/catalog/ace/A01b/document/A01b-raw.txt",
-"dc:extent":
+"dcterms:extent":
 "759",
-"dc:identifier":
+"dcterms:identifier":
 "A01b-raw.txt",
-"dc:title":
+"dcterms:title":
 "A01b#Raw",
-"dc:type":
+"dcterms:type":
 "Raw",
 "rdf:type":
 "http://xmlns.com/foaf/0.1/Document"
@@ -44,13 +44,13 @@
 null,
 "alveo:url":
 "https://app.alveo.edu.au/catalog/ace/A01b/document/ace_a.txt",
-"dc:extent":
+"dcterms:extent":
 "579959",
-"dc:identifier":
+"dcterms:identifier":
 "ace_a.txt",
-"dc:title":
+"dcterms:title":
 "A01b#Original",
-"dc:type":
+"dcterms:type":
 "Original",
 "rdf:type":
 "http://xmlns.com/foaf/0.1/Document"
@@ -96,19 +96,19 @@ null,
 "unspecified",
 "ausnc:written_mode":
 "print",
-"dc:created":
+"dcterms:created":
 "28 October 1986",
-"dc:extent":
+"dcterms:extent":
 "624, 759, 579959",
-"dc:identifier":
+"dcterms:identifier":
 "A01b",
-"dc:isPartOf":
+"dcterms:isPartOf":
 "ace",
-"dc:publisher":
+"dcterms:publisher":
 "Samples \u0026#x27;Used by permission of News Limited",
-"dc:title":
+"dcterms:title":
 "Japan acts against dumping",
-"dc:type":
+"dcterms:type":
 "Text, Raw, Original",
 "olac:discourse_type":
 "unspecified",

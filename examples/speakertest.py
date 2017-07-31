@@ -3,15 +3,20 @@ import pprint
 
 # we need an alveo.config file, get one from the staging server to run these as tests
 client = pyalveo.Client(configfile='examples/alveo.config', verifySSL=True)
+
+
+
 collection_name = "testcollection"
 collection_uri = client.api_url + "catalog/" + collection_name
+
+print "collection_uri[%s]" %(collection_uri)
 
 # add some speakers
 speakers = {}
 speakerids = ['jane', 'louise', 'mary']
 for spkr in speakerids:
     meta = {
-        'dc:identifier': spkr,
+        'dcterms:identifier': spkr,
         'foaf:gender': 'female',
         'foaf:age': 21,
     }

@@ -34,11 +34,13 @@ for i in range(3):
 
     itemname = "newitemx-%d" % i
     meta = {
-            'dc:title': 'Test Item %d' % i,
-            'dc:creator': 'A. Programmer'
+            'dcterms:title': 'Test Item %d' % i,
+            'dcterms:creator': 'A. Programmer'
             }
     item = client.add_text_item(collection_uri, itemname, meta, text=text)
 
-    print("ITEM: ", itemname, done-itemstart, done-docstart, done-starttime)
+    done = time.time()
+
+    print("ITEM: ", itemname, done-itemstart, done-starttime)
 
 print("Overall: ", time.time()-starttime)

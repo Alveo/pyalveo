@@ -1405,7 +1405,7 @@ class Client(object):
         :param collection_name: the name of the collection to search
         :type metadata: Dict
         :param metadata: dictionary of metadata properties and values
-          for this speaker. Must include 'dc:identifier' a unique
+          for this speaker. Must include 'dcterms:identifier' a unique
           identifier for the speaker.
 
         :rtype: String
@@ -1413,7 +1413,7 @@ class Client(object):
             error
         """
 
-        if not 'dc:identifier' in metadata:
+        if not 'dcterms:identifier' in metadata:
             raise APIError(msg="No identifier in speaker metadata")
 
         if not '@context' in metadata:

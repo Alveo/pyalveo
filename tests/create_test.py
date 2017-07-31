@@ -35,10 +35,10 @@ class CreateTest(unittest.TestCase):
 
         meta = { "@context": CONTEXT,
                  "@type": "dcmitype:Collection",
-                 "dc:creator": "Data Owner",
-                 "dc:rights": "All rights reserved to Data Owner",
-                 "dc:subject": "English Language",
-                 "dc:title": "Test Collection" }
+                 "dcterms:creator": "Data Owner",
+                 "dcterms:rights": "All rights reserved to Data Owner",
+                 "dcterms:subject": "English Language",
+                 "dcterms:title": "Test Collection" }
 
         result = client.create_collection('testcollection1', meta)
 
@@ -70,8 +70,8 @@ class CreateTest(unittest.TestCase):
         m.post(collection_uri, json={"success": [itemname]})
 
         meta = {
-                'dc:title': 'Test Item',
-                'dc:creator': 'A. Programmer'
+                'dcterms:title': 'Test Item',
+                'dcterms:creator': 'A. Programmer'
                 }
 
         item_uri = client.add_text_item(collection_uri, itemname, meta, text=doctext, title='my test document')
@@ -103,8 +103,8 @@ class CreateTest(unittest.TestCase):
         m.post(collection_uri, json={"success": [itemname]})
 
         meta = {
-                'dc:title': 'Test Item',
-                'dc:creator': 'A. Programmer'
+                'dcterms:title': 'Test Item',
+                'dcterms:creator': 'A. Programmer'
                 }
 
         item_uri = client.add_item(collection_uri, itemname, meta)
@@ -273,8 +273,8 @@ class CreateTest(unittest.TestCase):
         itemname = "testitem1"
         m.post(collection_uri, json={"success": [itemname]})
         meta = {
-                'dc:title': 'Test Item',
-                'dc:creator': 'A. Programmer'
+                'dcterms:title': 'Test Item',
+                'dcterms:creator': 'A. Programmer'
                 }
 
         item_uri = client.add_item(collection_uri, itemname, meta)
