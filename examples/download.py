@@ -41,7 +41,7 @@ if __name__=='__main__':
         item = client.get_item(itemurl)
         meta = item.metadata()
         speakerid = meta['alveo:metadata']['olac:speaker']
-        print("Item:", meta['alveo:metadata']['dc:identifier'])
+        print("Item:", meta['alveo:metadata']['dcterms:identifier'])
 
         # write out to a subdirectory based on the speaker identifier
         subdir = os.path.join(outputdir, speakerid)
