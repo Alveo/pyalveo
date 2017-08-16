@@ -279,16 +279,8 @@ class OAuth2(object):
         return True
 
     def get_user_data(self):
-        if self.token is None:
-            print("No token to use to get the API Key!")
-            return None
         try:
-            oauth = OAuth2Session(self.client_id,
-                                  token=self.token,
-                                  redirect_uri=self.redirect_url,
-                                  state=self.state)
-
-            response = oauth.get(self.api_url+"/account/get_details",verify=self.verifySSL)
+            response = self.get(self.api_url+"/account/get_details")
 
             if response.status_code != requests.codes.ok: #@UndefinedVariable
                 return None
