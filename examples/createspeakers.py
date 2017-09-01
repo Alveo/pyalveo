@@ -14,6 +14,7 @@ for spkr in speakerids:
         'dc:identifier': spkr,
         'foaf:gender': 'female',
         'foaf:age': 21,
+        'austalk:something': 12
     }
     spkr_url = client.add_speaker(collection_name, meta)
     speakers[spkr] = spkr_url

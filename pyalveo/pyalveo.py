@@ -1,5 +1,4 @@
-import os,sys
-import traceback
+import os
 from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 
 try:
@@ -12,7 +11,8 @@ from requests_oauthlib import OAuth2Session
 import json
 
 from .cache import Cache
-from .objects import ItemGroup, ItemList, Item, Document
+from .objects import ItemGroup, ItemList, Item
+
 
 class APIError(Exception):
     """ Raised when an API operation fails for some reason """
@@ -41,7 +41,6 @@ CONFIG_DEFAULT = {'max_age': 0,
 
 CONTEXT ={'ausnc': 'http://ns.ausnc.org.au/schemas/ausnc_md_model/',
           'corpus': 'http://ns.ausnc.org.au/corpora/',
-          'dc': 'http://purl.org/dc/terms/',
           'dcterms': 'http://purl.org/dc/terms/',
           'foaf': 'http://xmlns.com/foaf/0.1/',
           'hcsvlab': 'http://alveo.edu.au/vocabulary/',
@@ -208,7 +207,9 @@ class OAuth2(object):
         if not self.auth_url:
             try:
                 oauth = OAuth2Session(self.client_id,redirect_uri=self.redirect_url)
+                print("OA", oauth)
                 self.auth_url,self.state = oauth.authorization_url(self.auth_base_url)
+                print("OA", self.auth_url, self.state)
             except Exception:
                 #print("Unexpected error:", sys.exc_info()[0])
                 #print("Could not get Authorisation Url!")
@@ -294,7 +295,7 @@ class OAuth2(object):
                 return None
 
             return response.json()
-        except Exception as e:
+        except Exception:
             return None
 
     def get_api_key(self):
@@ -314,7 +315,7 @@ class OAuth2(object):
             self.api_key = response.json()['apiKey']
 
             return True
-        except Exception as e:
+        except Exception:
             return False
 
     def request(self):
@@ -349,7 +350,7 @@ class OAuth2(object):
         if afile is not None:
             #A file was given to us, so we should update headers
             #with what is provided, if not default to: multipart/form-data
-            headers.update(kwargs.get('headers',{'Content-Type':'multipart/form-data'}))
+            #headers.update(kwargs.get('headers',{'Content-Type':'multipart/form-data'}))
             with open(afile,'rb') as fd:
                 response = request.post(url, headers=headers, files={'file':fd}, verify=self.verifySSL, **kwargs)
         else:
@@ -374,6 +375,7 @@ class OAuth2(object):
         if not url.startswith(self.api_url):
             url = self.api_url + url
         return request.delete(url, headers=headers, verify=self.verifySSL, **kwargs)
+
 
 class Client(object):
     """ Client object used to manipulate Alveo objects and interface
@@ -591,6 +593,8 @@ class Client(object):
             response = self.oauth.put(url, data=data)
         elif method is 'DELETE':
             response = self.oauth.delete(url)
+        else:
+            raise APIError("Unknown request method: %s" % (method,))
 
         # check for error responses
         if response.status_code >= 400:
@@ -855,7 +859,7 @@ class Client(object):
         for ann in annotations:
             # verify that we have the required properties
             for key in ('@type', 'label', 'start', 'end', 'type'):
-                if not key in ann.keys():
+                if key not in ann.keys():
                     raise Exception("required key '%s' not present in annotation" % key)
         adict['@graph'] = annotations
 
@@ -922,7 +926,7 @@ class Client(object):
                     'name': name
                    }
 
-        if not replace is None:
+        if replace is not None:
             payload['replace'] = replace
 
         response = self.api_request(collection_uri, method='PUT', data=json.dumps(payload))
@@ -1007,7 +1011,7 @@ class Client(object):
 
         return item_uri
 
-    def add_item(self, collection_uri, name, metadata, documents=None):
+    def add_item(self, collection_uri, name, metadata):
         """Add a new item to a collection
 
         :param collection_uri: The URI that references the collection
@@ -1018,9 +1022,6 @@ class Client(object):
 
         :param metadata: a dictionary of metadata values describing the item
         :type metadata: Dict
-
-        :param documents: a list of metadata dictionaries, one per document
-        :type documents: List of Dict
 
         :rtype String
         :returns: the URI of the created item
@@ -1158,7 +1159,7 @@ class Client(object):
         """ Check a JSON server response to see if it was successful
 
         :type resp: Dictionary (parsed JSON from response)
-        :param resp_json: the response string
+        :param resp: the response string
 
         :rtype: String
         :returns: the success message, if it exists
@@ -1405,7 +1406,7 @@ class Client(object):
         :param collection_name: the name of the collection to search
         :type metadata: Dict
         :param metadata: dictionary of metadata properties and values
-          for this speaker. Must include 'dc:identifier' a unique
+          for this speaker. Must include 'dcterms:identifier' a unique
           identifier for the speaker.
 
         :rtype: String
@@ -1413,10 +1414,10 @@ class Client(object):
             error
         """
 
-        if not 'dc:identifier' in metadata:
+        if 'dcterms:identifier' not in metadata:
             raise APIError(msg="No identifier in speaker metadata")
 
-        if not '@context' in metadata:
+        if '@context' not in metadata:
             metadata['@context'] = CONTEXT
 
         speakers_url = "/speakers/"+collection_name+"/"
@@ -1427,12 +1428,11 @@ class Client(object):
         else:
             return None
 
-
     def delete_speaker(self, speaker_uri):
         """Delete an speaker from a collection
 
         :param speaker_uri: the URI that references the speaker
-        :type item_uri: String
+        :type speaker_uri: String
 
         :rtype: Boolean
         :returns: True if the speaker was deleted

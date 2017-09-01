@@ -10,7 +10,7 @@ You also need to download your API key (alveo.config) from the Alveo web applica
 
 Linux or Unix: /home/<user>
 Mac: /Users/<user>
-Windows: C:\Users\<user>
+Windows: C:\\Users\\<user>
 
 The script should then find this file and access Alveo on your behalf.
 
@@ -19,8 +19,8 @@ The script should then find this file and access Alveo on your behalf.
  """
 
 import os
-import sys
 import pyalveo
+from __future__ import print_function
 
 speakerid = "1_1308"
 component = "words"  # will find words-1, words-2 and words-3
@@ -38,10 +38,9 @@ if __name__=='__main__':
     if not os.path.exists(outputdir):
         os.makedirs(outputdir)
 
-    print "Query found ", len(items), "items"
+    print("Query found ", len(items), "items")
 
     client = pyalveo.Client(use_cache=False)
-    items = client.get_item_list(item_list_url)
     for itemurl in items:
         item = client.get_item(itemurl)
         meta = item.metadata()
