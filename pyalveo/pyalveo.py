@@ -11,7 +11,7 @@ from requests_oauthlib import OAuth2Session
 import json
 
 from .cache import Cache
-from .objects import ItemGroup, ItemList, Item
+from .objects import ItemGroup, ItemList, Item, Document
 
 
 class APIError(Exception):
