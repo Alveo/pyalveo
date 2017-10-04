@@ -316,14 +316,14 @@ class OAuth2(object):
 
         headers = {'Accept': 'application/json'}
 
-        # Try to use OAuth
-        if self.token:
-            return OAuth2Session(self.client_id, token=self.token),headers
+        #Use API Key if possible
+        if self.api_key:
+            headers['X-API-KEY'] = self.api_key
+            return requests,headers
         else:
-            #Use API Key if possible
-            if self.api_key:
-                headers['X-API-KEY'] = self.api_key
-                return requests,headers
+            # Try to use OAuth
+            if self.token:
+                return OAuth2Session(self.client_id, token=self.token),headers
             else:
                 raise APIError("No API key and no OAuth session available")
 
