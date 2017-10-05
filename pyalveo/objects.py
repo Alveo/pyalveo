@@ -3,6 +3,11 @@
 
 import os
 
+try:
+    from urllib.parse import unquote
+except ImportError:
+    from urllib import unquote
+
 class ItemGroup(object):
     """ Represents an ordered group of Alveo items"""
 
