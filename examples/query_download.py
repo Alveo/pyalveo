@@ -17,10 +17,9 @@ The script should then find this file and access Alveo on your behalf.
 
 
  """
-
+from __future__ import print_function
 import os
 import pyalveo
-from __future__ import print_function
 
 speakerid = "1_1308"
 component = "words"  # will find words-1, words-2 and words-3
@@ -34,6 +33,11 @@ if __name__=='__main__':
     client = pyalveo.Client(use_cache=False)
 
     items = client.search_metadata("collection_name:austalk AND speaker:%s AND componentName:%s" % (speakerid, component))
+
+    itemlist = client.add_to_item_list_by_name(items, 'sample')
+
+    print(itemlist)
+    exit()
 
     if not os.path.exists(outputdir):
         os.makedirs(outputdir)
