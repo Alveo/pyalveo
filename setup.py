@@ -9,7 +9,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
 	name='pyalveo',
-	version='1.0',
+	version='1.0.1',
 	description="A Python library for interfacing with the Alveo API",
 	long_description=long_description,
 
