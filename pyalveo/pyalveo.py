@@ -42,6 +42,7 @@ CONFIG_DEFAULT = {'max_age': 0,
 CONTEXT ={'ausnc': 'http://ns.ausnc.org.au/schemas/ausnc_md_model/',
           'corpus': 'http://ns.ausnc.org.au/corpora/',
           'dcterms': 'http://purl.org/dc/terms/',
+          'dc': 'http://purl.org/dc/elements/1.1/',
           'foaf': 'http://xmlns.com/foaf/0.1/',
           'hcsvlab': 'http://alveo.edu.au/vocabulary/',
           'austalk': "http://ns.austalk.edu.au/",
@@ -1023,6 +1024,7 @@ class Client(object):
         """
 
         metadata['dcterms:identifier'] = name
+        metadata['dc:identifier'] = name  # for backward compatability in Alveo SOLR store until bug fix
         metadata['@type'] = 'ausnc:AusNCObject'
 
         meta = {'items': [{'metadata': { '@context': self.context,
