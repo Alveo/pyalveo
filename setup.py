@@ -2,6 +2,8 @@ from setuptools import setup, find_packages
 from os import path
 from codecs import open
 
+from pyalveo import __version__
+
 here = path.abspath(path.dirname(__file__))
 
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
@@ -9,7 +11,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
 	name='pyalveo',
-	version='1.0.1',
+	version=__version__,
 	description="A Python library for interfacing with the Alveo API",
 	long_description=long_description,
 
