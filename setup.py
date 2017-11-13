@@ -1,38 +1,50 @@
-from setuptools import setup, find_packages
-from os import path
-from codecs import open
+from setuptools import setup
+import io, re, os
 
-here = path.abspath(path.dirname(__file__))
 
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
-	long_description = f.read()
+def read(*names, **kwargs):
+    with io.open(
+            os.path.join(os.path.dirname(__file__), *names),
+            encoding=kwargs.get("encoding", "utf8")
+    ) as fp:
+        return fp.read()
+
+
+def find_version(*file_paths):
+    version_file = read(*file_paths)
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                              version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
+
 
 setup(
-	name='pyalveo',
-	version='1.0.3',
-	description="A Python library for interfacing with the Alveo API",
-	long_description=long_description,
+    name='pyalveo',
+    version=find_version('pyalveo', '__init__.py'),
+    description="A Python library for interfacing with the Alveo API",
+    long_description=read('README.rst'),
 
-	url='https://github.com/Alveo/pyalveo',
+    url='https://github.com/Alveo/pyalveo',
 
-	maintainer='Steve Cassidy',
-	maintainer_email='Steve.Cassidy@mq.edu.au',
-	license = 'BSD',
+    maintainer='Steve Cassidy',
+    maintainer_email='Steve.Cassidy@mq.edu.au',
+    license = 'BSD',
 
-	keywords='alveo hcsvlab python library',
+    keywords='alveo hcsvlab python library',
 
-	packages = find_packages(exclude=['contrib', 'docs', 'tests*']),
+    packages = ['pyalveo'],
 
     install_requires=[
         "python-dateutil",
-		"requests",
-		"oauthlib",
-		"requests-oauthlib",
+        "requests",
+        "oauthlib",
+        "requests-oauthlib",
     ],
 
-	tests_require=[
-		"requests-mock"
-	],
+    tests_require=[
+        "requests-mock"
+    ],
 
     test_suite='tests'
-	)
+    )

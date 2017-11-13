@@ -1,0 +1,3 @@
+include LICENCE.txt README.rst
+recursive-include pyalveo *.py
+recursive-include examples *.py
