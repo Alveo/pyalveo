@@ -10,16 +10,15 @@ You also need to download your API key (alveo.config) from the Alveo web applica
 
 Linux or Unix: /home/<user>
 Mac: /Users/<user>
-Windows: C:\Users\<user>
+Windows: C:\\Users\\<user>
 
 The script should then find this file and access Alveo on your behalf.
 
 
 
  """
-
+from __future__ import print_function
 import os
-import sys
 import pyalveo
 
 speakerid = "1_1308"
@@ -35,13 +34,17 @@ if __name__=='__main__':
 
     items = client.search_metadata("collection_name:austalk AND speaker:%s AND componentName:%s" % (speakerid, component))
 
+    itemlist = client.add_to_item_list_by_name(items, 'sample')
+
+    print(itemlist)
+    exit()
+
     if not os.path.exists(outputdir):
         os.makedirs(outputdir)
 
-    print "Query found ", len(items), "items"
+    print("Query found ", len(items), "items")
 
     client = pyalveo.Client(use_cache=False)
-    items = client.get_item_list(item_list_url)
     for itemurl in items:
         item = client.get_item(itemurl)
         meta = item.metadata()

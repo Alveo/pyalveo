@@ -1,7 +1,5 @@
 import unittest
 import pyalveo
-import os
-import uuid
 import requests_mock
 import json
 
@@ -184,7 +182,6 @@ class CreateTest(unittest.TestCase):
         self.assertEqual(md['@type'], "foaf:Document")
         self.assertEqual(md['dcterms:identifier'], docname)
 
-
     def test_modify_item(self, m):
         """Test modify item metadata"""
 
@@ -202,7 +199,6 @@ class CreateTest(unittest.TestCase):
         req = m.last_request
         self.assertIn('metadata', req.json())
         self.assertEqual(meta, req.json()['metadata'])
-
 
     def test_add_document_attachment(self, m):
         """Test adding a document to an item as a file attachment"""
@@ -229,12 +225,16 @@ class CreateTest(unittest.TestCase):
 
         document_uri = client.add_document(item_uri, docname, docmeta, file=docname)
 
+        self.assertEqual("http://example.alveo.froob/catalog/testcollection1/item1/document/doc1.txt", document_uri)
         req = m.last_request
 
         # should be a multipart-form with a json payload and a file attachment
 
         self.assertIn('multipart/form-data', req.headers['Content-Type'])
+        self.assertIn('boundary', req.headers['Content-Type'])
         bdy = req._request.body
+        print(req.headers)
+        print(bdy.decode())
         messages = req.text.split('--'+str(bdy))
 
         for msg in messages:

@@ -18,6 +18,7 @@ The script should then find this file and access Alveo on your behalf.
 
 import os
 import pyalveo
+from pprint import pprint
 
 # this is a shared item list with a sample of Austalk files that
 # contain TextGrid annotations, change this URL to your own item
@@ -40,11 +41,12 @@ if __name__=='__main__':
     for itemurl in itemlist:
         item = client.get_item(itemurl)
         meta = item.metadata()
-        speakerid = meta['alveo:metadata']['olac:speaker']
+        speakerurl = meta['alveo:metadata']['olac:speaker']
+        speakerinfo = client.get_speaker(speakerurl)
         print("Item:", meta['alveo:metadata']['dcterms:identifier'])
 
         # write out to a subdirectory based on the speaker identifier
-        subdir = os.path.join(outputdir, speakerid)
+        subdir = os.path.join(outputdir, speakerinfo['dcterms:identifier'])
         if not os.path.exists(subdir):
             os.makedirs(subdir)
 

@@ -1,15 +1,17 @@
+from __future__ import print_function
+
 import pyalveo
 import pprint
+
 
 # we need an alveo.config file, get one from the staging server to run these as tests
 client = pyalveo.Client(configfile='examples/alveo.config', verifySSL=True)
 
-
-
+# this relies on an existing collection being available
 collection_name = "testcollection"
 collection_uri = client.api_url + "catalog/" + collection_name
 
-print "collection_uri[%s]" %(collection_uri)
+print("collection_uri[%s]" %(collection_uri))
 
 # add some speakers
 speakers = {}
@@ -19,6 +21,7 @@ for spkr in speakerids:
         'dcterms:identifier': spkr,
         'foaf:gender': 'female',
         'foaf:age': 21,
+        'austalk:something': 12
     }
     spkr_url = client.add_speaker(collection_name, meta)
     speakers[spkr] = spkr_url
@@ -31,7 +34,9 @@ for spkr in speakerids:
 
 print("SPEAKERS", client.get_speakers(collection_name))
 
-# run a sparql query - should pick up the speakers
+# now try to get the speaker info via the SPARQL interface
+# tests whether the correct RDF has been inserted by the system
+
 qq = """
 PREFIX dcterms:<http://purl.org/dc/terms/>
 PREFIX foaf:<http://xmlns.com/foaf/0.1/>
@@ -45,8 +50,13 @@ res = client.sparql_query(collection_name, qq)
 for b in res['results']['bindings']:
     print("SPKR", b['spkr']['value'], b['p']['value'], b['v']['value'])
 
+# remove all of the speakers
 for spkr in speakerids:
     res = client.delete_speaker(speakers[spkr])
     print(res)
 
-print("SPEAKERS", client.get_speakers(collection_name))
+# check that they are gone
+if not client.get_speakers(collection_name):
+    print("SPEAKERS are gone!!")
+else:
+    print("Speakers were not deleted:", client.get_speakers(collection_name))
