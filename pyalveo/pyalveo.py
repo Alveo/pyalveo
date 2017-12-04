@@ -302,12 +302,17 @@ class OAuth2(object):
             response = oauth.get(self.api_url+"/account_api_key",verify=self.verifySSL)
 
             if response.status_code != requests.codes.ok: #@UndefinedVariable
-                return False
+                #attempt a 2nd time incase of random errors
+                response = oauth.get(self.api_url+"/account_api_key",verify=self.verifySSL)
+                if response.status_code != requests.codes.ok: #@UndefinedVariable
+                    print("Failed to get API KEY!!")
+                    return False
 
             self.api_key = response.json()['apiKey']
 
             return True
         except Exception:
+            print("Failed to get API KEY!!")
             return False
 
     def request(self):
