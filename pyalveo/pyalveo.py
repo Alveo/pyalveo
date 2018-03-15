@@ -7,6 +7,7 @@ except ImportError:
     from urllib import urlencode, unquote
 
 import requests
+from requests_toolbelt.multipart import encoder
 from requests_oauthlib import OAuth2Session
 import json
 
@@ -349,7 +350,17 @@ class OAuth2(object):
             #with what is provided, if not default to: multipart/form-data
             #headers.update(kwargs.get('headers',{'Content-Type':'multipart/form-data'}))
             with open(afile,'rb') as fd:
-                response = request.post(url, headers=headers, files={'file':fd}, verify=self.verifySSL, **kwargs)
+                original_data = kwargs.pop('data',{})
+                form = encoder.MultipartEncoder(original_data.update({
+                    "documents": (afile[afile.rfind('/')+1:],fd,"application/octet-stream"),
+                    "composite":"NONE",
+                    }))
+                headers.update({
+                    "Prefer":"respond-async",
+                    "Content-Type":form.content_type,
+                    })
+                response = request.post(url, headers=headers, data=form, verify=self.verifySSL, **kwargs)
+                #response = request.post(url, headers=headers, files={'file':fd}, verify=self.verifySSL, **kwargs)
         else:
             #If there is data but no file then set content type to json
             if kwargs.get('data',None):
