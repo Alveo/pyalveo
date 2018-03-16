@@ -356,7 +356,7 @@ class OAuth2(object):
                 fname = afile[afile.rfind("\\")+1:]
                 fname = fname[fname.rfind("/")+1:]
                 original_data.update({
-                    "file": (afile[afile.rfind(os.sep)+1:],fd,"application/octet-stream"),
+                    "file": (fname,fd,"application/octet-stream"),
                     "composite":"NONE",
                     })
                 form = encoder.MultipartEncoder(original_data)
