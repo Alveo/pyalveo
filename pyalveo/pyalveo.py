@@ -351,10 +351,15 @@ class OAuth2(object):
             #headers.update(kwargs.get('headers',{'Content-Type':'multipart/form-data'}))
             with open(afile,'rb') as fd:
                 original_data = kwargs.pop('data',{})
-                form = encoder.MultipartEncoder(original_data.update({
-                    "documents": (afile[afile.rfind('/')+1:],fd,"application/octet-stream"),
+                # Need to do this since the file directory in CSV is '/' but root directory in windows uses '\\'.
+                # This will grab the name, regardless of the mix of '/' and '\\'
+                fname = afile[afile.rfind("\\")+1:]
+                fname = fname[fname.rfind("/")+1:]
+                original_data.update({
+                    "file": (afile[afile.rfind(os.sep)+1:],fd,"application/octet-stream"),
                     "composite":"NONE",
-                    }))
+                    })
+                form = encoder.MultipartEncoder(original_data)
                 headers.update({
                     "Prefer":"respond-async",
                     "Content-Type":form.content_type,
