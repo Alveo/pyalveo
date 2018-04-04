@@ -1110,12 +1110,15 @@ class Client(object):
 
         :param displaydoc: if True, make this the display document for the item
         :type displaydoc: Boolean
+        
+        :param preferName: if True, given document name will be the document id rather than filename. Useful if you want to upload under a different filename.
+        :type preferName: Boolean
 
         :rtype: String
         :returns: The URL of the newly created document
         """
-
-        if file is not None:
+        
+        if not preferName and file is not None:
             docid = os.path.basename(file)
         else:
             docid = name
