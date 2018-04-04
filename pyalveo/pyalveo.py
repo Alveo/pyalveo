@@ -282,7 +282,7 @@ class OAuth2(object):
 
     def get_user_data(self):
         try:
-            response = self.get(self.api_url+"/account/get_details")
+            response = self.get(self.api_url+"/account/get_details.json")
 
             if response.status_code != requests.codes.ok: #@UndefinedVariable
                 return None
