@@ -1087,7 +1087,7 @@ class Client(object):
         response = self.api_request(item_uri, method='DELETE')
         return self.__check_success(response)
 
-    def add_document(self, item_uri, name, metadata, content=None, docurl=None, file=None, displaydoc=False):
+    def add_document(self, item_uri, name, metadata, content=None, docurl=None, file=None, displaydoc=False,preferName=False):
         """Add a document to an existing item
 
         :param item_uri: the URI that references the item
