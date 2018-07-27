@@ -1,4 +1,5 @@
 import unittest
+from requests_toolbelt import MultipartEncoder
 import pyalveo
 import requests_mock
 import json
@@ -234,7 +235,10 @@ class CreateTest(unittest.TestCase):
         self.assertIn('boundary', req.headers['Content-Type'])
         bdy = req._request.body
         print(req.headers)
-        print(bdy.decode())
+        if isinstance(bdy, MultipartEncoder):
+            print(bdy.to_string())
+        else:
+            print(bdy.decode())
         messages = req.text.split('--'+str(bdy))
 
         for msg in messages:
