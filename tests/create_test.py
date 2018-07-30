@@ -233,8 +233,7 @@ class CreateTest(unittest.TestCase):
         self.assertIn('multipart/form-data', req.headers['Content-Type'])
         self.assertIn('boundary', req.headers['Content-Type'])
         bdy = req._request.body
-        print(req.headers)
-        print(bdy.decode())
+
         messages = req.text.split('--'+str(bdy))
 
         for msg in messages:
