@@ -1,4 +1,5 @@
 import unittest
+from requests_toolbelt import MultipartEncoder
 import pyalveo
 import requests_mock
 import json
