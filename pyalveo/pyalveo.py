@@ -346,28 +346,28 @@ class OAuth2(object):
             url = self.api_url + url
         afile = kwargs.pop('file',None)
         if afile is not None:
-            #A file was given to us, so we should update headers
-            #with what is provided, if not default to: multipart/form-data
-            #headers.update(kwargs.get('headers',{'Content-Type':'multipart/form-data'}))
-            with open(afile,'rb') as fd:
+            # A file was given to us, so we should update headers
+            # with what is provided, if not default to: multipart/form-data
+            # headers.update(kwargs.get('headers',{'Content-Type':'multipart/form-data'}))
+            with open(afile, 'rb') as fd:
                 original_data = kwargs.pop('data',{})
-                # Need to do this since the file directory in CSV is '/' but root directory in windows uses '\\'.
-                # This will grab the name, regardless of the mix of '/' and '\\'
-                fname = afile[afile.rfind("\\")+1:]
-                fname = fname[fname.rfind("/")+1:]
+                if original_data is None:
+                    original_data = {}
+
+                fname = os.path.basename(afile)
+
                 original_data.update({
-                    "file": (fname,fd,"application/octet-stream"),
+                    "file": (fname, fd, "application/octet-stream"),
                     "composite":"NONE",
                     })
                 form = encoder.MultipartEncoder(original_data)
                 headers.update({
-                    "Prefer":"respond-async",
-                    "Content-Type":form.content_type,
+                    "Prefer": "respond-async",
+                    "Content-Type": form.content_type,
                     })
                 response = request.post(url, headers=headers, data=form, verify=self.verifySSL, **kwargs)
-                #response = request.post(url, headers=headers, files={'file':fd}, verify=self.verifySSL, **kwargs)
         else:
-            #If there is data but no file then set content type to json
+            # If there is data but no file then set content type to json
             if kwargs.get('data',None):
                 headers['Content-Type'] = 'application/json'
             headers.update(kwargs.get('headers',{}))
@@ -1087,7 +1087,7 @@ class Client(object):
         response = self.api_request(item_uri, method='DELETE')
         return self.__check_success(response)
 
-    def add_document(self, item_uri, name, metadata, content=None, docurl=None, file=None, displaydoc=False,preferName=False):
+    def add_document(self, item_uri, name, metadata, content=None, docurl=None, file=None, displaydoc=False, preferName=False):
         """Add a document to an existing item
 
         :param item_uri: the URI that references the item
@@ -1111,7 +1111,8 @@ class Client(object):
         :param displaydoc: if True, make this the display document for the item
         :type displaydoc: Boolean
         
-        :param preferName: if True, given document name will be the document id rather than filename. Useful if you want to upload under a different filename.
+        :param preferName: if True, given document name will be the document id rather than
+            filename. Useful if you want to upload under a different filename.
         :type preferName: Boolean
 
         :rtype: String
