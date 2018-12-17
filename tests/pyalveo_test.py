@@ -1,7 +1,6 @@
 import unittest
 import pyalveo
 import os
-import sqlite3
 import shutil
 import requests_mock
 import json
@@ -13,7 +12,6 @@ API_KEY = "fakekeyvalue"
 
 @requests_mock.Mocker()
 class ClientTest(unittest.TestCase):
-
 
     def test_create_client(self, m):
         """ Test that the clients can be created with or without alveo.config file
@@ -336,7 +334,6 @@ class ClientTest(unittest.TestCase):
         ann = anns['alveo:annotations'][0]
         self.assertEqual(sorted(ann.keys()), [u'@id', u'@type',  u'end',  u'start', u'type'])
 
-
     def test_sparql_query(self, m):
         """Can we run a simple SPARQL query"""
 
@@ -351,6 +348,8 @@ class ClientTest(unittest.TestCase):
         self.assertIn('results', result)
         self.assertIn('bindings', result['results'])
         self.assertEqual(len(result['results']['bindings']), 10)
+
+
 
 
 if __name__ == "__main__" :

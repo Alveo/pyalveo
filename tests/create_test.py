@@ -1,5 +1,4 @@
 import unittest
-from requests_toolbelt import MultipartEncoder
 import pyalveo
 import requests_mock
 import json
@@ -14,7 +13,6 @@ CONTEXT = { "ausnc": "http://ns.ausnc.org.au/schemas/ausnc_md_model/",
 
 API_URL = "http://example.alveo.froob"
 API_KEY = "fakekeyvalue"
-
 
 
 @requests_mock.Mocker()
@@ -54,7 +52,6 @@ class CreateTest(unittest.TestCase):
         # TODO: test creating collection that already exists
         # TODO: test other error conditions - no name, no metadata, bad json
 
-
     def test_add_text_item(self, m):
         """Test that we can add new items that have just a text document to a collection """
 
@@ -87,8 +84,6 @@ class CreateTest(unittest.TestCase):
         self.assertEqual(1, len(itemdict['documents']))
         self.assertEqual(doctext, itemdict['documents'][0]['content'])
         self.assertEqual(itemname+'.txt', itemdict['documents'][0]['identifier'])
-
-
 
     def test_add_item(self, m):
         """Test that we can add new items to a collection"""
@@ -132,7 +127,6 @@ class CreateTest(unittest.TestCase):
 
         req = m.last_request
         self.assertEqual(req.method, 'DELETE')
-
 
     def test_delete_item(self, m):
         """Test deleting an item"""

@@ -209,9 +209,7 @@ class OAuth2(object):
         if not self.auth_url:
             try:
                 oauth = OAuth2Session(self.client_id,redirect_uri=self.redirect_url)
-                print("OA", oauth)
                 self.auth_url,self.state = oauth.authorization_url(self.auth_base_url)
-                print("OA", self.auth_url, self.state)
             except Exception:
                 #print("Unexpected error:", sys.exc_info()[0])
                 #print("Could not get Authorisation Url!")
@@ -303,17 +301,17 @@ class OAuth2(object):
             response = oauth.get(self.api_url+"/account_api_key",verify=self.verifySSL)
 
             if response.status_code != requests.codes.ok: #@UndefinedVariable
-                #attempt a 2nd time incase of random errors
+                # attempt a 2nd time incase of random errors
                 response = oauth.get(self.api_url+"/account_api_key",verify=self.verifySSL)
                 if response.status_code != requests.codes.ok: #@UndefinedVariable
-                    print("Failed to get API KEY!!")
+                    # print("Failed to get API KEY!!")
                     return False
 
             self.api_key = response.json()['apiKey']
 
             return True
         except Exception:
-            print("Failed to get API KEY!!")
+            # print("Failed to get API KEY!!")
             return False
 
     def request(self):
@@ -322,7 +320,7 @@ class OAuth2(object):
 
         headers = {'Accept': 'application/json'}
 
-        #Use API Key if possible
+        # Use API Key if possible
         if self.api_key:
             headers['X-API-KEY'] = self.api_key
             return requests,headers
@@ -489,7 +487,7 @@ class Client(object):
         """
             Returns a pyalveo.Client given a json string built from the client.to_json() method.
         """
-        #If we have a string, then decode it, otherwise assume it's already decoded
+        # If we have a string, then decode it, otherwise assume it's already decoded
         if isinstance(json_data, str):
             data = json.loads(json_data)
         else:
@@ -1087,7 +1085,10 @@ class Client(object):
         response = self.api_request(item_uri, method='DELETE')
         return self.__check_success(response)
 
-    def add_document(self, item_uri, name, metadata, content=None, docurl=None, file=None, displaydoc=False, preferName=False):
+    def add_document(self, item_uri, name, metadata,
+                     content=None, docurl=None, file=None,
+                     displaydoc=False, preferName=False,
+                     contrib_id=None):
         """Add a document to an existing item
 
         :param item_uri: the URI that references the item
@@ -1115,6 +1116,10 @@ class Client(object):
             filename. Useful if you want to upload under a different filename.
         :type preferName: Boolean
 
+        :param contrib_id: if present, add this document to this contribution as well as
+        associating it with the item
+        :type contrib_id: Integer
+
         :rtype: String
         :returns: The URL of the newly created document
         """
@@ -1131,6 +1136,9 @@ class Client(object):
                   }
         # add in metadata we are passed
         docmeta["metadata"].update(metadata)
+
+        if contrib_id:
+            docmeta['contribution_id'] = contrib_id
 
         if content is not None:
             docmeta['document_content'] = content
@@ -1383,7 +1391,6 @@ class Client(object):
             else:
                 raise e
 
-
     def get_speakers(self, collection_name):
         """Get a list of speaker URLs for this collection
 
@@ -1483,3 +1490,80 @@ class Client(object):
         request_url += urlencode((('query', query),))
 
         return self.api_request(request_url)
+
+    def get_contributions(self):
+        """Return a list of contributions
+
+        :rtype: List
+        :returns: a dictionary with keys "own", "shared" with values
+        that are a list of contribution records, each one is a dictionary
+        with keys "id", "url", "name"
+        """
+        result = self.api_request('/contrib')
+
+        # get the collection name from the url
+        return result
+
+    def get_contribution(self, url):
+        """Get the details of a particular contribution given it's
+         url"""
+
+        result = self.api_request(url)
+
+        # add the contrib id into the metadata
+        result['id'] = os.path.split(result['url'])[1]
+
+        return result
+
+    def create_contribution(self, metadata):
+        """Create a new contribution given a dictionary of metadata
+        {
+            "contribution_name": "HelloWorld",
+            "contribution_collection": "Cooee",
+            "contribution_text": "This is contribution description",
+            "contribution_abstract": "This is contribution abstract"
+        }
+
+        :rtype: dict
+        :returns: The metadata for the created contribution, eg
+
+        '''
+{'description': 'This is contribution description',
+ 'documents': [],
+ 'metadata': {'abstract': '"This is contribution abstract"',
+              'collection': 'https://staging.alveo.edu.au/catalog/cooee',
+              'created': '2018-12-06T05:21:20Z',
+              'creator': 'Data Owner',
+              'title': 'HelloWorld'},
+ 'name': 'HelloWorld',
+ 'url': 'https://staging.alveo.edu.au/contrib/27'}
+        '''
+        """
+
+        result = self.api_request('/contrib/', method='POST', data=json.dumps(metadata))
+
+        # add the contrib id into the metadata
+        result['id'] = os.path.split(result['url'])[1]
+
+        return result
+
+    def delete_contribution(self, url):
+        """Delete the contribution with this identifier
+
+        :rtype: bool
+        :returns: True if the contribution was deleted, False otherwise (eg. if it didn't exist)
+        """
+
+        # first validate that this is a real contrib
+        try:
+            result = self.api_request(url)
+
+            if 'url' in result and 'documents' in result:
+                self.api_request(result['url'], method='DELETE')
+                return True
+        except:
+            pass
+
+        return False
+
+
