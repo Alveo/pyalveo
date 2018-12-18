@@ -37,3 +37,6 @@ pip-delete-this-directory.txt
 # Development
 .project
 .pydevproject
+.tox/
+.idea/
+.eggs/
