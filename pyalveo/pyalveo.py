@@ -1117,11 +1117,12 @@ class Client(object):
         :type preferName: Boolean
 
         :param contrib_id: if present, add this document to this contribution as well as
-        associating it with the item
+            associating it with the item
         :type contrib_id: Integer
 
         :rtype: String
         :returns: The URL of the newly created document
+
         """
         
         if not preferName and file is not None:
@@ -1496,8 +1497,9 @@ class Client(object):
 
         :rtype: List
         :returns: a dictionary with keys "own", "shared" with values
-        that are a list of contribution records, each one is a dictionary
-        with keys "id", "url", "name"
+            that are a list of contribution records, each one is a dictionary
+            with keys "id", "url", "name"
+
         """
         result = self.api_request('/contrib')
 
@@ -1517,27 +1519,17 @@ class Client(object):
 
     def create_contribution(self, metadata):
         """Create a new contribution given a dictionary of metadata
-        {
-            "contribution_name": "HelloWorld",
-            "contribution_collection": "Cooee",
-            "contribution_text": "This is contribution description",
-            "contribution_abstract": "This is contribution abstract"
-        }
+
+            {
+                "contribution_name": "HelloWorld",
+                "contribution_collection": "Cooee",
+                "contribution_text": "This is contribution description",
+                "contribution_abstract": "This is contribution abstract"
+            }
 
         :rtype: dict
-        :returns: The metadata for the created contribution, eg
+        :returns: The metadata for the created contribution
 
-        '''
-{'description': 'This is contribution description',
- 'documents': [],
- 'metadata': {'abstract': '"This is contribution abstract"',
-              'collection': 'https://staging.alveo.edu.au/catalog/cooee',
-              'created': '2018-12-06T05:21:20Z',
-              'creator': 'Data Owner',
-              'title': 'HelloWorld'},
- 'name': 'HelloWorld',
- 'url': 'https://staging.alveo.edu.au/contrib/27'}
-        '''
         """
 
         result = self.api_request('/contrib/', method='POST', data=json.dumps(metadata))

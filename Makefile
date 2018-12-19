@@ -45,7 +45,7 @@ docs:
 	sphinx-apidoc -o docs/ pyalveo
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
-	open docs/_build/html/index.html
+	#open docs/_build/html/index.html
 
 release: dist
 	twine upload dist/*

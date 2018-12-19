@@ -13,6 +13,8 @@ Contents:
 
    readme
    installation
+   usage
+   examples
    authors
 
 Indices and tables

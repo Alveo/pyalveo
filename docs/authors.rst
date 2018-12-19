@@ -3,4 +3,7 @@ Credits
 =======
 
 * Steve Cassidy <Steve.Cassidy@mq.edu.au>
-* Matt Atcheson <matt.hongkong@gmail.com>
+* Matt Atcheson
+* Michael Bauer
+* David Irving
+* Karl Li

@@ -6,7 +6,7 @@ At the command line::
 
     $ easy_install pyalveo
 
-Or, if you have virtualenvwrapper installed::
+Or, using pip:
 
-    $ mkvirtualenv pyalveo
     $ pip install pyalveo
+
