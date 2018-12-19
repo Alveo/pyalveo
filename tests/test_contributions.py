@@ -57,7 +57,41 @@ class ContributionsTest(unittest.TestCase):
         self.assertIn('contribution_name', req.json())
         self.assertDictEqual(meta, req.json())
 
-    def test_add_document_to_contrib(self, m):
+    def test_get_contribution(self, m):
+        """Get details of a contribution"""
+
+        m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
+        client = pyalveo.Client(api_url=API_URL, api_key=API_KEY)
+
+        cname = '29'
+
+        contrib_url = client.oauth.api_url + "/contrib/" + cname
+        m.get(contrib_url,
+               json={'description': 'This is contribution description',
+                     'documents': [{'name': 'testfile.txt',
+                                    'url': 'https://staging.alveo.edu.au/catalog/demotext/2006-05-28-19/document/testfile.txt'}],
+                     'metadata': {'abstract': '"This is contribution abstract"',
+                                  'collection': 'https://staging.alveo.edu.au/catalog/demotext',
+                                  'created': '2018-12-06T05:46:11Z',
+                                  'creator': 'Data Owner',
+                                  'title': 'HelloWorld'},
+                     'name': 'HelloWorld',
+                     'url': contrib_url}
+               )
+
+        result = client.get_contribution(contrib_url)
+
+        req = m.last_request
+        self.assertEqual(req.method, "GET")
+        self.assertEqual(result['id'], cname)
+        self.assertEqual(result['description'], 'This is contribution description')
+
+
+
+
+
+
+def test_add_document_to_contrib(self, m):
         """Test adding documents to a contribution"""
 
         m.get(API_URL + "/item_lists.json",json={'success': 'yes'})
